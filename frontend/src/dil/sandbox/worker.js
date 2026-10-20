@@ -25,6 +25,7 @@ const Fragment = Object.freeze({ fragment: true })
 // ---- runtime state ----
 let program = null // { root, version }
 let constants = {}
+let modelDataBindings = Object.freeze({})
 let goodVersion = -1
 const slots = new Map()
 let autoSlot = 0
@@ -52,7 +53,7 @@ const DIL = Object.freeze({
     return [slots.get(key), setter]
   },
   useConstants: () => constants,
-  useAppData: (select) => select({ opGenui: { componentResults: {}, modelDataBindings: {} } }),
+  useAppData: (select) => select({ opGenui: { componentResults: {}, modelDataBindings } }),
   render(element) {
     pendingRoot = element
   },
@@ -75,6 +76,12 @@ const GenUI = Object.freeze({
 })
 
 let pendingRoot = null
+
+function deepFreeze(value, depth = 0) {
+  if (value === null || typeof value !== 'object' || depth > 8) return value
+  for (const k of Object.keys(value)) deepFreeze(value[k], depth + 1)
+  return Object.freeze(value)
+}
 
 // ---- serialisation ----
 function serializeValue(v, depth) {
@@ -194,6 +201,18 @@ self.onmessage = (event) => {
       break
     case 'setConstants':
       constants = Object.freeze({ ...(msg.constants || {}) })
+      if (!program) {
+        post({ kind: 'idle' })
+        break
+      }
+      try {
+        publish()
+      } catch (e) {
+        post({ kind: 'error', phase: 'render', message: String(e) })
+      }
+      break
+    case 'setData':
+      modelDataBindings = deepFreeze({ ...(msg.bindings || {}) })
       if (!program) {
         post({ kind: 'idle' })
         break

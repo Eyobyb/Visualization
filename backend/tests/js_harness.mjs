@@ -4,12 +4,12 @@ import { readFileSync } from 'node:fs'
 
 const Fragment = Symbol('Fragment')
 
-function run({ code, constants }) {
+function run({ code, constants, bindings }) {
   let root = null
   const DIL = {
     useState: (init) => [init, () => {}],
     useConstants: () => constants,
-    useAppData: (select) => select({}),
+    useAppData: (select) => select({ opGenui: { modelDataBindings: bindings ?? {} } }),
     render: (el) => {
       root = el
     },

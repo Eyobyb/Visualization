@@ -2,7 +2,7 @@
 import json
 import re
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Sequence
 
 from .catalog import CATALOG, prop_type
 from .parser import Attr, Body, Diagnostics, EachBlock, Element, Expr, IfBlock, Node, Text, parse
@@ -210,7 +210,11 @@ def fallback_markdown(nodes: List[Node]) -> str:
     return "\n\n".join(b for b in blocks if b.strip())
 
 
-def compile_dil(source: str) -> CompileResult:
+IDENT_RE = re.compile(r"^[A-Za-z_$][\w$]*$")
+
+
+def compile_dil(source: str, binding_ids: Sequence[str] = ()) -> CompileResult:
+    """`binding_ids` name server-supplied data (e.g. search results r1..rN) exposed as constants."""
     bodies, tree, diag_items = parse(source)
     diags = Diagnostics(source)
     diags.items = diag_items
@@ -222,6 +226,14 @@ def compile_dil(source: str) -> CompileResult:
         "  const __dilConstants = DIL.useConstants();",
         "  const __dilModelDataBindings = DIL.useAppData((appData) => appData.opGenui?.modelDataBindings ?? {});",
     ]
+    for name in binding_ids:
+        if not IDENT_RE.match(name):
+            continue
+        if any(re.search(rf"\b(const|let|var|function)\s+{re.escape(name)}\b", b.code) for b in bodies):
+            # The model declared its own variable with this name; a second const would be a SyntaxError.
+            diags.add("shadowed_binding", 0, name=name)
+            continue
+        lines.append(f"  const {name} = __dilModelDataBindings[{json.dumps(name)}];")
     lines += ["  " + line for line in body_lines]
     lines.append("  return __dil.jsx(__dil.Fragment, null" + "".join(",\n    " + k for k in kids) + ");")
     code = (

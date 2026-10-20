@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from 'react'
+import { searchFor, type SearchPayload } from './search'
 import { streamSSE, type ChatMessage, type StreamEvent } from './sse'
 
 export type Turn = ChatMessage & { id: number }
@@ -14,6 +15,7 @@ let nextId = 1
 export function useConversation(endpoint: string, onEvent?: (event: StreamEvent, turnId: number) => void) {
   const [turns, setTurns] = useState<Turn[]>([])
   const [streaming, setStreaming] = useState(false)
+  const [searching, setSearching] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [metrics, setMetrics] = useState<Metrics>({})
   const startRef = useRef(0)
@@ -32,7 +34,7 @@ export function useConversation(endpoint: string, onEvent?: (event: StreamEvent,
   }, [])
 
   const send = useCallback(
-    async (text: string) => {
+    async (text: string, search?: SearchPayload | null, context?: string) => {
       abortRef.current?.abort()
       const controller = new AbortController()
       abortRef.current = controller
@@ -53,7 +55,7 @@ export function useConversation(endpoint: string, onEvent?: (event: StreamEvent,
       try {
         await streamSSE(
           endpoint,
-          [...history, { role: 'user', content: text }],
+          { messages: [...history, { role: 'user', content: text }], search: search ?? null, context: context || null },
           (event) => {
             if (event.type === 'delta') {
               setMetrics((m) => (m.ttft === undefined ? { ...m, ttft: performance.now() - startRef.current } : m))
@@ -83,6 +85,23 @@ export function useConversation(endpoint: string, onEvent?: (event: StreamEvent,
     [endpoint],
   )
 
+  /** Follow-ups from inside a column search again, for that column only. */
+  const searchAndSend = useCallback(
+    async (text: string, context?: string) => {
+      setSearching(true)
+      setError(null)
+      try {
+        const search = await searchFor(text)
+        await send(text, search, context)
+      } catch (e) {
+        setError(String(e))
+      } finally {
+        setSearching(false)
+      }
+    },
+    [send],
+  )
+
   const reset = useCallback(() => {
     abortRef.current?.abort()
     update([])
@@ -91,5 +110,5 @@ export function useConversation(endpoint: string, onEvent?: (event: StreamEvent,
     setStreaming(false)
   }, [])
 
-  return { turns, streaming, error, metrics, send, reset, markFirstUI }
+  return { turns, streaming, searching, error, metrics, send, searchAndSend, reset, markFirstUI }
 }

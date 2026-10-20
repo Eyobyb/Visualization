@@ -4,18 +4,19 @@ export type StreamEvent =
   | { type: 'delta'; text: string }
   | { type: 'done' }
   | { type: 'error'; message: string }
+  | { type: 'app_data'; bindings: Record<string, Record<string, string>> }
   | ({ type: 'dil' } & Record<string, unknown>)
 
 export async function streamSSE(
   url: string,
-  messages: ChatMessage[],
+  body: { messages: ChatMessage[] } & Record<string, unknown>,
   onEvent: (event: StreamEvent) => void,
   signal?: AbortSignal,
 ): Promise<void> {
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ messages }),
+    body: JSON.stringify(body),
     signal,
   })
   if (!res.ok || !res.body) {

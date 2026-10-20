@@ -1,29 +1,52 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { ColumnShell, UserBubble } from '../components/ColumnShell'
-import { useConversation } from '../lib/useConversation'
 import type { Submission } from '../App'
 
+/** Shows the DuckDuckGo Markdown exactly as the backend returned it; no model call. */
 export function PlainColumn({ submission }: { submission: Submission | null }) {
-  const convo = useConversation('/api/plain/stream')
-  const { send } = convo
+  const [history, setHistory] = useState<Submission[]>([])
 
   useEffect(() => {
-    if (submission) void send(submission.text)
-  }, [submission, send])
+    if (submission) setHistory((h) => [...h, submission])
+  }, [submission])
+
+  const last = history.at(-1)
 
   return (
-    <ColumnShell title="Normal response" subtitle="Claude, Markdown only" {...convo}>
-      {convo.turns.map((t) =>
-        t.role === 'user' ? (
-          <UserBubble key={t.id} text={t.content} />
-        ) : (
-          <div key={t.id} className="markdown">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{t.content}</ReactMarkdown>
-          </div>
-        ),
-      )}
+    <ColumnShell
+      title="Raw search results (DuckDuckGo)"
+      subtitle="Unedited Markdown, also sent to both generative columns"
+      metrics={last?.search ? { ttft: last.search.elapsed_ms, total: last.search.elapsed_ms } : {}}
+      streaming={false}
+      error={last?.search?.error ?? null}
+    >
+      {history.map((s) => (
+        <div key={s.id}>
+          <UserBubble text={s.text} />
+          {s.context && (
+            <div className="raw-context">
+              <div className="raw-search-meta">
+                {s.search ? 'Context' : 'Context, used as the result (no search)'} (
+                {s.context.length.toLocaleString()} chars)
+              </div>
+              <pre className="raw-context-text">{s.context}</pre>
+            </div>
+          )}
+          {s.search && (
+            <>
+              <div className="raw-search-meta">
+                {s.search.results.length} results in {(s.search.elapsed_ms / 1000).toFixed(2)}s
+                {s.search.cached ? ' (cached)' : ''}
+              </div>
+              <div className="markdown">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{s.search.markdown}</ReactMarkdown>
+              </div>
+            </>
+          )}
+        </div>
+      ))}
     </ColumnShell>
   )
 }

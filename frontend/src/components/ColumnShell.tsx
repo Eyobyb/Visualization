@@ -10,6 +10,7 @@ export function ColumnShell(props: {
   subtitle: string
   metrics: Metrics
   streaming: boolean
+  searching?: boolean
   error: string | null
   children: ReactNode
   footer?: ReactNode
@@ -31,6 +32,7 @@ export function ColumnShell(props: {
           <span title="Time to first token">TTFT {fmt(props.metrics.ttft)}</span>
           <span title="Time to first rendered UI">TTFU {fmt(props.metrics.ttfu)}</span>
           <span title="Total stream time">Total {fmt(props.metrics.total)}</span>
+          {props.searching && <span className="live">searching</span>}
           {props.streaming && <span className="live">streaming</span>}
         </div>
       </header>

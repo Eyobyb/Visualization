@@ -11,6 +11,7 @@
   let watchdog = null
   let lastGood = null // { code, constants, version }
   let lastState = {}
+  let lastBindings = null
   const programs = new Map()
 
   const toHost = (msg) => parentWindow.postMessage({ __dil: true, ...msg }, '*')
@@ -37,6 +38,7 @@
       if (msg.kind === 'ready') {
         if (replay && lastGood) {
           worker.postMessage({ kind: 'setState', state: lastState })
+          if (lastBindings) worker.postMessage({ kind: 'setData', bindings: lastBindings })
           worker.postMessage({ kind: 'setProgram', ...lastGood })
           arm()
         } else {
@@ -64,6 +66,8 @@
     if (!msg || msg.__dil !== true || !worker) return
     if (msg.kind === 'setProgram') {
       programs.set(msg.version, { code: msg.code, constants: msg.constants, version: msg.version })
+    } else if (msg.kind === 'setData') {
+      lastBindings = msg.bindings
     } else if (msg.kind === 'setConstants' && lastGood) {
       lastGood = { ...lastGood, constants: msg.constants }
     }

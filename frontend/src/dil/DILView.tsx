@@ -9,6 +9,7 @@ export type DILTurnData = {
   constants: Record<string, string>
   diagnostics: Record<string, unknown>[]
   fallback: string
+  bindings: Record<string, Record<string, string>>
 }
 
 export function DILView(props: {
@@ -45,6 +46,11 @@ export function DILView(props: {
       sandboxRef.current = null
     }
   }, [])
+
+  // Declared before the program effect so bindings reach the worker before the first program.
+  useEffect(() => {
+    sandboxRef.current?.send({ kind: 'setData', bindings: data.bindings })
+  }, [data.bindings])
 
   useEffect(() => {
     const sandbox = sandboxRef.current

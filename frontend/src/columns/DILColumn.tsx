@@ -1,12 +1,12 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { ColumnShell, UserBubble } from '../components/ColumnShell'
 import { useConversation } from '../lib/useConversation'
 import type { StreamEvent } from '../lib/sse'
 import { DILView, type DILTurnData } from '../dil/DILView'
 import type { Submission } from '../App'
 
-const EMPTY: DILTurnData = { code: '', constants: {}, diagnostics: [], fallback: '' }
-const TABS = ['Raw DIL', 'Compiled JS', 'Constants', 'Diagnostics', 'Fallback'] as const
+const EMPTY: DILTurnData = { code: '', constants: {}, diagnostics: [], fallback: '', bindings: {} }
+const TABS = ['Raw DIL', 'Compiled JS', 'Constants', 'App data', 'Diagnostics', 'Fallback'] as const
 
 export function DILColumn({ submission }: { submission: Submission | null }) {
   const [compiled, setCompiled] = useState<Record<number, DILTurnData>>({})
@@ -14,6 +14,10 @@ export function DILColumn({ submission }: { submission: Submission | null }) {
   const [recompiles, setRecompiles] = useState(0)
 
   const onEvent = useCallback((event: StreamEvent, turnId: number) => {
+    if (event.type === 'app_data') {
+      setCompiled((prev) => ({ ...prev, [turnId]: { ...(prev[turnId] ?? EMPTY), bindings: event.bindings } }))
+      return
+    }
     if (event.type !== 'dil') return
     setCompiled((prev) => {
       const cur = prev[turnId] ?? EMPTY
@@ -21,6 +25,7 @@ export function DILColumn({ submission }: { submission: Submission | null }) {
       return {
         ...prev,
         [turnId]: {
+          ...cur,
           code: typeof event.code === 'string' ? event.code : cur.code,
           constants: Object.keys(patch).length ? { ...cur.constants, ...patch } : cur.constants,
           diagnostics: (event.diagnostics ?? []) as Record<string, unknown>[],
@@ -32,12 +37,21 @@ export function DILColumn({ submission }: { submission: Submission | null }) {
   }, [])
 
   const convo = useConversation('/api/dil/stream', onEvent)
-  const { send, markFirstUI, turns } = convo
+  const { send, searchAndSend, markFirstUI, turns } = convo
+
+  const submissionRef = useRef(submission)
+  submissionRef.current = submission
+
+  const followUp = (text: string) => {
+    const current = submissionRef.current
+    if (current && !current.search) void send(text, null, current.context)
+    else void searchAndSend(text, current?.context)
+  }
 
   useEffect(() => {
     if (submission) {
       setRecompiles(0)
-      void send(submission.text)
+      void send(submission.text, submission.search, submission.context)
     }
   }, [submission, send])
 
@@ -52,6 +66,10 @@ export function DILColumn({ submission }: { submission: Submission | null }) {
         return last.code
       case 'Constants':
         return JSON.stringify(last.constants, null, 2)
+      case 'App data':
+        return Object.keys(last.bindings).length
+          ? JSON.stringify(last.bindings, null, 2)
+          : 'No modelDataBindings for this turn'
       case 'Diagnostics':
         return last.diagnostics.length ? JSON.stringify(last.diagnostics, null, 2) : 'No diagnostics'
       case 'Fallback':
@@ -84,7 +102,7 @@ export function DILColumn({ submission }: { submission: Submission | null }) {
         t.role === 'user' ? (
           <UserBubble key={t.id} text={t.content} />
         ) : (
-          <DILView key={t.id} data={compiled[t.id] ?? EMPTY} onIssueTurn={(text) => void send(text)} onFirstTree={markFirstUI} />
+          <DILView key={t.id} data={compiled[t.id] ?? EMPTY} onIssueTurn={followUp} onFirstTree={markFirstUI} />
         ),
       )}
     </ColumnShell>

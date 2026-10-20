@@ -51,10 +51,10 @@ DASHBOARD = """# Sales
 """
 
 
-def run_js(results):
+def run_js(results, bindings=None):
     if shutil.which("node") is None:
         pytest.skip("node is required to execute compiled programs")
-    payload = json.dumps([{"code": r.code, "constants": r.constants} for r in results])
+    payload = json.dumps([{"code": r.code, "constants": r.constants, "bindings": bindings or {}} for r in results])
     out = subprocess.run(["node", str(HARNESS)], input=payload, capture_output=True, text=True, check=True)
     return json.loads(out.stdout)
 
@@ -133,6 +133,46 @@ def test_partial_body_statement_is_dropped():
     assert "useState" not in r.code
     assert r.diagnostics[0]["code"] == "unterminated_braced_value"
     assert r.constants == {"0": "Hello"}
+
+
+BINDINGS = {
+    "r1": {"title": "PCMag picks", "url": "https://www.pcmag.com/picks", "snippet": "Tested laptops"},
+    "r2": {"title": "Second", "url": "https://example.com/2", "snippet": "More"},
+}
+
+
+def test_bindings_compile_to_constant_lookups():
+    r = compile_dil("<text>{r1.title}</text>", ["r1", "r2"])
+    assert 'const r1 = __dilModelDataBindings["r1"];' in r.code
+    assert 'const r2 = __dilModelDataBindings["r2"];' in r.code
+    assert r.diagnostics == []
+
+
+def test_bound_values_render_from_server_data():
+    src = '<link href={r1.url}>{r1.title}</link>\n{#each [r1, r2] as r}<caption>{r.snippet}</caption>{/each}'
+    r = compile_dil(src, list(BINDINGS))
+    (res,) = run_js([r], BINDINGS)
+    (link,) = find(res["tree"], "link")
+    assert link["props"]["href"] == "https://www.pcmag.com/picks"
+    assert link["children"] == ["PCMag picks"]
+    assert [c["children"] for c in find(res["tree"], "caption")] == [["Tested laptops"], ["More"]]
+
+
+def test_context_binding_renders_alongside_results():
+    bindings = {"ctx": {"text": "Budget is $1,500"}, **BINDINGS}
+    r = compile_dil("<text>{ctx.text}</text>\n<link href={r1.url}>{r1.title}</link>", list(bindings))
+    (res,) = run_js([r], bindings)
+    assert ["Budget is $1,500"] in [t["children"] for t in find(res["tree"], "text")]
+    (link,) = find(res["tree"], "link")
+    assert link["props"]["href"] == "https://www.pcmag.com/picks"
+
+
+def test_shadowed_binding_is_skipped():
+    r = compile_dil("{@body const r1 = 5}\n<text>{r1}</text>", ["r1"])
+    assert "__dilModelDataBindings[\"r1\"]" not in r.code
+    assert [d["code"] for d in r.diagnostics] == ["shadowed_binding"]
+    (res,) = run_js([r], BINDINGS)
+    assert "error" not in res
 
 
 def test_open_element_with_content_is_closed():
