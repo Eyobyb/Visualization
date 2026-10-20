@@ -1,11 +1,34 @@
 export type ChatMessage = { role: 'user' | 'assistant'; content: string }
 
+export type ServerDiagnostic = { code: string; msg: string; where: string }
+
+/** Jev's routing for one turn. `visual` below 0.5 means the answer streams as prose. */
+export type VizRoute = {
+  visual: number
+  layout: string | null
+  interactive: number
+  hints: string[]
+  layouts: Record<string, number>
+  model: string | null
+  fallback: boolean
+}
+
 export type StreamEvent =
   | { type: 'delta'; text: string }
-  | { type: 'done' }
+  | {
+      type: 'done'
+      diagnostics?: ServerDiagnostic[]
+      statements?: number
+      markdown?: string
+      images?: Array<{ key: string; query: string }>
+    }
   | { type: 'error'; message: string }
   | { type: 'app_data'; bindings: Record<string, Record<string, string>> }
   | ({ type: 'dil' } & Record<string, unknown>)
+  | ({ type: 'route' } & VizRoute)
+  | { type: 'data'; bindings: Record<string, unknown> }
+  | { type: 'statement'; name: string | null; text: string; line: number; refs: string[] }
+  | ({ type: 'diagnostic' } & ServerDiagnostic)
 
 export async function streamSSE(
   url: string,

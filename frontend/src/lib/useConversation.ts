@@ -66,6 +66,9 @@ export function useConversation(endpoint: string, onEvent?: (event: StreamEvent,
                 setMetrics((m) => (m.ttft === undefined ? { ...m, ttft: performance.now() - startRef.current } : m))
                 appendText(raw)
               }
+            } else if (event.type === 'statement') {
+              setMetrics((m) => (m.ttft === undefined ? { ...m, ttft: performance.now() - startRef.current } : m))
+              appendText(event.text + '\n')
             } else if (event.type === 'error') {
               setError(event.message)
             }

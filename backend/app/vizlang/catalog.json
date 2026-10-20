@@ -1,0 +1,2393 @@
+{
+ "components": {
+  "Col": {
+   "name": "Col",
+   "family": "Layout",
+   "desc": "Stacks blocks vertically. The usual root of a response.",
+   "pos": [
+    "children"
+   ],
+   "props": {
+    "children": {
+     "type": "nodes",
+     "desc": "Blocks to stack.",
+     "req": true
+    },
+    "gap": {
+     "type": "space",
+     "desc": "Space between blocks.",
+     "def": 3
+    },
+    "align": {
+     "type": "enum",
+     "values": [
+      "start",
+      "center",
+      "end",
+      "stretch"
+     ],
+     "desc": "Horizontal alignment.",
+     "def": "stretch"
+    }
+   },
+   "examples": [
+    {
+     "src": "root = Col([Title(\"Delivery status\", size: \"md\"), Text(\"Three orders left the Bole hub this morning.\"), Badge(\"On time\", tone: \"success\", icon: \"truck\")], gap: 2)"
+    }
+   ]
+  },
+  "Row": {
+   "name": "Row",
+   "family": "Layout",
+   "desc": "Places items side by side and wraps on narrow screens.",
+   "pos": [
+    "children"
+   ],
+   "props": {
+    "children": {
+     "type": "nodes",
+     "desc": "Items in the row.",
+     "req": true
+    },
+    "gap": {
+     "type": "space",
+     "desc": "Space between items.",
+     "def": 2
+    },
+    "align": {
+     "type": "enum",
+     "values": [
+      "start",
+      "center",
+      "end",
+      "stretch"
+     ],
+     "desc": "Vertical alignment.",
+     "def": "center"
+    },
+    "justify": {
+     "type": "enum",
+     "values": [
+      "start",
+      "center",
+      "end",
+      "between"
+     ],
+     "desc": "Horizontal distribution.",
+     "def": "start"
+    },
+    "wrap": {
+     "type": "bool",
+     "desc": "Wrap to new lines when full.",
+     "def": true
+    }
+   },
+   "examples": [
+    {
+     "src": "root = Row([Badge(\"Telegram\", icon: \"send\"), Badge(\"Instagram\"), Badge(\"TikTok\"), Badge(\"Walk-in\", variant: \"outline\")])"
+    }
+   ]
+  },
+  "Box": {
+   "name": "Box",
+   "family": "Layout",
+   "desc": "Groups a few elements with a light boundary when a Card is too heavy.",
+   "pos": [
+    "children"
+   ],
+   "props": {
+    "children": {
+     "type": "nodes",
+     "desc": "Contents.",
+     "req": true
+    },
+    "padding": {
+     "type": "space",
+     "desc": "Inner padding.",
+     "def": 3
+    },
+    "gap": {
+     "type": "space",
+     "desc": "Space between children.",
+     "def": 2
+    },
+    "border": {
+     "type": "bool",
+     "desc": "Show a border.",
+     "def": true
+    },
+    "background": {
+     "type": "enum",
+     "values": [
+      "none",
+      "surface",
+      "sunk",
+      "accent",
+      "info",
+      "success",
+      "warning",
+      "danger"
+     ],
+     "desc": "Fill colour.",
+     "def": "none"
+    },
+    "radius": {
+     "type": "enum",
+     "values": [
+      "none",
+      "sm",
+      "md",
+      "lg"
+     ],
+     "desc": "Corner rounding.",
+     "def": "md"
+    }
+   },
+   "examples": [
+    {
+     "src": "root = Box([Caption(\"Pickup point\"), Text(\"**Bole Medhanialem**, next to Edna Mall\")], background: \"sunk\", border: false, gap: 1)"
+    }
+   ]
+  },
+  "Grid": {
+   "name": "Grid",
+   "family": "Layout",
+   "desc": "Equal tiles that reflow to fewer columns on narrow screens.",
+   "pos": [
+    "children"
+   ],
+   "props": {
+    "children": {
+     "type": "nodes",
+     "desc": "Tiles.",
+     "req": true
+    },
+    "columns": {
+     "type": "enum",
+     "values": [
+      2,
+      3,
+      4
+     ],
+     "desc": "Columns at full width.",
+     "def": 2
+    },
+    "gap": {
+     "type": "space",
+     "desc": "Space between tiles.",
+     "def": 3
+    }
+   },
+   "examples": [
+    {
+     "src": "root = Grid([Stat(label: \"Orders\", value: 412), Stat(label: \"Returns\", value: 9), Stat(label: \"Avg basket\", value: 375, format: \"currency\")], columns: 3)"
+    }
+   ]
+  },
+  "Card": {
+   "name": "Card",
+   "family": "Layout",
+   "desc": "A self-contained unit with an optional header. Base of every dashboard card.",
+   "pos": [
+    "children"
+   ],
+   "props": {
+    "children": {
+     "type": "nodes",
+     "desc": "Card body."
+    },
+    "title": {
+     "type": "string",
+     "desc": "Header title."
+    },
+    "subtitle": {
+     "type": "string",
+     "desc": "Line under the title."
+    },
+    "icon": {
+     "type": "icon",
+     "desc": "Header icon."
+    },
+    "tone": {
+     "type": "enum",
+     "values": [
+      "default",
+      "accent",
+      "info",
+      "success",
+      "warning",
+      "danger"
+     ],
+     "desc": "Tints the card to draw attention.",
+     "def": "default"
+    },
+    "padding": {
+     "type": "space",
+     "desc": "Inner padding.",
+     "def": 4
+    }
+   },
+   "examples": [
+    {
+     "src": "root = Card([Text(\"Your shop crossed ETB 4.8M in Q3, up 11.8% on Q2.\"), Row([Button(\"See the breakdown\", variant: \"soft\", onClick: @NewTurn(\"Break down Q3 revenue by region\"))])], title: \"Quarter closed\", subtitle: \"Jul to Sep 2026\", icon: \"chart\")"
+    }
+   ]
+  },
+  "Tabs": {
+   "name": "Tabs",
+   "family": "Layout",
+   "desc": "Switches between alternative views of one subject. Tab choice is local UI state.",
+   "pos": [
+    "items"
+   ],
+   "props": {
+    "items": {
+     "type": "list",
+     "desc": "List of {label, content}.",
+     "req": true
+    }
+   },
+   "examples": [
+    {
+     "src": "root = Tabs([{label: \"Revenue\", content: Chart(type: \"area\", data: data.weekly, x: \"week\", y: \"revenue\", format: \"currency\", height: \"sm\")}, {label: \"Orders\", content: Chart(type: \"bar\", data: data.weekly, x: \"week\", y: \"orders\", height: \"sm\")}])"
+    }
+   ]
+  },
+  "Accordion": {
+   "name": "Accordion",
+   "family": "Layout",
+   "desc": "Secondary detail the reader may skip: methods, assumptions, FAQ.",
+   "pos": [
+    "items"
+   ],
+   "props": {
+    "items": {
+     "type": "list",
+     "desc": "List of {title, content}.",
+     "req": true
+    }
+   },
+   "examples": [
+    {
+     "src": "root = Accordion([{title: \"How is revenue counted?\", content: \"Paid orders only, net of refunds, in ETB.\"}, {title: \"Which regions are included?\", content: \"All six regions with at least one delivery in the quarter.\"}])"
+    }
+   ]
+  },
+  "Divider": {
+   "name": "Divider",
+   "family": "Layout",
+   "desc": "Separates sections, optionally with a label.",
+   "pos": [
+    "label"
+   ],
+   "props": {
+    "label": {
+     "type": "string",
+     "desc": "Text shown in the middle of the line."
+    }
+   },
+   "examples": [
+    {
+     "src": "root = Col([Text(\"Paid orders: 12,995\"), Divider(\"Refunds\"), Text(\"2.1% of orders, down from 2.6%\")])"
+    }
+   ]
+  },
+  "Title": {
+   "name": "Title",
+   "family": "Text",
+   "desc": "A heading. Markdown ## compiles to size \"lg\".",
+   "pos": [
+    "text"
+   ],
+   "props": {
+    "text": {
+     "type": "string",
+     "desc": "Heading text.",
+     "req": true
+    },
+    "size": {
+     "type": "enum",
+     "values": [
+      "xl",
+      "lg",
+      "md",
+      "sm"
+     ],
+     "desc": "xl only for the single headline answer.",
+     "def": "lg"
+    },
+    "tone": {
+     "type": "enum",
+     "values": [
+      "ink",
+      "muted",
+      "accent",
+      "info",
+      "success",
+      "warning",
+      "danger"
+     ],
+     "desc": "Semantic colour.",
+     "def": "ink"
+    },
+    "icon": {
+     "type": "icon",
+     "desc": "Leading icon."
+    }
+   },
+   "examples": [
+    {
+     "src": "root = Col([Title(\"Q3 sales review\", size: \"xl\"), Title(\"By region\", size: \"md\"), Title(\"Notes\", size: \"sm\", tone: \"muted\")], gap: 1)"
+    }
+   ]
+  },
+  "Text": {
+   "name": "Text",
+   "family": "Text",
+   "desc": "A paragraph. Supports **bold** and `code` inline.",
+   "pos": [
+    "text"
+   ],
+   "props": {
+    "text": {
+     "type": "string",
+     "desc": "Paragraph text.",
+     "req": true
+    },
+    "size": {
+     "type": "enum",
+     "values": [
+      "lg",
+      "md",
+      "sm"
+     ],
+     "desc": "Text size.",
+     "def": "md"
+    },
+    "tone": {
+     "type": "enum",
+     "values": [
+      "ink",
+      "muted",
+      "accent",
+      "info",
+      "success",
+      "warning",
+      "danger"
+     ],
+     "desc": "Semantic colour.",
+     "def": "ink"
+    }
+   },
+   "examples": [
+    {
+     "src": "root = Text(\"Sidama grew **38%** from July to September, the fastest of any region.\", size: \"lg\")"
+    }
+   ]
+  },
+  "Caption": {
+   "name": "Caption",
+   "family": "Text",
+   "desc": "Small supporting text: sources, units, as-of dates.",
+   "pos": [
+    "text"
+   ],
+   "props": {
+    "text": {
+     "type": "string",
+     "desc": "Caption text.",
+     "req": true
+    },
+    "tone": {
+     "type": "enum",
+     "values": [
+      "ink",
+      "muted",
+      "accent",
+      "info",
+      "success",
+      "warning",
+      "danger"
+     ],
+     "desc": "Semantic colour.",
+     "def": "muted"
+    }
+   },
+   "examples": [
+    {
+     "src": "root = Col([Chart(type: \"bar\", data: data.channels, x: \"channel\", y: \"share\", format: \"percent\", height: \"sm\"), Caption(\"Share of Q3 orders by channel. Source: order system, as of 30 Sep 2026.\")], gap: 1)"
+    }
+   ]
+  },
+  "Badge": {
+   "name": "Badge",
+   "family": "Text",
+   "desc": "A short status or category tag, three words at most.",
+   "pos": [
+    "text"
+   ],
+   "props": {
+    "text": {
+     "type": "string",
+     "desc": "Badge text.",
+     "req": true
+    },
+    "tone": {
+     "type": "enum",
+     "values": [
+      "ink",
+      "muted",
+      "accent",
+      "info",
+      "success",
+      "warning",
+      "danger"
+     ],
+     "desc": "Semantic colour.",
+     "def": "muted"
+    },
+    "icon": {
+     "type": "icon",
+     "desc": "Leading icon."
+    },
+    "variant": {
+     "type": "enum",
+     "values": [
+      "soft",
+      "solid",
+      "outline"
+     ],
+     "desc": "Visual weight.",
+     "def": "soft"
+    }
+   },
+   "examples": [
+    {
+     "src": "root = Row([Badge(\"Paid\", tone: \"success\", icon: \"check\"), Badge(\"Awaiting pickup\", tone: \"warning\", icon: \"clock\"), Badge(\"Refunded\", tone: \"danger\"), Badge(\"New\", variant: \"solid\", tone: \"accent\")])"
+    }
+   ]
+  },
+  "List": {
+   "name": "List",
+   "family": "Text",
+   "desc": "Parallel items. Timeline items take {time, text}.",
+   "pos": [
+    "items"
+   ],
+   "props": {
+    "items": {
+     "type": "list",
+     "desc": "Strings, components, or {time, text} for timelines.",
+     "req": true
+    },
+    "kind": {
+     "type": "enum",
+     "values": [
+      "bullet",
+      "numbered",
+      "check",
+      "timeline"
+     ],
+     "desc": "List style.",
+     "def": "bullet"
+    }
+   },
+   "examples": [
+    {
+     "src": "root = Col([List([\"Confirm stock with the Merkato supplier\", \"Post the restock on Telegram\", \"Update prices on the website\"], kind: \"numbered\"), List([{time: \"09:00\", text: \"Order placed\"}, {time: \"11:30\", text: \"Picked up in Bole\"}, {time: \"14:10\", text: \"Delivered\"}], kind: \"timeline\")])"
+    }
+   ]
+  },
+  "Callout": {
+   "name": "Callout",
+   "family": "Text",
+   "desc": "The one message the reader must not miss. At most one per response.",
+   "pos": [
+    "text"
+   ],
+   "props": {
+    "text": {
+     "type": "string",
+     "desc": "Message."
+    },
+    "title": {
+     "type": "string",
+     "desc": "Bold first line."
+    },
+    "tone": {
+     "type": "enum",
+     "values": [
+      "info",
+      "success",
+      "warning",
+      "danger"
+     ],
+     "desc": "Severity.",
+     "def": "info"
+    },
+    "icon": {
+     "type": "icon",
+     "desc": "Overrides the tone icon."
+    }
+   },
+   "examples": [
+    {
+     "src": "root = Callout(\"September figures exclude 41 orders still awaiting payment confirmation.\", title: \"Partial month\", tone: \"warning\")"
+    }
+   ]
+  },
+  "Markdown": {
+   "name": "Markdown",
+   "family": "Text",
+   "desc": "Rich prose with headings and bullets. Also the fallback when a program cannot compile.",
+   "pos": [
+    "content"
+   ],
+   "props": {
+    "content": {
+     "type": "string",
+     "desc": "Markdown text.",
+     "req": true
+    }
+   },
+   "examples": [
+    {
+     "src": "root = Markdown(\"### What changed\\nRevenue rose on the back of **Telegram** orders.\\n\\n- Telegram: 40% of orders\\n- Instagram: 21%\\n- TikTok: 15%\")"
+    }
+   ]
+  },
+  "Link": {
+   "name": "Link",
+   "family": "Text",
+   "desc": "A link to an outside page; opens in a new tab.",
+   "pos": [
+    "text"
+   ],
+   "props": {
+    "text": {
+     "type": "string",
+     "desc": "Link text.",
+     "req": true
+    },
+    "href": {
+     "type": "string",
+     "desc": "Absolute http(s) URL.",
+     "req": true
+    }
+   },
+   "examples": [
+    {
+     "src": "root = Col([Text(\"Check delivery zones before promising same-day shipping.\"), Link(\"Delivery zone map\", href: \"https://example.com/delivery-zones\")], gap: 1)"
+    }
+   ]
+  },
+  "Code": {
+   "name": "Code",
+   "family": "Text",
+   "desc": "A code or query block with a copy button.",
+   "pos": [
+    "code"
+   ],
+   "props": {
+    "code": {
+     "type": "string",
+     "desc": "Code text.",
+     "req": true
+    },
+    "language": {
+     "type": "string",
+     "desc": "Language label."
+    }
+   },
+   "examples": [
+    {
+     "src": "root = Code(\"SELECT region, SUM(revenue)\\nFROM orders\\nWHERE quarter = 'Q3'\\nGROUP BY region;\", language: \"sql\")"
+    }
+   ]
+  },
+  "Button": {
+   "name": "Button",
+   "family": "Inputs",
+   "desc": "Runs an action. @NewTurn is the only action that reaches the model.",
+   "pos": [
+    "label"
+   ],
+   "props": {
+    "label": {
+     "type": "string",
+     "desc": "Button text.",
+     "req": true
+    },
+    "onClick": {
+     "type": "action",
+     "desc": "What happens on click."
+    },
+    "variant": {
+     "type": "enum",
+     "values": [
+      "solid",
+      "outline",
+      "soft",
+      "ghost",
+      "danger"
+     ],
+     "desc": "One solid button per group.",
+     "def": "solid"
+    },
+    "icon": {
+     "type": "icon",
+     "desc": "Leading icon."
+    },
+    "size": {
+     "type": "enum",
+     "values": [
+      "sm",
+      "md",
+      "lg"
+     ],
+     "desc": "Size.",
+     "def": "md"
+    },
+    "block": {
+     "type": "bool",
+     "desc": "Full width.",
+     "def": false
+    },
+    "disabled": {
+     "type": "bool",
+     "desc": "Disable the button.",
+     "def": false
+    }
+   },
+   "examples": [
+    {
+     "src": "root = Row([Button(\"Ask about Sidama\", onClick: @NewTurn(\"Why did Sidama grow so fast?\")), Button(\"Copy total\", variant: \"outline\", icon: \"copy\", onClick: @Copy(\"ETB 4,820,000\")), Button(\"Dismiss\", variant: \"ghost\")])"
+    }
+   ]
+  },
+  "Input": {
+   "name": "Input",
+   "family": "Inputs",
+   "desc": "Free entry of one value. Prefer Slider for bounded numbers.",
+   "pos": [
+    "value"
+   ],
+   "props": {
+    "value": {
+     "type": "state",
+     "desc": "Bound $variable.",
+     "req": true
+    },
+    "type": {
+     "type": "enum",
+     "values": [
+      "text",
+      "number"
+     ],
+     "desc": "Input type.",
+     "def": "text"
+    },
+    "label": {
+     "type": "string",
+     "desc": "Field label."
+    },
+    "placeholder": {
+     "type": "string",
+     "desc": "Hint text."
+    },
+    "prefix": {
+     "type": "string",
+     "desc": "Text before the value."
+    },
+    "suffix": {
+     "type": "string",
+     "desc": "Text after the value."
+    },
+    "min": {
+     "type": "number",
+     "desc": "Minimum for numbers."
+    },
+    "max": {
+     "type": "number",
+     "desc": "Maximum for numbers."
+    }
+   },
+   "examples": [
+    {
+     "src": "$budget = 15000\nroot = Col([Input($budget, type: \"number\", label: \"Ad budget\", suffix: \"ETB\"), Text(\"Planned spend: \" + @Format($budget, \"currency\"))])"
+    }
+   ]
+  },
+  "Select": {
+   "name": "Select",
+   "family": "Inputs",
+   "desc": "Picks one value from more than five options.",
+   "pos": [
+    "value"
+   ],
+   "props": {
+    "value": {
+     "type": "state",
+     "desc": "Bound $variable.",
+     "req": true
+    },
+    "options": {
+     "type": "list",
+     "desc": "Strings or {value, label}.",
+     "req": true
+    },
+    "label": {
+     "type": "string",
+     "desc": "Field label."
+    }
+   },
+   "examples": [
+    {
+     "src": "$region = \"Oromia\"\nroot = Col([Select($region, options: @Unique(data.sales_by_region, \"region\"), label: \"Region\"), Stat(label: $region + \" revenue, Q3\", value: @Sum(@Filter(data.sales_by_region, \"region\", $region), \"revenue\"), format: \"currency\")])"
+    }
+   ]
+  },
+  "SegmentedControl": {
+   "name": "SegmentedControl",
+   "family": "Inputs",
+   "desc": "Switches a view among two to five options.",
+   "pos": [
+    "value"
+   ],
+   "props": {
+    "value": {
+     "type": "state",
+     "desc": "Bound $variable.",
+     "req": true
+    },
+    "options": {
+     "type": "list",
+     "desc": "Two to five strings or {value, label, icon}.",
+     "req": true
+    },
+    "label": {
+     "type": "string",
+     "desc": "Field label."
+    }
+   },
+   "examples": [
+    {
+     "src": "$period = \"Sep\"\nroot = Col([SegmentedControl($period, options: [\"Jul\", \"Aug\", \"Sep\"]), Chart(type: \"hbar\", data: @Filter(data.sales_by_region, \"month\", $period), x: \"region\", y: \"revenue\", format: \"currency\")])"
+    }
+   ]
+  },
+  "Slider": {
+   "name": "Slider",
+   "family": "Inputs",
+   "desc": "Explores a bounded number. The best \"what if\" control.",
+   "pos": [
+    "value"
+   ],
+   "props": {
+    "value": {
+     "type": "state",
+     "desc": "Bound $variable.",
+     "req": true
+    },
+    "min": {
+     "type": "number",
+     "desc": "Lowest value.",
+     "def": 0
+    },
+    "max": {
+     "type": "number",
+     "desc": "Highest value.",
+     "def": 100
+    },
+    "step": {
+     "type": "number",
+     "desc": "Increment.",
+     "def": 1
+    },
+    "label": {
+     "type": "string",
+     "desc": "Field label."
+    },
+    "format": {
+     "type": "enum",
+     "values": [
+      "number",
+      "currency",
+      "percent",
+      "compact"
+     ],
+     "desc": "Display format of the value."
+    },
+    "suffix": {
+     "type": "string",
+     "desc": "Unit after the value."
+    },
+    "showValue": {
+     "type": "bool",
+     "desc": "Show the current value.",
+     "def": true
+    }
+   },
+   "examples": [
+    {
+     "src": "$guests = 6\nroot = Col([Slider($guests, min: 2, max: 20, label: \"Guests\"), Text(\"Buy \" + @Round($guests * 0.35, 1) + \" kg of lamb and \" + $guests * 2 + \" injera.\")])"
+    }
+   ]
+  },
+  "Checkbox": {
+   "name": "Checkbox",
+   "family": "Inputs",
+   "desc": "Toggles one item on or off.",
+   "pos": [
+    "value"
+   ],
+   "props": {
+    "value": {
+     "type": "state",
+     "desc": "Bound $variable (true/false).",
+     "req": true
+    },
+    "label": {
+     "type": "string",
+     "desc": "Checkbox label.",
+     "req": true
+    }
+   },
+   "examples": [
+    {
+     "src": "$forecast = true\nroot = Col([Checkbox($forecast, label: \"Show the October forecast\"), $forecast ? Callout(\"October is projected at ETB 1.71M if September's growth holds.\", tone: \"info\") : Caption(\"Forecast hidden\")])"
+    }
+   ]
+  },
+  "Switch": {
+   "name": "Switch",
+   "family": "Inputs",
+   "desc": "A single on/off setting.",
+   "pos": [
+    "value"
+   ],
+   "props": {
+    "value": {
+     "type": "state",
+     "desc": "Bound $variable (true/false).",
+     "req": true
+    },
+    "label": {
+     "type": "string",
+     "desc": "Switch label.",
+     "req": true
+    }
+   },
+   "examples": [
+    {
+     "src": "$vat = false\nroot = Col([Switch($vat, label: \"Include 15% VAT\"), Stat(label: \"Q3 revenue\", value: $vat ? data.kpis.revenue * 1.15 : data.kpis.revenue, format: \"currency\")])"
+    }
+   ]
+  },
+  "RadioGroup": {
+   "name": "RadioGroup",
+   "family": "Inputs",
+   "desc": "One choice where options need a description.",
+   "pos": [
+    "value"
+   ],
+   "props": {
+    "value": {
+     "type": "state",
+     "desc": "Bound $variable.",
+     "req": true
+    },
+    "options": {
+     "type": "list",
+     "desc": "{value, label, description}.",
+     "req": true
+    },
+    "variant": {
+     "type": "enum",
+     "values": [
+      "list",
+      "cards"
+     ],
+     "desc": "Cards for plan or style picking.",
+     "def": "list"
+    },
+    "label": {
+     "type": "string",
+     "desc": "Group label."
+    }
+   },
+   "examples": [
+    {
+     "src": "$plan = \"growth\"\nroot = RadioGroup($plan, options: [{value: \"starter\", label: \"Starter\", description: \"One shop, Telegram orders only\"}, {value: \"growth\", label: \"Growth\", description: \"Three channels and weekly reports\"}, {value: \"scale\", label: \"Scale\", description: \"All channels, daily reports, API access\"}], variant: \"cards\")"
+    }
+   ]
+  },
+  "Table": {
+   "name": "Table",
+   "family": "Data",
+   "desc": "Exact values across items. Click a header to sort; arrays render as sparklines.",
+   "pos": [
+    "data"
+   ],
+   "props": {
+    "data": {
+     "type": "data",
+     "desc": "Rows from a data binding.",
+     "req": true
+    },
+    "columns": {
+     "type": "list",
+     "desc": "Strings or {field, label, format, align}. Defaults to every field."
+    },
+    "limit": {
+     "type": "number",
+     "desc": "Rows shown before \"Show all\".",
+     "def": 8
+    },
+    "striped": {
+     "type": "bool",
+     "desc": "Alternate row shading.",
+     "def": false
+    }
+   },
+   "examples": [
+    {
+     "src": "root = Table(data.top_products, columns: [{field: \"name\", label: \"Product\"}, \"category\", {field: \"units\", format: \"number\"}, {field: \"revenue\", format: \"currency\"}, {field: \"trend\", label: \"6-week trend\"}])"
+    }
+   ]
+  },
+  "Chart": {
+   "name": "Chart",
+   "family": "Data",
+   "desc": "The shape of data: trend, ranking, composition. Data comes from a binding, never typed values.",
+   "pos": [],
+   "props": {
+    "type": {
+     "type": "enum",
+     "values": [
+      "line",
+      "area",
+      "bar",
+      "hbar",
+      "groupedBar",
+      "stackedBar",
+      "donut"
+     ],
+     "desc": "Chart type.",
+     "req": true
+    },
+    "data": {
+     "type": "data",
+     "desc": "Rows from a data binding.",
+     "req": true
+    },
+    "x": {
+     "type": "field",
+     "desc": "Category or time field.",
+     "req": true
+    },
+    "y": {
+     "type": "fields",
+     "desc": "Value field, or several for multiple series.",
+     "req": true
+    },
+    "series": {
+     "type": "field",
+     "desc": "Splits rows into series by this field."
+    },
+    "format": {
+     "type": "enum",
+     "values": [
+      "number",
+      "currency",
+      "percent",
+      "compact"
+     ],
+     "desc": "How numbers display. Percent values are fractions (0.12 = 12%).",
+     "def": "number"
+    },
+    "height": {
+     "type": "enum",
+     "values": [
+      "sm",
+      "md",
+      "lg"
+     ],
+     "desc": "Plot height.",
+     "def": "md"
+    },
+    "legend": {
+     "type": "bool",
+     "desc": "Show a legend for multiple series.",
+     "def": true
+    },
+    "caption": {
+     "type": "string",
+     "desc": "Note under the chart."
+    }
+   },
+   "examples": [
+    {
+     "label": "groupedBar",
+     "src": "root = Chart(type: \"groupedBar\", data: data.sales_by_region, x: \"region\", y: \"revenue\", series: \"month\", format: \"currency\")"
+    },
+    {
+     "label": "area",
+     "src": "root = Chart(type: \"area\", data: data.weekly, x: \"week\", y: \"revenue\", format: \"currency\", caption: \"Weekly paid revenue, Q3\")"
+    },
+    {
+     "label": "line, two series",
+     "src": "root = Chart(type: \"line\", data: data.weekly, x: \"week\", y: [\"revenue\", \"orders\"], format: \"compact\", height: \"sm\")"
+    },
+    {
+     "label": "stackedBar",
+     "src": "root = Chart(type: \"stackedBar\", data: data.sales_by_region, x: \"month\", y: \"orders\", series: \"region\")"
+    },
+    {
+     "label": "donut",
+     "src": "root = Chart(type: \"donut\", data: data.channels, x: \"channel\", y: \"share\", format: \"percent\")"
+    }
+   ]
+  },
+  "Stat": {
+   "name": "Stat",
+   "family": "Data",
+   "desc": "One headline number with an optional change. Building block of KPI cards.",
+   "pos": [],
+   "props": {
+    "label": {
+     "type": "string",
+     "desc": "What the number is.",
+     "req": true
+    },
+    "value": {
+     "type": "number",
+     "desc": "The number, from a binding or expression.",
+     "req": true
+    },
+    "format": {
+     "type": "enum",
+     "values": [
+      "number",
+      "currency",
+      "percent",
+      "compact"
+     ],
+     "desc": "How numbers display. Percent values are fractions (0.12 = 12%).",
+     "def": "number"
+    },
+    "prev": {
+     "type": "number",
+     "desc": "Previous value; the change is computed."
+    },
+    "delta": {
+     "type": "number",
+     "desc": "Change as a fraction, if already known."
+    },
+    "goodWhen": {
+     "type": "enum",
+     "values": [
+      "up",
+      "down"
+     ],
+     "desc": "Which direction is good.",
+     "def": "up"
+    },
+    "icon": {
+     "type": "icon",
+     "desc": "Label icon."
+    },
+    "caption": {
+     "type": "string",
+     "desc": "Note under the number."
+    },
+    "size": {
+     "type": "enum",
+     "values": [
+      "md",
+      "lg"
+     ],
+     "desc": "Number size.",
+     "def": "md"
+    }
+   },
+   "examples": [
+    {
+     "src": "root = Grid([Stat(label: \"Revenue\", value: data.kpis.revenue, prev: data.kpis.revenue_prev, format: \"currency\", icon: \"wallet\"), Stat(label: \"Refund rate\", value: data.kpis.refunds, prev: data.kpis.refunds_prev, format: \"percent\", goodWhen: \"down\")], columns: 2)"
+    }
+   ]
+  },
+  "Progress": {
+   "name": "Progress",
+   "family": "Data",
+   "desc": "Progress toward a target: quota, budget, completion.",
+   "pos": [
+    "value"
+   ],
+   "props": {
+    "value": {
+     "type": "number",
+     "desc": "Current value.",
+     "req": true
+    },
+    "max": {
+     "type": "number",
+     "desc": "Target.",
+     "def": 100
+    },
+    "label": {
+     "type": "string",
+     "desc": "What is measured."
+    },
+    "tone": {
+     "type": "enum",
+     "values": [
+      "ink",
+      "muted",
+      "accent",
+      "info",
+      "success",
+      "warning",
+      "danger"
+     ],
+     "desc": "Semantic colour.",
+     "def": "accent"
+    },
+    "format": {
+     "type": "enum",
+     "values": [
+      "number",
+      "currency",
+      "percent",
+      "compact"
+     ],
+     "desc": "Show \"value of max\" in this format instead of a percentage."
+    }
+   },
+   "examples": [
+    {
+     "src": "root = Col([Progress(data.kpis.revenue, max: 5000000, label: \"Q3 revenue target\", format: \"currency\"), Progress(72, label: \"Orders delivered same day\", tone: \"success\")])"
+    }
+   ]
+  },
+  "Sparkline": {
+   "name": "Sparkline",
+   "family": "Data",
+   "desc": "A tiny trend with no axes, for table cells and KPI rows.",
+   "pos": [
+    "data"
+   ],
+   "props": {
+    "data": {
+     "type": "list",
+     "desc": "Numbers, or rows with y.",
+     "req": true
+    },
+    "y": {
+     "type": "field",
+     "desc": "Field when data is rows."
+    },
+    "tone": {
+     "type": "enum",
+     "values": [
+      "ink",
+      "muted",
+      "accent",
+      "info",
+      "success",
+      "warning",
+      "danger"
+     ],
+     "desc": "Semantic colour.",
+     "def": "accent"
+    }
+   },
+   "examples": [
+    {
+     "src": "root = Row([Text(\"Coffee sales, last 6 weeks\"), Sparkline([41, 48, 45, 52, 58, 63], tone: \"success\")], gap: 3)"
+    }
+   ]
+  },
+  "KpiCard": {
+   "name": "KpiCard",
+   "family": "Cards",
+   "desc": "One number that answers the question, with change and optional target.",
+   "pos": [],
+   "props": {
+    "label": {
+     "type": "string",
+     "desc": "What the number is.",
+     "req": true
+    },
+    "value": {
+     "type": "number",
+     "desc": "The number.",
+     "req": true
+    },
+    "format": {
+     "type": "enum",
+     "values": [
+      "number",
+      "currency",
+      "percent",
+      "compact"
+     ],
+     "desc": "How numbers display. Percent values are fractions (0.12 = 12%).",
+     "def": "number"
+    },
+    "prev": {
+     "type": "number",
+     "desc": "Previous value."
+    },
+    "delta": {
+     "type": "number",
+     "desc": "Change as a fraction."
+    },
+    "deltaLabel": {
+     "type": "string",
+     "desc": "Comparison label.",
+     "def": "vs last period"
+    },
+    "goodWhen": {
+     "type": "enum",
+     "values": [
+      "up",
+      "down"
+     ],
+     "desc": "Which direction is good.",
+     "def": "up"
+    },
+    "icon": {
+     "type": "icon",
+     "desc": "Corner icon."
+    },
+    "target": {
+     "type": "number",
+     "desc": "Adds a progress bar toward this target."
+    },
+    "caption": {
+     "type": "string",
+     "desc": "Note at the bottom."
+    },
+    "tone": {
+     "type": "enum",
+     "values": [
+      "default",
+      "accent",
+      "info",
+      "success",
+      "warning",
+      "danger"
+     ],
+     "desc": "Tints the card to draw attention.",
+     "def": "default"
+    }
+   },
+   "examples": [
+    {
+     "src": "root = KpiCard(label: \"Q3 revenue\", value: data.kpis.revenue, prev: data.kpis.revenue_prev, deltaLabel: \"vs Q2\", format: \"currency\", icon: \"wallet\", target: 5000000, caption: \"Paid orders, net of refunds\")"
+    }
+   ]
+  },
+  "MultiKpiCard": {
+   "name": "MultiKpiCard",
+   "family": "Cards",
+   "desc": "Two to four related headline numbers read together.",
+   "pos": [],
+   "props": {
+    "title": {
+     "type": "string",
+     "desc": "Card title."
+    },
+    "items": {
+     "type": "list",
+     "desc": "{label, value, prev, delta, format, goodWhen}, two to four.",
+     "req": true
+    },
+    "columns": {
+     "type": "enum",
+     "values": [
+      2,
+      3,
+      4
+     ],
+     "desc": "Columns; defaults to the item count."
+    }
+   },
+   "examples": [
+    {
+     "src": "root = MultiKpiCard(title: \"Q3 at a glance\", items: [{label: \"Revenue\", value: data.kpis.revenue, prev: data.kpis.revenue_prev, format: \"currency\"}, {label: \"Orders\", value: data.kpis.orders, prev: data.kpis.orders_prev}, {label: \"Refund rate\", value: data.kpis.refunds, prev: data.kpis.refunds_prev, format: \"percent\", goodWhen: \"down\"}])"
+    }
+   ]
+  },
+  "KpiGraphCard": {
+   "name": "KpiGraphCard",
+   "family": "Cards",
+   "desc": "A headline number plus the trend that produced it.",
+   "pos": [],
+   "props": {
+    "label": {
+     "type": "string",
+     "desc": "What the number is.",
+     "req": true
+    },
+    "value": {
+     "type": "number",
+     "desc": "The number.",
+     "req": true
+    },
+    "format": {
+     "type": "enum",
+     "values": [
+      "number",
+      "currency",
+      "percent",
+      "compact"
+     ],
+     "desc": "How numbers display. Percent values are fractions (0.12 = 12%).",
+     "def": "number"
+    },
+    "prev": {
+     "type": "number",
+     "desc": "Previous value."
+    },
+    "delta": {
+     "type": "number",
+     "desc": "Change as a fraction."
+    },
+    "deltaLabel": {
+     "type": "string",
+     "desc": "Comparison label."
+    },
+    "goodWhen": {
+     "type": "enum",
+     "values": [
+      "up",
+      "down"
+     ],
+     "desc": "Which direction is good.",
+     "def": "up"
+    },
+    "data": {
+     "type": "data",
+     "desc": "Trend rows.",
+     "req": true
+    },
+    "x": {
+     "type": "field",
+     "desc": "Time field.",
+     "req": true
+    },
+    "y": {
+     "type": "field",
+     "desc": "Value field.",
+     "req": true
+    },
+    "chartType": {
+     "type": "enum",
+     "values": [
+      "line",
+      "area",
+      "bar"
+     ],
+     "desc": "Trend style.",
+     "def": "area"
+    },
+    "icon": {
+     "type": "icon",
+     "desc": "Corner icon."
+    },
+    "caption": {
+     "type": "string",
+     "desc": "Note at the bottom."
+    }
+   },
+   "examples": [
+    {
+     "src": "root = KpiGraphCard(label: \"Revenue, last week\", value: @Last(data.weekly).revenue, prev: data.weekly[11].revenue, deltaLabel: \"vs week 38\", format: \"currency\", data: data.weekly, x: \"week\", y: \"revenue\", caption: \"Weeks 27 to 39\")"
+    }
+   ]
+  },
+  "ListCard": {
+   "name": "ListCard",
+   "family": "Cards",
+   "desc": "A short ranked list, sorted by value, with proportional bars.",
+   "pos": [],
+   "props": {
+    "title": {
+     "type": "string",
+     "desc": "Card title.",
+     "req": true
+    },
+    "items": {
+     "type": "data",
+     "desc": "Rows from a binding.",
+     "req": true
+    },
+    "primary": {
+     "type": "field",
+     "desc": "Main label field.",
+     "req": true
+    },
+    "secondary": {
+     "type": "field",
+     "desc": "Second-line field."
+    },
+    "value": {
+     "type": "field",
+     "desc": "Value field; rows are ranked by it."
+    },
+    "valueFormat": {
+     "type": "enum",
+     "values": [
+      "number",
+      "currency",
+      "percent",
+      "compact"
+     ],
+     "desc": "How numbers display. Percent values are fractions (0.12 = 12%).",
+     "def": "number"
+    },
+    "limit": {
+     "type": "number",
+     "desc": "Rows shown.",
+     "def": 5
+    },
+    "rank": {
+     "type": "bool",
+     "desc": "Show rank numbers.",
+     "def": true
+    },
+    "icon": {
+     "type": "icon",
+     "desc": "Header icon."
+    }
+   },
+   "examples": [
+    {
+     "src": "root = ListCard(title: \"Top products\", items: data.top_products, primary: \"name\", secondary: \"category\", value: \"revenue\", valueFormat: \"currency\", icon: \"shopping-bag\")"
+    }
+   ]
+  },
+  "GraphCard": {
+   "name": "GraphCard",
+   "family": "Cards",
+   "desc": "A chart in a titled card, when no headline number is needed.",
+   "pos": [],
+   "props": {
+    "title": {
+     "type": "string",
+     "desc": "Card title.",
+     "req": true
+    },
+    "subtitle": {
+     "type": "string",
+     "desc": "Line under the title."
+    },
+    "chart": {
+     "type": "node",
+     "desc": "A Chart component.",
+     "req": true
+    },
+    "caption": {
+     "type": "string",
+     "desc": "Takeaway under the chart."
+    },
+    "icon": {
+     "type": "icon",
+     "desc": "Header icon."
+    }
+   },
+   "examples": [
+    {
+     "src": "root = GraphCard(title: \"Orders by channel\", subtitle: \"Share of Q3 orders\", chart: Chart(type: \"donut\", data: data.channels, x: \"channel\", y: \"share\", format: \"percent\"), caption: \"Telegram alone brings in more orders than Instagram and TikTok combined.\")"
+    }
+   ]
+  },
+  "ActionableGraphCard": {
+   "name": "ActionableGraphCard",
+   "family": "Cards",
+   "desc": "A chart the user explores: controls bound to state, plus follow-up actions.",
+   "pos": [],
+   "props": {
+    "title": {
+     "type": "string",
+     "desc": "Card title.",
+     "req": true
+    },
+    "subtitle": {
+     "type": "string",
+     "desc": "Line under the title."
+    },
+    "controls": {
+     "type": "nodes",
+     "desc": "Inputs bound to the state the chart reads."
+    },
+    "chart": {
+     "type": "node",
+     "desc": "A Chart whose data reads that state.",
+     "req": true
+    },
+    "actions": {
+     "type": "nodes",
+     "desc": "Buttons, usually @NewTurn follow-ups."
+    },
+    "caption": {
+     "type": "string",
+     "desc": "Note under the chart."
+    },
+    "icon": {
+     "type": "icon",
+     "desc": "Header icon."
+    }
+   },
+   "examples": [
+    {
+     "src": "$metric = \"revenue\"\n$month = \"All\"\nroot = ActionableGraphCard(title: \"Regions by \" + $metric, controls: [SegmentedControl($metric, options: [\"revenue\", \"orders\"]), Select($month, options: [\"All\", \"Jul\", \"Aug\", \"Sep\"])], chart: Chart(type: \"bar\", data: @GroupBy(@Filter(data.sales_by_region, \"month\", $month), \"region\", $metric), x: \"region\", y: $metric, format: $metric == \"revenue\" ? \"currency\" : \"number\"), actions: [Button(\"Explain this chart\", variant: \"outline\", onClick: @NewTurn(\"Explain \" + $metric + \" by region for \" + $month))])"
+    }
+   ]
+  },
+  "Icon": {
+   "name": "Icon",
+   "family": "Media",
+   "desc": "An outline icon for labels and lists.",
+   "pos": [
+    "name"
+   ],
+   "props": {
+    "name": {
+     "type": "icon",
+     "desc": "Icon name.",
+     "req": true
+    },
+    "size": {
+     "type": "enum",
+     "values": [
+      "sm",
+      "md",
+      "lg"
+     ],
+     "desc": "Icon size.",
+     "def": "md"
+    },
+    "tone": {
+     "type": "enum",
+     "values": [
+      "ink",
+      "muted",
+      "accent",
+      "info",
+      "success",
+      "warning",
+      "danger"
+     ],
+     "desc": "Semantic colour.",
+     "def": "ink"
+    }
+   },
+   "examples": [
+    {
+     "src": "root = Row([Icon(\"truck\"), Icon(\"map-pin\", tone: \"accent\"), Icon(\"package\"), Icon(\"coffee\", size: \"lg\", tone: \"warning\")], gap: 4)"
+    }
+   ]
+  },
+  "AsyncImage": {
+   "name": "AsyncImage",
+   "family": "Media",
+   "desc": "The model writes a search query; the server resolves a real image and patches it in.",
+   "pos": [
+    "query"
+   ],
+   "props": {
+    "query": {
+     "type": "string",
+     "desc": "Descriptive search query, 5 to 15 words.",
+     "req": true
+    },
+    "aspectRatio": {
+     "type": "enum",
+     "values": [
+      "1:1",
+      "4:3",
+      "5:4",
+      "16:9"
+     ],
+     "desc": "Frame shape.",
+     "def": "4:3"
+    },
+    "caption": {
+     "type": "string",
+     "desc": "Caption under the image."
+    }
+   },
+   "examples": [
+    {
+     "src": "root = AsyncImage(\"hand-woven Ethiopian netela scarf with a colourful tibeb border on a wooden table\", aspectRatio: \"5:4\", caption: \"Netela scarf\")"
+    }
+   ]
+  },
+  "AsyncImageGroup": {
+   "name": "AsyncImageGroup",
+   "family": "Media",
+   "desc": "Several server-resolved photos as a grid or a scrolling strip.",
+   "pos": [
+    "queries"
+   ],
+   "props": {
+    "queries": {
+     "type": "list",
+     "desc": "Two to six search queries.",
+     "req": true
+    },
+    "layout": {
+     "type": "enum",
+     "values": [
+      "grid",
+      "strip"
+     ],
+     "desc": "Arrangement.",
+     "def": "grid"
+    },
+    "aspectRatio": {
+     "type": "enum",
+     "values": [
+      "1:1",
+      "4:3",
+      "5:4",
+      "16:9"
+     ],
+     "desc": "Frame shape.",
+     "def": "4:3"
+    }
+   },
+   "examples": [
+    {
+     "src": "root = AsyncImageGroup([\"traditional jebena coffee pot on charcoal\", \"roasted coffee beans in a clay dish\", \"small cafe counter in Addis Ababa with wooden stools\", \"woven mesob basket in warm light\"])"
+    }
+   ]
+  },
+  "Summary": {
+   "name": "Summary",
+   "family": "Prose",
+   "desc": "A short answer up front: one lead sentence and up to four points. Put it first in long answers.",
+   "pos": [
+    "text"
+   ],
+   "props": {
+    "text": {
+     "type": "string",
+     "desc": "Lead sentence: the answer itself."
+    },
+    "points": {
+     "type": "list",
+     "desc": "Up to four short supporting points."
+    },
+    "title": {
+     "type": "string",
+     "desc": "Label above the lead.",
+     "def": "In short"
+    },
+    "icon": {
+     "type": "icon",
+     "desc": "Label icon."
+    }
+   },
+   "examples": [
+    {
+     "src": "root = Summary(\"Start on Telegram, then add a website once you pass about 300 orders a month.\", points: [\"Telegram brings 40% of orders today at no platform cost\", \"A website pays off when repeat buyers want to browse and reorder\", \"Keep one product catalogue so both channels stay in sync\"])"
+    }
+   ]
+  },
+  "KeyPoints": {
+   "name": "KeyPoints",
+   "family": "Prose",
+   "desc": "The main takeaways, each with an optional bold title. Numbered only when order matters.",
+   "pos": [
+    "items"
+   ],
+   "props": {
+    "items": {
+     "type": "list",
+     "desc": "Strings or {title, text, icon}.",
+     "req": true
+    },
+    "numbered": {
+     "type": "bool",
+     "desc": "Number the points when they are ranked or sequential.",
+     "def": false
+    },
+    "columns": {
+     "type": "enum",
+     "values": [
+      1,
+      2
+     ],
+     "desc": "Two columns for short points.",
+     "def": 1
+    }
+   },
+   "examples": [
+    {
+     "label": "with titles",
+     "src": "root = KeyPoints([{title: \"Revenue is up.\", text: \"ETB 4.82M in Q3, 11.8% more than Q2.\"}, {title: \"Growth is spreading.\", text: \"Sidama and Tigray grew faster than Addis Ababa.\"}, {title: \"Refunds fell.\", text: \"2.1% of orders, down from 2.6%.\"}])"
+    },
+    {
+     "label": "numbered, two columns",
+     "src": "root = KeyPoints([\"Answer messages within an hour\", \"Post new stock on Tuesdays\", \"Confirm delivery by phone\", \"Ask for a review after delivery\"], numbered: true, columns: 2)"
+    }
+   ]
+  },
+  "IconList": {
+   "name": "IconList",
+   "family": "Prose",
+   "desc": "Points that each belong to a distinct category, marked by an icon and tone.",
+   "pos": [
+    "items"
+   ],
+   "props": {
+    "items": {
+     "type": "list",
+     "desc": "{icon, title, text, tone}.",
+     "req": true
+    }
+   },
+   "examples": [
+    {
+     "src": "root = IconList([{icon: \"truck\", title: \"Delivery\", text: \"Same day inside Addis Ababa, 2 to 4 days to regional cities.\"}, {icon: \"wallet\", title: \"Payment\", text: \"Mobile money or cash on delivery.\"}, {icon: \"refresh\", title: \"Returns\", text: \"Within 7 days if the item is unused.\", tone: \"warning\"}])"
+    }
+   ]
+  },
+  "NestedList": {
+   "name": "NestedList",
+   "family": "Prose",
+   "desc": "An outline with sub-points, up to four levels. Items take {text, children}.",
+   "pos": [
+    "items"
+   ],
+   "props": {
+    "items": {
+     "type": "list",
+     "desc": "Strings or {title, text, children}.",
+     "req": true
+    },
+    "kind": {
+     "type": "enum",
+     "values": [
+      "bullet",
+      "numbered"
+     ],
+     "desc": "List style.",
+     "def": "bullet"
+    }
+   },
+   "examples": [
+    {
+     "src": "root = NestedList([{title: \"Before launch\", children: [\"Photograph every product on a plain background\", {text: \"Write prices in ETB\", children: [\"Include delivery in the price for Addis Ababa\", \"Show regional delivery separately\"]}]}, {title: \"Launch week\", children: [\"Post three times a day on Telegram\", \"Pin the price list\"]}])"
+    }
+   ]
+  },
+  "Steps": {
+   "name": "Steps",
+   "family": "Prose",
+   "desc": "An ordered procedure. With checkable on, the reader ticks steps off locally.",
+   "pos": [
+    "items"
+   ],
+   "props": {
+    "items": {
+     "type": "list",
+     "desc": "Strings or {title, text, done}.",
+     "req": true
+    },
+    "checkable": {
+     "type": "bool",
+     "desc": "Let the reader mark steps done.",
+     "def": false
+    }
+   },
+   "examples": [
+    {
+     "src": "root = Steps([{title: \"Pack the order\", text: \"Wrap fragile items like the jebena in two layers.\"}, {title: \"Book the courier\", text: \"Request pickup before 11:00 for same-day delivery.\"}, {title: \"Send tracking\", text: \"Message the buyer the rider's name and phone number.\"}, {title: \"Confirm delivery\", text: \"Call after the drop-off and mark the order complete.\"}], checkable: true)"
+    }
+   ]
+  },
+  "Checklist": {
+   "name": "Checklist",
+   "family": "Prose",
+   "desc": "Items to tick off, with a running count. Ticks are local UI state.",
+   "pos": [
+    "items"
+   ],
+   "props": {
+    "items": {
+     "type": "list",
+     "desc": "Strings or {title, text, done}.",
+     "req": true
+    },
+    "title": {
+     "type": "string",
+     "desc": "Checklist name.",
+     "def": "Checklist"
+    }
+   },
+   "examples": [
+    {
+     "src": "root = Checklist([\"Restock Yirgacheffe coffee\", {text: \"Reply to the Hawassa wholesale enquiry\", done: true}, \"Update the Telegram price list\", \"Book photos for the new netela range\"], title: \"This week\")"
+    }
+   ]
+  },
+  "ProsCons": {
+   "name": "ProsCons",
+   "family": "Prose",
+   "desc": "Advantages and drawbacks side by side. Stacks on narrow screens.",
+   "pos": [],
+   "props": {
+    "pros": {
+     "type": "list",
+     "desc": "Strings or {title, text}.",
+     "req": true
+    },
+    "cons": {
+     "type": "list",
+     "desc": "Strings or {title, text}.",
+     "req": true
+    },
+    "prosLabel": {
+     "type": "string",
+     "desc": "Left heading.",
+     "def": "Pros"
+    },
+    "consLabel": {
+     "type": "string",
+     "desc": "Right heading.",
+     "def": "Cons"
+    }
+   },
+   "examples": [
+    {
+     "src": "root = ProsCons(pros: [\"No setup cost\", \"Buyers already use it daily\", \"Easy to answer questions in chat\"], cons: [\"Hard to browse a large catalogue\", \"Orders live in chat history\", \"No built-in checkout\"], prosLabel: \"Selling on Telegram\", consLabel: \"Its limits\")"
+    }
+   ]
+  },
+  "BulletColumns": {
+   "name": "BulletColumns",
+   "family": "Prose",
+   "desc": "Two or three titled bullet lists compared side by side.",
+   "pos": [
+    "columns"
+   ],
+   "props": {
+    "columns": {
+     "type": "list",
+     "desc": "Two or three {title, icon, items}.",
+     "req": true
+    }
+   },
+   "examples": [
+    {
+     "src": "root = BulletColumns([{title: \"Telegram\", icon: \"send\", items: [\"Fast to start\", \"Chat-based orders\", \"Best for repeat buyers\"]}, {title: \"Website\", icon: \"layers\", items: [\"Full catalogue\", \"Search and filters\", \"Best for new buyers\"]}, {title: \"Instagram\", icon: \"star\", items: [\"Visual discovery\", \"Reels drive reach\", \"Best for apparel\"]}])"
+    }
+   ]
+  },
+  "FactList": {
+   "name": "FactList",
+   "family": "Prose",
+   "desc": "Label and value pairs: specs, key facts, terms. Numbers format like Stat.",
+   "pos": [
+    "items"
+   ],
+   "props": {
+    "items": {
+     "type": "list",
+     "desc": "{label, value, format, note}.",
+     "req": true
+    },
+    "layout": {
+     "type": "enum",
+     "values": [
+      "rows",
+      "grid"
+     ],
+     "desc": "Rows for specs, grid for a few headline facts.",
+     "def": "rows"
+    }
+   },
+   "examples": [
+    {
+     "label": "rows",
+     "src": "root = FactList([{label: \"Product\", value: \"Yirgacheffe coffee, 1 kg\"}, {label: \"Roast\", value: \"Medium\"}, {label: \"Price\", value: 375, format: \"currency\"}, {label: \"Q3 units\", value: data.top_products[1].units, note: \"Second best seller\"}])"
+    },
+    {
+     "label": "grid",
+     "src": "root = FactList([{label: \"Regions served\", value: 6}, {label: \"Top channel\", value: \"Telegram\"}, {label: \"Refund rate\", value: data.kpis.refunds, format: \"percent\"}], layout: \"grid\")"
+    }
+   ]
+  },
+  "Quote": {
+   "name": "Quote",
+   "family": "Prose",
+   "desc": "A short attributed quotation, under 25 words.",
+   "pos": [
+    "text"
+   ],
+   "props": {
+    "text": {
+     "type": "string",
+     "desc": "The quotation.",
+     "req": true
+    },
+    "source": {
+     "type": "string",
+     "desc": "Who said it."
+    },
+    "role": {
+     "type": "string",
+     "desc": "Their role or where it was said."
+    }
+   },
+   "examples": [
+    {
+     "src": "root = Quote(\"I found the scarf on TikTok, but I ordered on Telegram because I could ask about the colours first.\", source: \"Customer in Adama\", role: \"Post-purchase survey, September\")"
+    }
+   ]
+  },
+  "Sources": {
+   "name": "Sources",
+   "family": "Prose",
+   "desc": "A numbered list of sources at the end of a researched answer.",
+   "pos": [
+    "items"
+   ],
+   "props": {
+    "items": {
+     "type": "list",
+     "desc": "{title, url, publisher}.",
+     "req": true
+    }
+   },
+   "examples": [
+    {
+     "src": "root = Sources([{title: \"Q3 order export\", url: \"https://example.com/orders-q3\", publisher: \"Order system\"}, {title: \"Channel survey, September\", url: \"https://example.com/survey\", publisher: \"Internal survey\"}])"
+    }
+   ]
+  },
+  "ChoiceChips": {
+   "name": "ChoiceChips",
+   "family": "Inputs",
+   "desc": "Tappable options for a clarifying question. Unbound, a tap sends the choice to the model; bound to a $variable, it filters locally.",
+   "pos": [],
+   "props": {
+    "question": {
+     "type": "string",
+     "desc": "The question being asked."
+    },
+    "options": {
+     "type": "list",
+     "desc": "Strings or {label, value, icon, description}.",
+     "req": true
+    },
+    "template": {
+     "type": "string",
+     "desc": "Message sent; {choice} is replaced by the pick.",
+     "def": "{choice}"
+    },
+    "multi": {
+     "type": "bool",
+     "desc": "Allow several picks, sent with one button.",
+     "def": false
+    },
+    "submitLabel": {
+     "type": "string",
+     "desc": "Button for multi-select.",
+     "def": "Send"
+    },
+    "variant": {
+     "type": "enum",
+     "values": [
+      "chips",
+      "cards"
+     ],
+     "desc": "Cards show option descriptions.",
+     "def": "chips"
+    },
+    "value": {
+     "type": "state",
+     "desc": "Optional $variable; makes the chips a local filter instead of sending."
+    }
+   },
+   "examples": [
+    {
+     "label": "sends to the model",
+     "src": "root = ChoiceChips(question: \"Which period should I analyse?\", options: [\"This month\", \"Last quarter\", \"Year to date\"], template: \"Analyse sales for {choice}\")"
+    },
+    {
+     "label": "cards, multi-select",
+     "src": "root = ChoiceChips(question: \"What should the investor update cover?\", options: [{label: \"Revenue\", description: \"Totals and growth\"}, {label: \"Regions\", description: \"Where growth came from\"}, {label: \"Products\", description: \"Best and worst sellers\"}], multi: true, variant: \"cards\", template: \"Write the investor update covering: {choice}\")"
+    },
+    {
+     "label": "bound, local filter",
+     "src": "$cat = \"Apparel\"\nroot = Col([ChoiceChips(options: @Unique(data.top_products, \"category\"), value: $cat), ListCard(title: $cat + \" products\", items: @Filter(data.top_products, \"category\", $cat), primary: \"name\", value: \"revenue\", valueFormat: \"currency\")])"
+    }
+   ]
+  },
+  "Form": {
+   "name": "Form",
+   "family": "Inputs",
+   "desc": "Several fields submitted together as one message to the model. Validates required fields first.",
+   "pos": [],
+   "props": {
+    "fields": {
+     "type": "list",
+     "desc": "{name, label, type: text|number|email|tel|date|select|textarea, options, required, placeholder, suffix, default, wide}.",
+     "req": true
+    },
+    "title": {
+     "type": "string",
+     "desc": "Form title."
+    },
+    "subtitle": {
+     "type": "string",
+     "desc": "Line under the title."
+    },
+    "icon": {
+     "type": "icon",
+     "desc": "Header icon."
+    },
+    "submitLabel": {
+     "type": "string",
+     "desc": "Submit button text.",
+     "def": "Submit"
+    },
+    "template": {
+     "type": "string",
+     "desc": "Message sent; {fieldName} is replaced by its value. Defaults to \"Label: value\" lines."
+    }
+   },
+   "examples": [
+    {
+     "src": "root = Form(title: \"Schedule a courier pickup\", icon: \"truck\", fields: [{name: \"location\", label: \"Pickup location\", type: \"select\", options: [\"Bole warehouse\", \"Merkato shop\", \"Piassa shop\"], required: true}, {name: \"date\", label: \"Date\", type: \"date\", required: true}, {name: \"parcels\", label: \"Parcels\", type: \"number\", suffix: \"items\", required: true}, {name: \"phone\", label: \"Contact phone\", type: \"tel\", placeholder: \"09…\"}, {name: \"notes\", label: \"Notes for the rider\", type: \"textarea\"}], submitLabel: \"Request pickup\", template: \"Schedule a pickup from {location} on {date} for {parcels} parcels. Contact: {phone}. Notes: {notes}\")"
+    }
+   ]
+  },
+  "ApprovalCard": {
+   "name": "ApprovalCard",
+   "family": "Cards",
+   "desc": "Human in the loop: the agent shows what it is about to do and waits for Approve, Edit or Cancel.",
+   "pos": [],
+   "props": {
+    "title": {
+     "type": "string",
+     "desc": "The action, as a short verb phrase.",
+     "req": true
+    },
+    "action": {
+     "type": "string",
+     "desc": "Where and how it happens."
+    },
+    "details": {
+     "type": "list",
+     "desc": "{label, value, format} facts about the action."
+    },
+    "preview": {
+     "type": "string",
+     "desc": "The content that will be sent or posted."
+    },
+    "editable": {
+     "type": "bool",
+     "desc": "Let the user edit the preview before approving.",
+     "def": true
+    },
+    "warning": {
+     "type": "string",
+     "desc": "Consequence to flag, such as \"This cannot be undone\"."
+    },
+    "approveLabel": {
+     "type": "string",
+     "desc": "Approve button text.",
+     "def": "Approve"
+    },
+    "approveMessage": {
+     "type": "string",
+     "desc": "Message sent on approve; {title} is replaced.",
+     "def": "Approved: {title}"
+    },
+    "cancelMessage": {
+     "type": "string",
+     "desc": "Message sent on cancel.",
+     "def": "Cancelled: {title}"
+    },
+    "icon": {
+     "type": "icon",
+     "desc": "Header icon."
+    }
+   },
+   "examples": [
+    {
+     "src": "root = ApprovalCard(title: \"Post the restock announcement\", action: \"Publish to your Telegram channel\", icon: \"send\", details: [{label: \"Audience\", value: \"2,340 subscribers\"}, {label: \"Scheduled\", value: \"Now\"}, {label: \"Products\", value: \"Netela scarves, Yirgacheffe coffee\"}], preview: \"New stock just landed: hand-woven netela scarves in six colours and fresh Yirgacheffe coffee. Same-day delivery in Addis Ababa. Reply to order!\", warning: \"Posts go to every subscriber immediately.\", approveLabel: \"Post now\")"
+    }
+   ]
+  },
+  "ComparisonTable": {
+   "name": "ComparisonTable",
+   "family": "Data",
+   "desc": "Options compared across features. Booleans render as checks and crosses; one column can be recommended.",
+   "pos": [],
+   "props": {
+    "columns": {
+     "type": "list",
+     "desc": "Options: strings or {name, subtitle}.",
+     "req": true
+    },
+    "rows": {
+     "type": "list",
+     "desc": "{label, values: one per column, format}.",
+     "req": true
+    },
+    "highlight": {
+     "type": "any",
+     "desc": "Index or name of the recommended column."
+    },
+    "highlightLabel": {
+     "type": "string",
+     "desc": "Badge on the highlighted column.",
+     "def": "Recommended"
+    }
+   },
+   "examples": [
+    {
+     "src": "root = ComparisonTable(columns: [{name: \"Starter\", subtitle: \"ETB 950 / month\"}, {name: \"Growth\", subtitle: \"ETB 2,400 / month\"}, {name: \"Scale\", subtitle: \"ETB 6,500 / month\"}], rows: [{label: \"Sales channels\", values: [\"Telegram\", \"Up to 3\", \"Unlimited\"]}, {label: \"Weekly report\", values: [false, true, true]}, {label: \"Daily report\", values: [false, false, true]}, {label: \"Team seats\", values: [1, 3, 10]}, {label: \"API access\", values: [false, false, true]}], highlight: \"Growth\")"
+    }
+   ]
+  },
+  "RegionMap": {
+   "name": "RegionMap",
+   "family": "Data",
+   "desc": "Values by Ethiopian region on a tile map, one tile per region. Region names are matched loosely.",
+   "pos": [],
+   "props": {
+    "data": {
+     "type": "data",
+     "desc": "Rows from a binding.",
+     "req": true
+    },
+    "region": {
+     "type": "field",
+     "desc": "Field holding the region name.",
+     "req": true
+    },
+    "value": {
+     "type": "field",
+     "desc": "Field holding the value.",
+     "req": true
+    },
+    "format": {
+     "type": "enum",
+     "values": [
+      "number",
+      "currency",
+      "percent",
+      "compact"
+     ],
+     "desc": "How numbers display. Percent values are fractions (0.12 = 12%).",
+     "def": "number"
+    },
+    "legend": {
+     "type": "bool",
+     "desc": "Show the ranked list beside the map.",
+     "def": true
+    },
+    "caption": {
+     "type": "string",
+     "desc": "Note under the map."
+    }
+   },
+   "examples": [
+    {
+     "label": "all regions",
+     "src": "root = RegionMap(data: data.customers_by_region, region: \"region\", value: \"customers\", caption: \"Active customers, Q3.\")"
+    },
+    {
+     "label": "partial data",
+     "src": "root = RegionMap(data: @GroupBy(data.sales_by_region, \"region\", \"revenue\"), region: \"region\", value: \"revenue\", format: \"currency\")"
+    }
+   ]
+  }
+ },
+ "functions": {
+  "Sum": {
+   "sig": "@Sum(list, field?)",
+   "desc": "Total of a list, or of one field across rows."
+  },
+  "Avg": {
+   "sig": "@Avg(list, field?)",
+   "desc": "Mean of a list or a field."
+  },
+  "Min": {
+   "sig": "@Min(list, field?)",
+   "desc": "Smallest value."
+  },
+  "Max": {
+   "sig": "@Max(list, field?)",
+   "desc": "Largest value."
+  },
+  "Count": {
+   "sig": "@Count(list)",
+   "desc": "Number of items."
+  },
+  "Filter": {
+   "sig": "@Filter(list, field, value)",
+   "desc": "Rows where field equals value. \"All\" or null keeps every row."
+  },
+  "Sort": {
+   "sig": "@Sort(list, field, \"asc\"|\"desc\")",
+   "desc": "Rows ordered by a field (default descending)."
+  },
+  "Top": {
+   "sig": "@Top(list, n, field)",
+   "desc": "The n rows with the highest field."
+  },
+  "Unique": {
+   "sig": "@Unique(list, field)",
+   "desc": "Distinct values of a field, in first-seen order."
+  },
+  "Pluck": {
+   "sig": "@Pluck(list, field)",
+   "desc": "One field from every row, as a list."
+  },
+  "GroupBy": {
+   "sig": "@GroupBy(list, field, valueField)",
+   "desc": "One row per distinct field, summing valueField."
+  },
+  "Concat": {
+   "sig": "@Concat(listA, listB)",
+   "desc": "Joins two lists."
+  },
+  "First": {
+   "sig": "@First(list)",
+   "desc": "First item."
+  },
+  "Last": {
+   "sig": "@Last(list)",
+   "desc": "Last item."
+  },
+  "Format": {
+   "sig": "@Format(value, \"number\"|\"currency\"|\"percent\"|\"compact\")",
+   "desc": "A number as display text."
+  },
+  "Round": {
+   "sig": "@Round(value, digits?)",
+   "desc": "Rounds to a number of decimal places."
+  },
+  "Clamp": {
+   "sig": "@Clamp(value, min, max)",
+   "desc": "Keeps a value inside a range."
+  },
+  "Change": {
+   "sig": "@Change(current, previous)",
+   "desc": "Relative change as a fraction: 0.12 means +12%."
+  },
+  "Payment": {
+   "sig": "@Payment(principal, annualRate, years)",
+   "desc": "Monthly loan payment; annualRate as a fraction."
+  },
+  "Range": {
+   "sig": "@Range(from, to)",
+   "desc": "Whole numbers from..to, inclusive."
+  }
+ },
+ "actions": {
+  "Set": {
+   "sig": "@Set($var, value)",
+   "desc": "Changes a state variable. Runs locally, no model call."
+  },
+  "Toggle": {
+   "sig": "@Toggle($var)",
+   "desc": "Flips a true/false variable."
+  },
+  "Reset": {
+   "sig": "@Reset($var)",
+   "desc": "Puts a variable back to its declared default."
+  },
+  "NewTurn": {
+   "sig": "@NewTurn(text)",
+   "desc": "Sends text to the model as a new user message. The only way the UI talks to the model."
+  },
+  "Copy": {
+   "sig": "@Copy(text)",
+   "desc": "Copies text to the clipboard."
+  },
+  "OpenUrl": {
+   "sig": "@OpenUrl(url)",
+   "desc": "Opens a link in a new tab."
+  }
+ },
+ "icons": [
+  "trending-up",
+  "trending-down",
+  "arrow-right",
+  "check",
+  "x",
+  "info",
+  "alert-triangle",
+  "copy",
+  "map-pin",
+  "users",
+  "wallet",
+  "package",
+  "calendar",
+  "clock",
+  "refresh",
+  "truck",
+  "shopping-bag",
+  "star",
+  "chart",
+  "search",
+  "send",
+  "coffee",
+  "zap",
+  "layers",
+  "play",
+  "pause",
+  "skip",
+  "rotate-ccw",
+  "chevron-down",
+  "external"
+ ],
+ "presets": [
+  {
+   "id": "dashboard",
+   "label": "Sales dashboard",
+   "src": "// Sales review. Every number comes from data.* bindings the server injected.\nroot = Col([title, intro, kpis, trend, explorer, products, actions])\ntitle = Title(\"Q3 sales review\", size: \"lg\")\nintro = Text(\"Revenue reached **ETB 4.82M**, up 11.8% on Q2. Addis Ababa still leads, while Sidama grew fastest from July to September.\")\nkpis = MultiKpiCard(title: \"Q3 at a glance\", items: [\n  {label: \"Revenue\", value: data.kpis.revenue, prev: data.kpis.revenue_prev, format: \"currency\"},\n  {label: \"Orders\", value: data.kpis.orders, prev: data.kpis.orders_prev},\n  {label: \"Avg order\", value: data.kpis.aov, prev: data.kpis.aov_prev, format: \"currency\"},\n  {label: \"Refund rate\", value: data.kpis.refunds, prev: data.kpis.refunds_prev, format: \"percent\", goodWhen: \"down\"}\n])\ntrend = KpiGraphCard(label: \"Revenue, last week\", value: @Last(data.weekly).revenue, prev: data.weekly[11].revenue, format: \"currency\", deltaLabel: \"vs week 38\", data: data.weekly, x: \"week\", y: \"revenue\", caption: \"Weekly paid revenue, weeks 27 to 39\")\n$metric = \"revenue\"\n$month = \"All\"\nexplorer = ActionableGraphCard(title: \"Regions by \" + $metric, controls: [metricPick, monthPick], chart: regionChart, actions: [explain])\nmetricPick = SegmentedControl($metric, options: [\"revenue\", \"orders\"])\nmonthPick = Select($month, options: [\"All\", \"Jul\", \"Aug\", \"Sep\"])\nregionChart = Chart(type: $month == \"All\" ? \"stackedBar\" : \"bar\", data: @Filter(data.sales_by_region, \"month\", $month), x: \"region\", y: $metric, series: $month == \"All\" ? \"month\" : null, format: $metric == \"revenue\" ? \"currency\" : \"number\")\nexplain = Button(\"Explain the Sidama jump\", variant: \"outline\", icon: \"arrow-right\", onClick: @NewTurn(\"Why did Sidama \" + $metric + \" grow so fast in Q3?\"))\nproducts = ListCard(title: \"Top products\", items: data.top_products, primary: \"name\", secondary: \"category\", value: \"revenue\", valueFormat: \"currency\", icon: \"shopping-bag\")\nactions = Row([Button(\"Draft the investor update\", onClick: @NewTurn(\"Draft a short investor update from this Q3 review\")), Button(\"Copy headline\", variant: \"ghost\", icon: \"copy\", onClick: @Copy(\"Q3 revenue ETB 4.82M, up 11.8% on Q2\"))])\n"
+  },
+  {
+   "id": "explainer",
+   "label": "Text explainer",
+   "src": "// Text-heavy answer: structured prose instead of a wall of paragraphs.\nroot = Col([title, summary, facts, compare, tradeoffs, plan, voice, sources])\ntitle = Title(\"Should you open a website or stay on Telegram?\", size: \"lg\")\nsummary = Summary(\"Keep selling on Telegram and build a simple website alongside it, then launch once repeat orders pass about 300 a month.\", points: [\"Telegram already brings in the largest share of orders\", \"A website helps new buyers browse the full catalogue\", \"Run both from one product list so prices never drift\"])\nfacts = FactList([{label: \"Orders from Telegram\", value: data.channels[0].share, format: \"percent\"}, {label: \"Q3 orders\", value: data.kpis.orders}, {label: \"Average order\", value: data.kpis.aov, format: \"currency\"}], layout: \"grid\")\ncompare = BulletColumns([{title: \"Telegram today\", icon: \"send\", items: [\"Orders arrive in chat\", \"Repeat buyers know you\", \"Catalogue is a pinned post\"]}, {title: \"With a website\", icon: \"layers\", items: [\"Buyers browse and search\", \"Orders land in one list\", \"Links work from TikTok and Instagram\"]}])\ntradeoffs = ProsCons(pros: [\"New buyers can find products on their own\", {title: \"Fewer questions.\", text: \"Sizes, colours and prices are on the page.\"}, \"Orders are easier to track and report\"], cons: [\"Hosting and upkeep cost money every month\", \"Photos and descriptions take time to prepare\", \"Some buyers will still prefer to chat first\"], prosLabel: \"Adding a website\", consLabel: \"What it costs you\")\nplan = Card([Steps([{title: \"Week 1: catalogue\", text: \"Photograph and price every product in one spreadsheet.\"}, {title: \"Week 2: build\", text: \"Set up a simple store page with mobile money checkout.\"}, {title: \"Week 3: soft launch\", text: \"Share the link with your 50 most loyal Telegram buyers.\"}, {title: \"Week 4: go public\", text: \"Pin the link on Telegram and add it to Instagram and TikTok bios.\"}], checkable: true)], title: \"A four-week plan\", icon: \"calendar\")\nvoice = Quote(\"I found the scarf on TikTok, but I ordered on Telegram because I could ask about the colours first.\", source: \"Customer in Adama\", role: \"Post-purchase survey, September\")\nsources = Sources([{title: \"Q3 order export\", url: \"https://example.com/orders-q3\", publisher: \"Order system\"}, {title: \"Channel survey, September\", url: \"https://example.com/survey\", publisher: \"Internal survey\"}])\n"
+  },
+  {
+   "id": "twoway",
+   "label": "Two-way agent",
+   "src": "// Two-way UI: the model asks, compares, and waits for approval before acting.\nroot = Col([intro, ask, reach, plans, approve, pickup])\nintro = Text(\"Here's where your customers are and what each plan would give you. Pick a period for the deeper analysis, and approve the restock post when it looks right.\")\nask = ChoiceChips(question: \"Which period should the deeper analysis cover?\", options: [\"This month\", \"Last quarter\", \"Year to date\"], template: \"Analyse sales for {choice}\")\nreach = Card([RegionMap(data: data.customers_by_region, region: \"region\", value: \"customers\", caption: \"Active customers, Q3.\")], title: \"Where your customers are\", icon: \"map-pin\")\nplans = ComparisonTable(columns: [{name: \"Starter\", subtitle: \"ETB 950 / month\"}, {name: \"Growth\", subtitle: \"ETB 2,400 / month\"}, {name: \"Scale\", subtitle: \"ETB 6,500 / month\"}], rows: [{label: \"Sales channels\", values: [\"Telegram\", \"Up to 3\", \"Unlimited\"]}, {label: \"Weekly report\", values: [false, true, true]}, {label: \"Region breakdown\", values: [false, true, true]}, {label: \"Team seats\", values: [1, 3, 10]}], highlight: \"Growth\")\napprove = ApprovalCard(title: \"Post the restock announcement\", action: \"Publish to your Telegram channel\", icon: \"send\", details: [{label: \"Audience\", value: \"2,340 subscribers\"}, {label: \"Scheduled\", value: \"Now\"}], preview: \"New stock just landed: hand-woven netela scarves in six colours and fresh Yirgacheffe coffee. Same-day delivery in Addis Ababa. Reply to order!\", warning: \"Posts go to every subscriber immediately.\", approveLabel: \"Post now\")\npickup = Form(title: \"Schedule a courier pickup\", icon: \"truck\", fields: [{name: \"location\", label: \"Pickup location\", type: \"select\", options: [\"Bole warehouse\", \"Merkato shop\"], required: true}, {name: \"date\", label: \"Date\", type: \"date\", required: true}, {name: \"parcels\", label: \"Parcels\", type: \"number\", required: true}], submitLabel: \"Request pickup\", template: \"Schedule a pickup from {location} on {date} for {parcels} parcels\")\n"
+  },
+  {
+   "id": "calculator",
+   "label": "Plan calculator",
+   "src": "// Team plan calculator: state plus derived values. Dragging never calls the model.\nroot = Card([seats, billing, Divider(), price, note], title: \"Team plan estimate\", icon: \"users\")\n$seats = 8\n$billing = \"monthly\"\nseats = Slider($seats, min: 1, max: 50, label: \"Seats\")\nbilling = SegmentedControl($billing, options: [\"monthly\", \"yearly\"], label: \"Billing\")\nperSeat = $billing == \"yearly\" ? 9500 : 950\nprice = Grid([Stat(label: $billing == \"yearly\" ? \"Per year\" : \"Per month\", value: $seats * perSeat, format: \"currency\", size: \"lg\"), Stat(label: \"Per seat\", value: perSeat, format: \"currency\")], columns: 2)\nnote = $billing == \"yearly\" ? Callout(\"Yearly billing saves \" + @Format($seats * (950 * 12 - 9500), \"currency\") + \" compared with paying monthly.\", tone: \"success\") : Caption(\"Switch to yearly billing to get two months free.\")\n"
+  },
+  {
+   "id": "split",
+   "label": "Bill splitter",
+   "src": "// Bill splitter: every number recalculates locally as you drag.\nroot = Card([totalIn, peopleIn, tipIn, Divider(), result, copyBtn], title: \"Split the bill\", icon: \"wallet\")\n$total = 2400\n$people = 4\n$tip = 10\ntotalIn = Input($total, type: \"number\", label: \"Bill total\", suffix: \"ETB\")\npeopleIn = Slider($people, min: 1, max: 12, label: \"People\")\ntipIn = Slider($tip, min: 0, max: 25, step: 5, label: \"Tip\", suffix: \"%\")\nwithTip = $total * (1 + $tip / 100)\neach = withTip / $people\nresult = Grid([Stat(label: \"Each pays\", value: each, format: \"currency\", size: \"lg\"), Stat(label: \"Total with tip\", value: withTip, format: \"currency\")], columns: 2)\ncopyBtn = Button(\"Copy the split\", variant: \"outline\", icon: \"copy\", onClick: @Copy(\"Each of \" + $people + \" people pays \" + @Format(each, \"currency\")))\n"
+  },
+  {
+   "id": "moodboard",
+   "label": "Moodboard",
+   "src": "// Moodboard: images are server-resolved from search queries, never URLs typed by the model.\nroot = Col([title, intro, photos, palette, next])\ntitle = Title(\"Cafe interior moodboard\")\nintro = Text(\"Warm wood, clay and woven textures, built around a traditional coffee ceremony corner.\")\nphotos = AsyncImageGroup([\"traditional jebena coffee pot on charcoal\", \"woven mesob basket in warm light\", \"small cafe counter in Addis Ababa with wooden stools\", \"clay cups on a carved wooden tray\"])\npalette = Row([Badge(\"Clay\", tone: \"warning\"), Badge(\"Forest\", tone: \"success\"), Badge(\"Charcoal\", variant: \"outline\"), Badge(\"Linen\", tone: \"muted\")])\n$style = \"cozy\"\nnext = Card([SegmentedControl($style, options: [\"cozy\", \"modern\", \"rustic\"]), Button(\"Develop the \" + $style + \" direction\", icon: \"arrow-right\", onClick: @NewTurn(\"Develop a \" + $style + \" cafe interior concept with a coffee ceremony corner\"))], title: \"Pick a direction\")\n"
+  },
+  {
+   "id": "errors",
+   "label": "Diagnostics",
+   "src": "// Deliberate mistakes. The compiler drops what it cannot validate and keeps the rest.\nroot = Col([heading, chart, sparkle, stock, tiles, ghost])\nheading = Title(\"Diagnostics demo\", size: \"md\")\nchart = Chart(type: \"bar\", data: data.channels, x: \"channel\", y: \"share\", format: \"percent\", glow: true)\nsparkle = Sparkle(text: \"Unknown component\")\nstock = Table(data.inventory)\ntiles = Grid([Stat(label: \"Orders\", value: 412), Stat(label: \"Returns\", value: \"nine\")], columns: 7)\n"
+  }
+ ]
+}

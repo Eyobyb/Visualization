@@ -13,6 +13,7 @@ export function ColumnShell(props: {
   searching?: boolean
   error: string | null
   children: ReactNode
+  toolbar?: ReactNode
   footer?: ReactNode
 }) {
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -36,6 +37,7 @@ export function ColumnShell(props: {
           {props.streaming && <span className="live">streaming</span>}
         </div>
       </header>
+      {props.toolbar && <div className="column-toolbar">{props.toolbar}</div>}
       <div className="column-body" ref={scrollRef}>
         {props.children}
         {props.error && <div className="error">{props.error}</div>}

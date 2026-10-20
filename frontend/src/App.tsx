@@ -1,4 +1,5 @@
 import { useRef, useState, type FormEvent } from 'react'
+import { LayoutGrid } from 'lucide-react'
 import { PlainColumn } from './columns/PlainColumn'
 import { OpenUIColumn } from './columns/OpenUIColumn'
 import { DILColumn } from './columns/DILColumn'
@@ -61,6 +62,12 @@ export default function App() {
 
   return (
     <div className="app">
+      <header className="app-bar">
+        <a className="catalog-link" href="/catalog.html">
+          <LayoutGrid size={14} aria-hidden />
+          Component catalog
+        </a>
+      </header>
       <details className="context-section" open>
         <summary>
           Context

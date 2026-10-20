@@ -15,6 +15,8 @@ from .dil import compile_dil  # noqa: E402
 from .dil.catalog import catalog_summary  # noqa: E402
 from .llm import stream_text  # noqa: E402
 from .search import search  # noqa: E402
+from .viz import viz_events  # noqa: E402
+from .vizlang.prompt import catalog_prompt  # noqa: E402
 
 PROMPTS = Path(__file__).resolve().parent.parent / "prompts"
 RECOMPILE_INTERVAL_S = 0.25
@@ -233,6 +235,80 @@ async def dil_events(system: str, req: ChatRequest) -> AsyncIterator[str]:
 async def dil_stream(req: ChatRequest):
     system = load_prompt("dil_system.md").replace("{{CATALOG}}", catalog_summary())
     return sse_response(dil_events(system, req))
+
+
+VIZ_RESULT_FIELDS = ("id",) + BINDING_FIELDS
+
+
+def viz_bindings(req: ChatRequest) -> Dict[str, object]:
+    bindings: Dict[str, object] = {}
+    if req.search:
+        bindings["results"] = [{f: getattr(r, f) for f in VIZ_RESULT_FIELDS} for r in req.search.results]
+    ctx = context_text(req)
+    if ctx:
+        bindings["context"] = {"text": ctx}
+    return bindings
+
+
+def viz_data_context(req: ChatRequest) -> Optional[str]:
+    sections = []
+    if req.search:
+        rows = "\n".join(json.dumps({f: getattr(r, f) for f in VIZ_RESULT_FIELDS}, ensure_ascii=False) for r in req.search.results)
+        sections.append(
+            f"### `data.results`: search results for the latest user message\n\nQuery: {json.dumps(req.search.query)}\n\n"
+            f"{UNTRUSTED_NOTE}\n\n{len(req.search.results)} rows with fields {', '.join(VIZ_RESULT_FIELDS)}. "
+            "Read them as `data.results[0].title`, pass `data.results` to Sources or ListCard, "
+            "and never retype a URL.\n\n"
+            f"<search_results>\n{rows}\n</search_results>"
+        )
+    ctx = context_text(req)
+    if ctx:
+        note = CONTEXT_NOTE if req.search else f"{CONTEXT_NOTE} {NO_SEARCH_NOTE}"
+        sections.append(
+            f"### `data.context`: user context\n\n{note}\n\nIt has one field, `text`. Write `data.context.text` to show it "
+            f"verbatim; summarise, extract or tabulate it in your own words otherwise.\n\n<user_context>\n{ctx}\n</user_context>"
+        )
+    if not sections:
+        return "## Bindings for this message\n\nNone. Do not write `data.` anywhere."
+    return "## Bindings for this message\n\n" + "\n\n".join(sections)
+
+
+def plain_search_context(s: SearchPayload) -> str:
+    return f"Search query for the latest user message: {json.dumps(s.query)}\n{UNTRUSTED_NOTE}\n\n<search_results>\n{s.markdown}</search_results>"
+
+
+def latest_user_text(req: ChatRequest) -> str:
+    for m in reversed(req.messages):
+        if m.role == "user":
+            return m.content
+    return ""
+
+
+_viz_system: Optional[str] = None
+
+
+def viz_system() -> str:
+    global _viz_system
+    if _viz_system is None:
+        _viz_system = load_prompt("viz_system.md").replace("{{CATALOG}}", catalog_prompt())
+    return _viz_system
+
+
+@app.post("/api/viz/stream")
+async def viz_stream(req: ChatRequest):
+    ctx = context_text(req)
+    prose_extra = join_sections(
+        openui_context(ctx, req.search is not None) if ctx else None,
+        plain_search_context(req.search) if req.search else None,
+    )
+    return sse_response(viz_events(
+        system=viz_system(),
+        messages=messages_of(req),
+        query=latest_user_text(req),
+        bindings=viz_bindings(req),
+        extra=viz_data_context(req),
+        prose=lambda: text_events(load_prompt("plain.md"), req, prose_extra),
+    ))
 
 
 @app.get("/api/health")

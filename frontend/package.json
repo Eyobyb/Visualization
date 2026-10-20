@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
+    "test": "vitest run",
+    "export-vizlang": "VIZLANG_WRITE=1 vitest run src/vizlang/__tests__/export.test.ts",
     "preview": "vite preview",
     "export-prompt": "node scripts/export-openui-prompt.mjs",
     "postinstall": "node scripts/export-openui-prompt.mjs"
@@ -31,6 +33,7 @@
     "@vitejs/plugin-react": "^6.1.2",
     "oxlint": "^1.88.0",
     "typescript": "~6.0.3",
-    "vite": "^8.3.4"
+    "vite": "^8.3.4",
+    "vitest": "^4.1.12"
   }
 }
