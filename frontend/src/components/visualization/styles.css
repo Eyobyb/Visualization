@@ -321,11 +321,23 @@
   .ui-quote blockquote p { margin: 0; font-size: 17px; line-height: 1.5; max-width: 60ch; text-wrap: pretty; }
   .ui-quote figcaption { margin-top: 8px; font-size: 13px; color: var(--ink-3); display: flex; flex-wrap: wrap; gap: 4px 8px; }
   .ui-quote figcaption b { color: var(--ink-2); font-weight: 600; }
-  .ui-sources { list-style: none; margin: 0; padding: 12px 0 0; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
-  .ui-sources li { display: flex; gap: 10px; align-items: baseline; }
-  .ui-sources .sn { font: 500 11.5px var(--font-mono); color: var(--ink-3); min-width: 16px; }
-  .ui-sources a { color: var(--accent); text-underline-offset: 3px; }
-  .ui-sources small { margin-left: 8px; color: var(--ink-3); font-size: 12px; }
+  .ui-sources { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .ui-sources-h { display: flex; align-items: center; justify-content: space-between; font-size: 15px; font-weight: 600; color: var(--ink-2); }
+  .ui-sources-nav { display: flex; gap: 6px; }
+  .ui-sources-nav button { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+  .ui-sources-nav button:hover:not(:disabled) { background: var(--sunk); }
+  .ui-sources-nav button:disabled { color: var(--ink-3); opacity: .5; cursor: default; }
+  .ui-sources-strip { list-style: none; margin: 0; padding: 0 0 2px; display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+  .ui-sources-strip::-webkit-scrollbar { display: none; }
+  .ui-sources-strip > li { flex: 0 0 min(180px, 70%); scroll-snap-align: start; display: flex; }
+  .src-card { flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; min-height: 92px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); color: inherit; text-decoration: none; min-width: 0; }
+  a.src-card:hover { border-color: var(--ink-3); }
+  a.src-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .src-site { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .src-icon, .src-letter { flex: none; width: 18px; height: 18px; border-radius: 4px; }
+  .src-letter { display: grid; place-items: center; background: var(--sunk); color: var(--ink-2); font-size: 11px; font-weight: 600; }
+  .src-name { font-size: 13.5px; font-weight: 500; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .src-title { font-size: 13px; line-height: 1.45; color: var(--ink-3); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
   /* Two-way */
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .ui-choices { display: flex; flex-direction: column; gap: 10px; min-width: 0; }

@@ -1,4 +1,5 @@
-import { useId, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Glyph, type IconName } from './Icon'
 import { isIconName } from './icons'
 import { asProse, cx, fmt, richText, safeUrl, TONES } from './utils'
@@ -324,26 +325,97 @@ export interface Source {
   publisher?: string
 }
 
+const hostOf = (href: string | undefined) => {
+  if (!href) return undefined
+  try {
+    return new URL(href).hostname.replace(/^www\./, '')
+  } catch {
+    return undefined
+  }
+}
+
+function SourceIcon({ host, label }: { host?: string; label: string }) {
+  const [failed, setFailed] = useState(false)
+  if (!host || failed) return <span className="src-letter" aria-hidden>{(label.trim()[0] ?? '?').toUpperCase()}</span>
+  return (
+    <img
+      className="src-icon"
+      src={`https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=64`}
+      alt=""
+      loading="lazy"
+      referrerPolicy="no-referrer"
+      onError={() => setFailed(true)}
+    />
+  )
+}
+
 /**
- * A numbered list of sources at the end of a researched answer. Only http(s) URLs become links.
+ * The sources behind a researched answer, as a scrolling row of cards with each site's icon, name and
+ * page title. Cards follow citation order, so the third card is source [3]. Only http(s) URLs become links.
  *
  * @example <Sources items={[{ title: 'Q3 order export', url: 'https://example.com/orders-q3', publisher: 'Order system' }]} />
  */
 export function Sources({ items }: { items: Source[] }) {
+  const strip = useRef<HTMLOListElement>(null)
+  const [edges, setEdges] = useState({ start: true, end: items.length <= 1 })
+
+  const measure = useCallback(() => {
+    const el = strip.current
+    if (el) setEdges({ start: el.scrollLeft <= 1, end: el.scrollLeft + el.clientWidth >= el.scrollWidth - 1 })
+  }, [])
+
+  useEffect(() => {
+    measure()
+    const el = strip.current
+    if (!el || typeof ResizeObserver === 'undefined') return
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [measure, items.length])
+
+  const page = (dir: 1 | -1) => {
+    const el = strip.current
+    if (el) el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: 'smooth' })
+  }
+
   return (
-    <ol className="ui-sources">
-      {items.map((o, i) => {
-        const href = safeUrl(o.url)
-        return (
-          <li key={i}>
-            <span className="sn">{i + 1}</span>
-            <span>
-              {href ? <a href={href} target="_blank" rel="noopener noreferrer">{o.title || o.url}</a> : <span>{o.title}</span>}
-              {o.publisher && <small>{o.publisher}</small>}
-            </span>
-          </li>
-        )
-      })}
-    </ol>
+    <section className="ui-sources" aria-label="Sources">
+      <div className="ui-sources-h">
+        <span>Sources</span>
+        {!(edges.start && edges.end) && (
+          <span className="ui-sources-nav">
+            <button type="button" aria-label="Previous sources" disabled={edges.start} onClick={() => page(-1)}>
+              <ChevronLeft size={16} />
+            </button>
+            <button type="button" aria-label="Next sources" disabled={edges.end} onClick={() => page(1)}>
+              <ChevronRight size={16} />
+            </button>
+          </span>
+        )}
+      </div>
+      <ol ref={strip} className="ui-sources-strip" onScroll={measure}>
+        {items.map((o, i) => {
+          const href = safeUrl(o.url)
+          const host = hostOf(href)
+          const name = o.publisher || host || o.title
+          const body = (
+            <>
+              <span className="src-site">
+                <SourceIcon host={host} label={name} />
+                <span className="src-name">{name}</span>
+              </span>
+              {o.title && o.title !== name && <span className="src-title">{o.title}</span>}
+            </>
+          )
+          return (
+            <li key={i} aria-label={`Source ${i + 1}: ${o.title || name}`}>
+              {href
+                ? <a className="src-card" href={href} target="_blank" rel="noopener noreferrer" title={href}>{body}</a>
+                : <div className="src-card">{body}</div>}
+            </li>
+          )
+        })}
+      </ol>
+    </section>
   )
 }

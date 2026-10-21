@@ -190,7 +190,7 @@ def('FactList', 'Prose', 'Label and value pairs: specs, key facts, terms. Number
 def('Quote', 'Prose', 'A short attributed quotation, under 25 words.', ['text'],
   { text: P.str('The quotation.', REQ), source: P.str('Who said it.'), role: P.str('Their role or where it was said.') },
   [String.raw`root = Quote("I found the scarf on TikTok, but I ordered on Telegram because I could ask about the colours first.", source: "Customer in Adama", role: "Post-purchase survey, September")`])
-def('Sources', 'Prose', 'A numbered list of sources at the end of a researched answer.', ['items'],
+def('Sources', 'Prose', 'Source cards (site icon, site name, page title) in a scrolling row at the end of a researched answer. Card order is citation order.', ['items'],
   { items: itemsP('{title, url, publisher}.') },
   [String.raw`root = Sources([{title: "Q3 order export", url: "https://example.com/orders-q3", publisher: "Order system"}, {title: "Channel survey, September", url: "https://example.com/survey", publisher: "Internal survey"}])`])
 

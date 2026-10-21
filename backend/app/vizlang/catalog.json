@@ -1954,7 +1954,7 @@
   "Sources": {
    "name": "Sources",
    "family": "Prose",
-   "desc": "A numbered list of sources at the end of a researched answer.",
+   "desc": "Source cards (site icon, site name, page title) in a scrolling row at the end of a researched answer. Card order is citation order.",
    "pos": [
     "items"
    ],
