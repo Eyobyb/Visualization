@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useState, type ComponentType, type ReactNode } from 'react'
 import docs, { type ComponentDoc, type ExampleDoc } from 'virtual:viz-docs'
-import { VizBoundary, VizRoot } from '../components/visualization'
+import { SELECTED_STYLE, STYLE_PACKS, VizBoundary, VizRoot, type VizStyle } from '../components/visualization'
 import * as Examples from './examples'
 import { Playground } from './Playground'
 import { notify, useToast } from './toast'
+
+/** Built-in packs, plus the VIZ_STYLE file when it is not one of them. */
+const PACKS: Record<string, VizStyle> = { ...STYLE_PACKS, [SELECTED_STYLE.name]: STYLE_PACKS[SELECTED_STYLE.name] ?? SELECTED_STYLE }
 
 type View = 'components' | 'playground'
 const PLAYGROUND_HASH = '#playground'
@@ -121,7 +124,15 @@ export function CatalogApp() {
   const [query, setQuery] = useState('')
   const [theme, setTheme] = useState<'light' | 'dark'>('light')
   const [view, setView] = useState<View>(viewFromHash)
+  const [style, setStyle] = useState<VizStyle>(() => PACKS[new URLSearchParams(window.location.search).get('style') ?? ''] ?? SELECTED_STYLE)
   const toast = useToast()
+
+  const pickStyle = (name: string) => {
+    setStyle(PACKS[name])
+    const url = new URL(window.location.href)
+    url.searchParams.set('style', name)
+    history.replaceState(null, '', url)
+  }
 
   useEffect(() => {
     const sync = () => setView(viewFromHash())
@@ -144,7 +155,7 @@ export function CatalogApp() {
     (family === 'All' || c.family === family) && (!q || `${c.name} ${c.description}`.toLowerCase().includes(q)))
 
   return (
-    <VizRoot theme={theme} className="lab">
+    <VizRoot theme={theme} stylePack={style} className="lab">
       <header className="lab-top">
         <div className="lab-brand">
           <Mark />
@@ -164,6 +175,9 @@ export function CatalogApp() {
               <button key={t} type="button" role="radio" aria-checked={theme === t} onClick={() => setTheme(t)}>{t === 'light' ? 'Light' : 'Dark'}</button>
             ))}
           </div>
+          <select className="lab-select lab-style" aria-label="Style pack" value={style.name} onChange={(e) => pickStyle(e.target.value)}>
+            {Object.values(PACKS).map((s) => <option key={s.name} value={s.name} title={s.description}>{s.label}</option>)}
+          </select>
           <a className="lab-btn" href="/">Back to the app</a>
         </div>
       </header>

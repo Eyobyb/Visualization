@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { Glyph, type IconName } from './Icon'
 import { CardHead, Empty } from './shared'
+import { usePlaceholders } from './theme/context'
 import { cx, FLEX_ALIGN, space } from './utils'
 import type { Align, CardTone, Space } from './types'
 
@@ -145,7 +146,8 @@ export interface TabItem {
  */
 export function Tabs({ items }: { items: TabItem[] }) {
   const [selected, setSelected] = useState(0)
-  if (!items.length) return <Empty text="No tabs" />
+  const { noTabs } = usePlaceholders()
+  if (!items.length) return <Empty text={noTabs} />
   const cur = Math.min(selected, items.length - 1)
   return (
     <div className="ui-tabs">

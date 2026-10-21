@@ -237,6 +237,26 @@
   border-bottom: 1px solid #eceef1;
 }
 
+.style-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 600;
+  color: #57606a;
+}
+
+.style-pick select {
+  font: inherit;
+  font-weight: 500;
+  color: #24292f;
+  padding: 3px 6px;
+  border: 1px solid #d0d4da;
+  border-radius: 6px;
+  background: #fff;
+}
+
 .switch {
   display: inline-flex;
   align-items: center;

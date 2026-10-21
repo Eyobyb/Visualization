@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react'
 import type { NormalizedOption, NumberFormat, OptionInput, ProseItem, Row, Space } from './types'
 
 export const CURRENCY = 'ETB'
@@ -6,7 +6,7 @@ export const SERIES_COLORS = ['var(--c1)', 'var(--c2)', 'var(--c3)', 'var(--c4)'
 export const TONES = ['ink', 'muted', 'accent', 'info', 'success', 'warning', 'danger'] as const
 
 const SPACE = [0, 4, 8, 12, 16, 20, 24, 28, 32]
-export const space = (v: Space | undefined) => SPACE[v ?? 3] ?? 12
+export const space = (v: Space | undefined) => `calc(${SPACE[v ?? 3] ?? 12}px * var(--space-scale))`
 
 export const FLEX_ALIGN = { start: 'flex-start', center: 'center', end: 'flex-end', stretch: 'stretch', between: 'space-between' } as const
 
@@ -80,6 +80,10 @@ export function sortRows(list: Row[], field: string, dir: 'asc' | 'desc' = 'desc
 /** Replaces `{key}` placeholders; empty values become an em dash. */
 export const fillTemplate = (t: string, vals: Record<string, unknown>) =>
   t.replace(/\{(\w+)\}/g, (_, k: string) => (vals[k] != null && vals[k] !== '' ? String(vals[k]) : '—'))
+
+/** fillTemplate for JSX: each `{key}` becomes the given node, so a part can be bold or a link. */
+export const fillNodes = (t: string, vals: Record<string, ReactNode>): ReactNode[] =>
+  t.split(/\{(\w+)\}/g).map((part, i) => (i % 2 ? <Fragment key={i}>{vals[part] ?? '—'}</Fragment> : part))
 
 export function copyText(t: string) {
   navigator.clipboard?.writeText(t).catch(() => {})

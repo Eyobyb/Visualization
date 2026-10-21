@@ -1,6 +1,7 @@
 import { useId, useState, type FormEvent } from 'react'
 import { Glyph, type IconName } from './Icon'
 import { CardHead } from './shared'
+import { useLabels, usePlaceholders } from './theme/context'
 import { cx, fillTemplate, fmt, normOption } from './utils'
 import type { NumberFormat, OptionInput } from './types'
 
@@ -8,7 +9,8 @@ import type { NumberFormat, OptionInput } from './types'
 export type SendToModel = (text: string) => void
 
 function SentNote() {
-  return <span className="ui-choices-sent"><Glyph name="check" size={14} />Sent to the assistant</span>
+  const L = useLabels()
+  return <span className="ui-choices-sent"><Glyph name="check" size={14} />{L.sentToAssistant}</span>
 }
 
 type ChoiceChipsProps<V extends string | number> = {
@@ -53,6 +55,7 @@ type ChoiceChipsProps<V extends string | number> = {
  */
 export function ChoiceChips<V extends string | number>(props: ChoiceChipsProps<V>) {
   const { question, options, variant = 'chips' } = props
+  const L = useLabels()
   const opts = options.map(normOption)
   const [picked, setPicked] = useState<string[]>([])
   const [sent, setSent] = useState<string[] | null>(null)
@@ -76,7 +79,7 @@ export function ChoiceChips<V extends string | number>(props: ChoiceChipsProps<V
   return (
     <div className="ui-choices">
       {question && <p className="ui-choices-q">{question}</p>}
-      <div className={cx('ui-choices-opts', cards && 'cards')} role="group" aria-label={question || 'Options'}>
+      <div className={cx('ui-choices-opts', cards && 'cards')} role="group" aria-label={question || L.options}>
         {opts.map((o, i) => (
           <button key={i} type="button" className="ui-chip" aria-pressed={isOn(o)} disabled={!bound && !!sent && !isOn(o)} onClick={() => click(o)}>
             {o.icon && <Glyph name={o.icon} size={15} />}
@@ -88,10 +91,10 @@ export function ChoiceChips<V extends string | number>(props: ChoiceChipsProps<V
       </div>
       {props.multi && !sent && (
         <div>
-          <button type="button" className="ui-btn v-solid s-sm" disabled={!picked.length} onClick={() => send(picked)}>{props.submitLabel ?? 'Send'}</button>
+          <button type="button" className="ui-btn v-solid s-sm" disabled={!picked.length} onClick={() => send(picked)}>{props.submitLabel ?? L.send}</button>
         </div>
       )}
-      {sent && <p className="ui-choices-sent"><Glyph name="check" size={14} />Sent to the assistant</p>}
+      {sent && <p className="ui-choices-sent"><Glyph name="check" size={14} />{L.sentToAssistant}</p>}
     </div>
   )
 }
@@ -136,6 +139,8 @@ export function Form({ fields, title, subtitle, icon, submitLabel = 'Submit', te
   onSend: SendToModel
 }) {
   const base = useId()
+  const { selectPrompt } = usePlaceholders()
+  const L = useLabels()
   const [vals, setVals] = useState<Record<string, string>>(() => Object.fromEntries(fields.map((f) => [f.name, f.default ?? ''])))
   const [errs, setErrs] = useState<Record<string, string>>({})
   const [sent, setSent] = useState(false)
@@ -155,9 +160,9 @@ export function Form({ fields, title, subtitle, icon, submitLabel = 'Submit', te
     const er: Record<string, string> = {}
     for (const f of fields) {
       const v = (vals[f.name] ?? '').trim()
-      if (f.required && !v) er[f.name] = 'Enter ' + (f.label ?? f.name).toLowerCase()
-      else if (v && f.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) er[f.name] = 'Enter an email like name@example.com'
-      else if (v && f.type === 'number' && !Number.isFinite(+v)) er[f.name] = 'Enter a number'
+      if (f.required && !v) er[f.name] = fillTemplate(L.required, { field: (f.label ?? f.name).toLowerCase() })
+      else if (v && f.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) er[f.name] = L.invalidEmail
+      else if (v && f.type === 'number' && !Number.isFinite(+v)) er[f.name] = L.invalidNumber
     }
     setErrs(er)
     if (Object.keys(er).length) return
@@ -187,7 +192,7 @@ export function Form({ fields, title, subtitle, icon, submitLabel = 'Submit', te
       return (
         <div className="ui-selectwrap">
           <select {...common} className="ui-select">
-            <option value="">{f.placeholder || 'Choose…'}</option>
+            <option value="">{f.placeholder || selectPrompt}</option>
             {(f.options ?? []).map(normOption).map((o, i) => <option key={i} value={String(o.value)}>{o.label}</option>)}
           </select>
           <Glyph name="chevron-down" size={16} />
@@ -219,7 +224,7 @@ export function Form({ fields, title, subtitle, icon, submitLabel = 'Submit', te
         ))}
       </div>
       <div className="ui-form-foot">
-        <button type="submit" className="ui-btn v-solid s-md"><Glyph name="send" size={15} />{sent ? 'Send again' : submitLabel}</button>
+        <button type="submit" className="ui-btn v-solid s-md"><Glyph name="send" size={15} />{sent ? L.sendAgain : submitLabel}</button>
         {sent && <SentNote />}
       </div>
     </form>
@@ -271,6 +276,7 @@ export function ApprovalCard({
   onSend: SendToModel
 }) {
   const id = useId()
+  const L = useLabels()
   const [status, setStatus] = useState<'pending' | 'approved' | 'cancelled'>('pending')
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(preview)
@@ -285,10 +291,10 @@ export function ApprovalCard({
   }
 
   const badge = status === 'pending'
-    ? <span className="ui-badge v-soft t-warning"><Glyph name="clock" size={13} />Needs approval</span>
+    ? <span className="ui-badge v-soft t-warning"><Glyph name="clock" size={13} />{L.needsApproval}</span>
     : status === 'approved'
-      ? <span className="ui-badge v-soft t-success"><Glyph name="check" size={13} />Approved</span>
-      : <span className="ui-badge v-soft t-muted"><Glyph name="x" size={13} />Cancelled</span>
+      ? <span className="ui-badge v-soft t-success"><Glyph name="check" size={13} />{L.approved}</span>
+      : <span className="ui-badge v-soft t-muted"><Glyph name="x" size={13} />{L.cancelled}</span>
 
   return (
     <section className={cx('ui-card pad ui-approval', 'st-' + status)}>
@@ -305,12 +311,12 @@ export function ApprovalCard({
       )}
       {preview !== '' && (editing ? (
         <div className="ui-field">
-          <label className="ui-label" htmlFor={id}>Edit before approving</label>
+          <label className="ui-label" htmlFor={id}>{L.editBeforeApproving}</label>
           <textarea id={id} className="ui-textarea" rows={5} value={draft} onChange={(e) => setDraft(e.target.value)} />
         </div>
       ) : (
         <div className="ui-approval-preview">
-          <span className="ui-label">{draft !== preview ? 'Preview (edited)' : 'Preview'}</span>
+          <span className="ui-label">{draft !== preview ? L.previewEdited : L.preview}</span>
           <p>{draft}</p>
         </div>
       ))}
@@ -319,9 +325,9 @@ export function ApprovalCard({
         <div className="ui-approval-actions">
           <button type="button" className="ui-btn v-solid s-md" onClick={() => decide(true)}><Glyph name="check" size={15} />{approveLabel}</button>
           {editable && preview !== '' && (
-            <button type="button" className="ui-btn v-outline s-md" onClick={() => setEditing((x) => !x)}>{editing ? 'Done editing' : 'Edit'}</button>
+            <button type="button" className="ui-btn v-outline s-md" onClick={() => setEditing((x) => !x)}>{editing ? L.doneEditing : L.edit}</button>
           )}
-          <button type="button" className="ui-btn v-ghost s-md" onClick={() => decide(false)}>Cancel</button>
+          <button type="button" className="ui-btn v-ghost s-md" onClick={() => decide(false)}>{L.cancel}</button>
         </div>
       ) : (
         <p className="ui-caption t-muted">{status === 'approved' ? 'The assistant was told to go ahead.' : 'The assistant was told not to do this.'}</p>

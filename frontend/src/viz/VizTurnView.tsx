@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { VizRoot, type SendToModel } from '../components/visualization'
+import { VizRoot, type SendToModel, type VizStyle } from '../components/visualization'
 import { useVizProgram } from '../vizlang'
 import { isNode } from '../vizlang/values'
 import { isVisual, type VizTurnData } from './turnData'
@@ -14,9 +14,11 @@ interface Props {
   onSend: SendToModel
   /** Called once, when the first component renders. */
   onFirstUI?: () => void
+  /** Style pack for this turn; defaults to the one selected at startup. */
+  stylePack?: VizStyle
 }
 
-function ProgramTurn({ source, turn, streaming, onSend, onFirstUI }: Props) {
+function ProgramTurn({ source, turn, streaming, onSend, onFirstUI, stylePack }: Props) {
   const { result, element } = useVizProgram({ source, data: turn.data, streaming, resolved: turn.resolved, onSend })
   const rendered = isNode(result.root)
   const reported = useRef(false)
@@ -28,7 +30,7 @@ function ProgramTurn({ source, turn, streaming, onSend, onFirstUI }: Props) {
   }, [rendered, onFirstUI])
 
   if (!source && streaming) return <div className="viz-status">Writing the interface…</div>
-  return <VizRoot className="viz-turn">{element}</VizRoot>
+  return <VizRoot className="viz-turn" stylePack={stylePack}>{element}</VizRoot>
 }
 
 /** One assistant turn of the viz stream: a live program, or Markdown when Jev routed the answer to prose. */

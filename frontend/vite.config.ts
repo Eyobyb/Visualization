@@ -1,9 +1,10 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vitest/config'
 import { vizDocs } from './scripts/vizDocs.ts'
+import { vizStyle } from './scripts/vizStyle.ts'
 
 export default defineConfig({
-  plugins: [react(), vizDocs()],
+  plugins: [react(), vizDocs(), vizStyle()],
   server: {
     port: 5180,
     strictPort: true,

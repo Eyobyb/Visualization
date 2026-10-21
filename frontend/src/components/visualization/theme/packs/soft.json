@@ -1,0 +1,80 @@
+{
+  "$schema": "../viz-style.schema.json",
+  "name": "soft",
+  "label": "Soft",
+  "description": "Friendly consumer feel: large rounded corners, violet accent, pastel charts, deep soft shadows, roomy spacing, bolder weights, pulsing skeletons.",
+  "colors": {
+    "light": {
+      "bg": "#F5F3FA",
+      "panel": "#FBFAFE",
+      "surface": "#FFFFFF",
+      "sunk": "#EEEBF6",
+      "line": "#E2DEEE",
+      "lineStrong": "#CBC5DD",
+      "ink": "#221D33",
+      "ink2": "#565070",
+      "ink3": "#7B7594",
+      "accent": "#6D4AE0",
+      "accentInk": "#FFFFFF",
+      "accentSoft": "#ECE6FD",
+      "good": "#1E8A5F",
+      "bad": "#C8414B",
+      "warn": "#B7721A",
+      "info": "#3C6FD8",
+      "series": [
+        "#6D4AE0",
+        "#F08A5D",
+        "#3CB4A8",
+        "#E2669A",
+        "#F2B93B",
+        "#5B8DEF"
+      ],
+      "shadow": "0 2px 6px rgb(60 40 120 / .06), 0 12px 32px rgb(60 40 120 / .10)"
+    },
+    "dark": {
+      "bg": "#14111D",
+      "panel": "#191524",
+      "surface": "#201B2E",
+      "sunk": "#0F0D16",
+      "line": "#2E2842",
+      "lineStrong": "#433B5C",
+      "ink": "#ECE8F7",
+      "ink2": "#B3ACC9",
+      "ink3": "#857E9E",
+      "accent": "#A48BFF",
+      "accentInk": "#120C24",
+      "accentSoft": "#2A2247",
+      "good": "#5FD3A0",
+      "bad": "#FF8A94",
+      "warn": "#F5C065",
+      "info": "#8BB0FF",
+      "series": [
+        "#A48BFF",
+        "#FFA581",
+        "#62D2C6",
+        "#FF8FBE",
+        "#FFD166",
+        "#8BB0FF"
+      ],
+      "shadow": "0 2px 6px rgb(0 0 0 / .35), 0 14px 34px rgb(0 0 0 / .4)"
+    }
+  },
+  "fonts": {
+    "ui": "Nunito, \"Avenir Next\", Avenir, ui-rounded, \"Segoe UI\", system-ui, sans-serif",
+    "heading": "Nunito, \"Avenir Next\", Avenir, ui-rounded, \"Segoe UI\", system-ui, sans-serif",
+    "weightMedium": 600,
+    "weightStrong": 700
+  },
+  "radius": {
+    "scale": 1.6,
+    "md": 18,
+    "lg": 24,
+    "pill": 999
+  },
+  "spacing": {
+    "scale": 1.15
+  },
+  "placeholders": {
+    "skeleton": "pulse"
+  }
+}

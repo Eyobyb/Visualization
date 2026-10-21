@@ -2,7 +2,8 @@ import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Glyph, type IconName } from './Icon'
 import { isIconName } from './icons'
-import { asProse, cx, fmt, richText, safeUrl, TONES } from './utils'
+import { useLabels } from './theme/context'
+import { asProse, cx, fillNodes, fillTemplate, fmt, richText, safeUrl, TONES } from './utils'
 import type { NumberFormat, ProseItem, Tone } from './types'
 
 function ItemBody({ item }: { item: ProseItem }) {
@@ -356,6 +357,7 @@ function SourceIcon({ host, label }: { host?: string; label: string }) {
  * @example <Sources items={[{ title: 'Q3 order export', url: 'https://example.com/orders-q3', publisher: 'Order system' }]} />
  */
 export function Sources({ items }: { items: Source[] }) {
+  const L = useLabels()
   const strip = useRef<HTMLOListElement>(null)
   const [edges, setEdges] = useState({ start: true, end: items.length <= 1 })
 
@@ -379,15 +381,15 @@ export function Sources({ items }: { items: Source[] }) {
   }
 
   return (
-    <section className="ui-sources" aria-label="Sources">
+    <section className="ui-sources" aria-label={L.sources}>
       <div className="ui-sources-h">
-        <span>Sources</span>
+        <span>{L.sources}</span>
         {!(edges.start && edges.end) && (
           <span className="ui-sources-nav">
-            <button type="button" aria-label="Previous sources" disabled={edges.start} onClick={() => page(-1)}>
+            <button type="button" aria-label={L.previousSources} disabled={edges.start} onClick={() => page(-1)}>
               <ChevronLeft size={16} />
             </button>
-            <button type="button" aria-label="Next sources" disabled={edges.end} onClick={() => page(1)}>
+            <button type="button" aria-label={L.nextSources} disabled={edges.end} onClick={() => page(1)}>
               <ChevronRight size={16} />
             </button>
           </span>
@@ -408,7 +410,7 @@ export function Sources({ items }: { items: Source[] }) {
             </>
           )
           return (
-            <li key={i} aria-label={`Source ${i + 1}: ${o.title || name}`}>
+            <li key={i} aria-label={fillTemplate(L.sourceItem, { n: i + 1, title: o.title || name })}>
               {href
                 ? <a className="src-card" href={href} target="_blank" rel="noopener noreferrer" title={href}>{body}</a>
                 : <div className="src-card">{body}</div>}
@@ -462,6 +464,7 @@ export type FlowStep = string | { title: string; text?: string; icon?: IconName 
  * @example <Flow steps={['Pedals', 'Chainring', 'Chain', 'Cassette', 'Rear wheel']} />
  */
 export function Flow({ steps, layout = 'line' }: { steps: FlowStep[]; layout?: 'line' | 'cycle' }) {
+  const L = useLabels()
   const norm = steps.map((s) => (typeof s === 'string' ? { title: s } : s))
   return (
     <div className={cx('ui-flow', layout === 'cycle' && 'is-cycle')}>
@@ -478,13 +481,14 @@ export function Flow({ steps, layout = 'line' }: { steps: FlowStep[]; layout?: '
         ))}
       </ol>
       {layout === 'cycle' && norm.length > 1 && (
-        <div className="fl-loop"><Glyph name="rotate-ccw" size={14} />Back to {norm[0].title}, then repeat</div>
+        <div className="fl-loop"><Glyph name="rotate-ccw" size={14} />{fillTemplate(L.cycleBack, { first: norm[0].title })}</div>
       )}
     </div>
   )
 }
 
 const CONFIDENCE = { low: 'warning', medium: 'info', high: 'success' } as const
+const CONFIDENCE_LABEL = { low: 'confidenceLow', medium: 'confidenceMedium', high: 'confidenceHigh' } as const
 
 /**
  * The recommendation that ends a comparison: the pick, why, and when to choose something else instead.
@@ -502,18 +506,19 @@ export function Verdict({ pick, reason, alternative, confidence, action }: {
   /** A follow-up button. */
   action?: ReactNode
 }) {
+  const L = useLabels()
   return (
     <section className="ui-verdict">
       <div className="vd-top">
-        <span className="vd-kicker">Recommendation</span>
+        <span className="vd-kicker">{L.recommendation}</span>
         {confidence && CONFIDENCE[confidence] && (
-          <span className={cx('ui-badge', 'v-soft', 't-' + CONFIDENCE[confidence])}>{confidence[0].toUpperCase() + confidence.slice(1)} confidence</span>
+          <span className={cx('ui-badge', 'v-soft', 't-' + CONFIDENCE[confidence])}>{L[CONFIDENCE_LABEL[confidence]]}</span>
         )}
       </div>
       <div className="vd-pick"><Glyph name="check" size={20} />{pick}</div>
       {reason != null && <p className="vd-reason">{richText(reason)}</p>}
       {alternative?.name && (
-        <p className="vd-alt">Choose <b>{alternative.name}</b> instead {alternative.when}</p>
+        <p className="vd-alt">{fillNodes(L.chooseInstead, { name: <b>{alternative.name}</b>, when: alternative.when })}</p>
       )}
       {action && <div className="ui-actions">{action}</div>}
     </section>

@@ -1,0 +1,83 @@
+{
+  "$schema": "../viz-style.schema.json",
+  "name": "chatgpt",
+  "label": "ChatGPT",
+  "description": "Inspired by ChatGPT: neutral greys, black (white in dark) pill buttons, system font at 16px, generous corners, airy spacing, near-flat cards.",
+  "colors": {
+    "light": {
+      "bg": "#FFFFFF",
+      "panel": "#F9F9F9",
+      "surface": "#FFFFFF",
+      "sunk": "#F4F4F4",
+      "line": "#E5E5E5",
+      "lineStrong": "#D0D0D0",
+      "ink": "#0D0D0D",
+      "ink2": "#5D5D5D",
+      "ink3": "#8F8F8F",
+      "accent": "#0D0D0D",
+      "accentInk": "#FFFFFF",
+      "accentSoft": "#F0F0F0",
+      "good": "#10A37F",
+      "bad": "#E02E2A",
+      "warn": "#C27803",
+      "info": "#2964AA",
+      "series": [
+        "#1F1F1F",
+        "#10A37F",
+        "#5B8DEF",
+        "#E8765A",
+        "#A78BFA",
+        "#A3A3A3"
+      ],
+      "shadow": "0 0 0 1px rgb(0 0 0 / .03), 0 4px 16px rgb(0 0 0 / .05)"
+    },
+    "dark": {
+      "bg": "#212121",
+      "panel": "#171717",
+      "surface": "#2F2F2F",
+      "sunk": "#181818",
+      "line": "#383838",
+      "lineStrong": "#4E4E4E",
+      "ink": "#ECECEC",
+      "ink2": "#B4B4B4",
+      "ink3": "#8F8F8F",
+      "accent": "#FFFFFF",
+      "accentInk": "#0D0D0D",
+      "accentSoft": "#3A3A3A",
+      "good": "#19C37D",
+      "bad": "#F87171",
+      "warn": "#FBBF24",
+      "info": "#7AA2FF",
+      "series": [
+        "#ECECEC",
+        "#19C37D",
+        "#7AA2FF",
+        "#FF9473",
+        "#C4B5FD",
+        "#8F8F8F"
+      ],
+      "shadow": "0 0 0 1px rgb(255 255 255 / .04), 0 8px 24px rgb(0 0 0 / .35)"
+    }
+  },
+  "fonts": {
+    "ui": "ui-sans-serif, -apple-system, system-ui, \"Segoe UI\", Helvetica, Arial, sans-serif",
+    "heading": "ui-sans-serif, -apple-system, system-ui, \"Segoe UI\", Helvetica, Arial, sans-serif",
+    "scale": 1.0667,
+    "lineHeight": 1.6
+  },
+  "radius": {
+    "scale": 1.6,
+    "md": 16,
+    "lg": 24,
+    "pill": 999
+  },
+  "spacing": {
+    "scale": 1.1
+  },
+  "placeholders": {
+    "skeleton": "shimmer",
+    "emptyBorder": "solid",
+    "loading": "Thinking…",
+    "imageSearching": "Searching for {query}…"
+  }
+}

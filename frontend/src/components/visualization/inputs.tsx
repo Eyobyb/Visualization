@@ -1,7 +1,8 @@
 import { useId, useState } from 'react'
 import { Minus, Plus, Star } from 'lucide-react'
 import { Glyph, type IconName } from './Icon'
-import { cx, fmt, normOption, num } from './utils'
+import { useLabels, usePlaceholders } from './theme/context'
+import { cx, fillTemplate, fmt, normOption, num } from './utils'
 import type { NumberFormat, OptionInput } from './types'
 
 /**
@@ -87,6 +88,7 @@ export function Select<V extends string | number>({ value, onChange, options, la
   label?: string
 }) {
   const id = useId()
+  const { selectPrompt } = usePlaceholders()
   const opts = options.map(normOption)
   const idx = opts.findIndex((o) => o.value === value)
   return (
@@ -94,7 +96,7 @@ export function Select<V extends string | number>({ value, onChange, options, la
       {label && <label className="ui-label" htmlFor={id}>{label}</label>}
       <div className="ui-selectwrap">
         <select id={id} className="ui-select" value={idx < 0 ? '' : String(idx)} onChange={(e) => onChange(opts[+e.target.value].value)}>
-          {idx < 0 && <option value="" disabled>Choose…</option>}
+          {idx < 0 && <option value="" disabled>{selectPrompt}</option>}
           {opts.map((o, i) => <option key={i} value={String(i)}>{o.label}</option>)}
         </select>
         <Glyph name="chevron-down" size={16} />
@@ -115,10 +117,11 @@ export function SegmentedControl<V extends string | number>({ value, onChange, o
   options: OptionInput<V>[]
   label?: string
 }) {
+  const L = useLabels()
   return (
     <div className="ui-field">
       {label && <span className="ui-label">{label}</span>}
-      <div className="ui-seg" role="radiogroup" aria-label={label || 'Options'}>
+      <div className="ui-seg" role="radiogroup" aria-label={label || L.options}>
         {options.map(normOption).map((o, i) => (
           <button key={i} type="button" role="radio" aria-checked={o.value === value} onClick={() => onChange(o.value)}>
             {o.icon && <Glyph name={o.icon} size={14} />}
@@ -210,10 +213,11 @@ export function RadioGroup<V extends string | number>({ value, onChange, options
   variant?: 'list' | 'cards'
   label?: string
 }) {
+  const L = useLabels()
   return (
     <div className="ui-field">
       {label && <span className="ui-label">{label}</span>}
-      <div className={cx('ui-radios', variant === 'cards' && 'cards')} role="radiogroup" aria-label={label || 'Options'}>
+      <div className={cx('ui-radios', variant === 'cards' && 'cards')} role="radiogroup" aria-label={label || L.options}>
         {options.map(normOption).map((o, i) => (
           <button key={i} type="button" role="radio" aria-checked={o.value === value} className="ui-radio" onClick={() => onChange(o.value)}>
             <span className="dot" />
@@ -249,6 +253,7 @@ export function NumberInput({ value, onChange, min, max, step = 1, label, format
   suffix?: string
 }) {
   const id = useId()
+  const L = useLabels()
   const [draft, setDraft] = useState<string | null>(null)
   const val = num(value)
   const clamp = (n: number) =>
@@ -258,7 +263,7 @@ export function NumberInput({ value, onChange, min, max, step = 1, label, format
     <div className="ui-field">
       {label && <label className="ui-label" htmlFor={id}>{label}</label>}
       <div className="ui-inputwrap ui-stepper">
-        <button type="button" aria-label="Decrease" disabled={min !== undefined && val <= min} onClick={() => onChange(clamp(val - step))}>
+        <button type="button" aria-label={L.decrease} disabled={min !== undefined && val <= min} onClick={() => onChange(clamp(val - step))}>
           <Minus size={15} />
         </button>
         {prefix && <span className="ui-affix">{prefix}</span>}
@@ -283,7 +288,7 @@ export function NumberInput({ value, onChange, min, max, step = 1, label, format
           }}
         />
         {suffix && <span className="ui-affix">{suffix}</span>}
-        <button type="button" aria-label="Increase" disabled={max !== undefined && val >= max} onClick={() => onChange(clamp(val + step))}>
+        <button type="button" aria-label={L.increase} disabled={max !== undefined && val >= max} onClick={() => onChange(clamp(val + step))}>
           <Plus size={15} />
         </button>
       </div>
@@ -311,6 +316,7 @@ export function DatePicker({ value, onChange, end, onEndChange, label, min, max 
   max?: string
 }) {
   const id = useId()
+  const L = useLabels()
   const range = !!onEndChange
   return (
     <div className="ui-field">
@@ -321,7 +327,7 @@ export function DatePicker({ value, onChange, end, onEndChange, label, min, max 
             id={id}
             className="ui-input"
             type="date"
-            aria-label={range ? 'Start date' : undefined}
+            aria-label={range ? L.startDate : undefined}
             value={value ?? ''}
             min={min}
             max={max}
@@ -333,12 +339,12 @@ export function DatePicker({ value, onChange, end, onEndChange, label, min, max 
         </div>
         {range && (
           <>
-            <span className="ui-daterow-to">to</span>
+            <span className="ui-daterow-to">{L.dateTo}</span>
             <div className="ui-inputwrap">
               <input
                 className="ui-input"
                 type="date"
-                aria-label="End date"
+                aria-label={L.endDate}
                 value={end ?? ''}
                 min={value || min}
                 max={max}
@@ -387,19 +393,20 @@ export function Rating({ value, onChange, max = 5, label, size = 'md', showValue
   /** Show the number next to the stars. */
   showValue?: boolean
 }) {
+  const L = useLabels()
   const [hover, setHover] = useState<number | null>(null)
   const val = Math.min(max, Math.max(0, num(value)))
   const px = size === 'sm' ? 14 : 20
   const shown = showValue && <span className="ui-rating-val">{Number.isInteger(val) ? val : val.toFixed(1)}</span>
   const body = onChange ? (
-    <div className="ui-rating" role="radiogroup" aria-label={label || 'Rating'} onMouseLeave={() => setHover(null)}>
+    <div className="ui-rating" role="radiogroup" aria-label={label || L.rating} onMouseLeave={() => setHover(null)}>
       {Array.from({ length: max }, (_, i) => (
         <button
           key={i}
           type="button"
           role="radio"
           aria-checked={Math.round(val) === i + 1}
-          aria-label={`${i + 1} of ${max}`}
+          aria-label={fillTemplate(L.starOf, { n: i + 1, max })}
           className="ui-star-btn"
           onMouseEnter={() => setHover(i + 1)}
           onClick={() => onChange(i + 1)}
@@ -410,7 +417,7 @@ export function Rating({ value, onChange, max = 5, label, size = 'md', showValue
       {shown}
     </div>
   ) : (
-    <div className={cx('ui-rating', 's-' + size)} role="img" aria-label={`Rated ${val} out of ${max}`}>
+    <div className={cx('ui-rating', 's-' + size)} role="img" aria-label={fillTemplate(L.ratedOf, { value: val, max })}>
       <Stars value={val} max={max} size={px} />
       {shown}
     </div>

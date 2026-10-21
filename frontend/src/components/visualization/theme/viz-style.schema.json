@@ -1,0 +1,769 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Viz style pack",
+  "description": "Design tokens for the visualization components. Any field left out comes from the pack named in \"extends\" (default: \"default\").",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "extends": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Pack this file builds on. null means the file is complete on its own."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Pack id, used to select it."
+    },
+    "label": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Display name."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One line on what sets this pack apart."
+    },
+    "colors": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "light": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "bg": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Page background behind cards."
+            },
+            "panel": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Raised panels such as the code block header."
+            },
+            "surface": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Cards, inputs and table cells."
+            },
+            "sunk": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Recessed areas: tracks, code, skeletons."
+            },
+            "line": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Hairline borders and dividers."
+            },
+            "lineStrong": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Input borders and strong dividers."
+            },
+            "ink": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Main text."
+            },
+            "ink2": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Secondary text."
+            },
+            "ink3": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Muted text, captions and axis labels."
+            },
+            "accent": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Brand color: primary buttons, links, highlights."
+            },
+            "accentInk": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Text on the accent color."
+            },
+            "accentSoft": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Tinted accent background for icon tiles and highlights."
+            },
+            "good": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Positive deltas and success."
+            },
+            "bad": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Negative deltas and errors."
+            },
+            "warn": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Warnings."
+            },
+            "info": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Informational callouts."
+            },
+            "series": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 6,
+              "maxItems": 6,
+              "description": "Six chart series colors, in order."
+            },
+            "shadow": {
+              "type": "string",
+              "minLength": 1,
+              "description": "CSS box-shadow for cards and popovers."
+            }
+          }
+        },
+        "dark": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "bg": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Page background behind cards."
+            },
+            "panel": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Raised panels such as the code block header."
+            },
+            "surface": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Cards, inputs and table cells."
+            },
+            "sunk": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Recessed areas: tracks, code, skeletons."
+            },
+            "line": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Hairline borders and dividers."
+            },
+            "lineStrong": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Input borders and strong dividers."
+            },
+            "ink": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Main text."
+            },
+            "ink2": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Secondary text."
+            },
+            "ink3": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Muted text, captions and axis labels."
+            },
+            "accent": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Brand color: primary buttons, links, highlights."
+            },
+            "accentInk": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Text on the accent color."
+            },
+            "accentSoft": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Tinted accent background for icon tiles and highlights."
+            },
+            "good": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Positive deltas and success."
+            },
+            "bad": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Negative deltas and errors."
+            },
+            "warn": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Warnings."
+            },
+            "info": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Informational callouts."
+            },
+            "series": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 6,
+              "maxItems": 6,
+              "description": "Six chart series colors, in order."
+            },
+            "shadow": {
+              "type": "string",
+              "minLength": 1,
+              "description": "CSS box-shadow for cards and popovers."
+            }
+          }
+        }
+      }
+    },
+    "fonts": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ui": {
+          "type": "string",
+          "minLength": 1,
+          "description": "CSS font-family for body and control text."
+        },
+        "heading": {
+          "type": "string",
+          "minLength": 1,
+          "description": "CSS font-family for titles, card titles and big numbers."
+        },
+        "mono": {
+          "type": "string",
+          "minLength": 1,
+          "description": "CSS font-family for code."
+        },
+        "display": {
+          "type": "string",
+          "minLength": 1,
+          "description": "CSS font-family for decorative glyphs such as the quote mark."
+        },
+        "scale": {
+          "type": "number",
+          "minimum": 0.75,
+          "maximum": 1.5,
+          "description": "Multiplies every font size."
+        },
+        "lineHeight": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 2.2,
+          "description": "Body line height."
+        },
+        "weightMedium": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 900,
+          "description": "Weight for buttons, badges and labels."
+        },
+        "weightStrong": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 900,
+          "description": "Weight for titles and values."
+        },
+        "faces": {
+          "type": "array",
+          "description": "Web fonts to load: {family, src: font file URL, weight, style}. Name the family in ui, heading, mono or display.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "family",
+              "src"
+            ],
+            "properties": {
+              "family": {
+                "type": "string",
+                "minLength": 1
+              },
+              "src": {
+                "type": "string",
+                "minLength": 1
+              },
+              "weight": {
+                "type": "string",
+                "pattern": "^(normal|bold|[1-9]00( [1-9]00)?)$"
+              },
+              "style": {
+                "enum": [
+                  "normal",
+                  "italic"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "spacing": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "scale": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 2,
+          "description": "Multiplies padding, margins and gaps. Below 1 is denser."
+        }
+      }
+    },
+    "radius": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "scale": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 3,
+          "description": "Multiplies the small corners on buttons, inputs, chips, bars and icon tiles. 0 is square."
+        },
+        "md": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 40,
+          "description": "Corner radius of cards, boxes and tables, in px."
+        },
+        "lg": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 48,
+          "description": "Corner radius of large cards and panels, in px."
+        },
+        "pill": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 999,
+          "description": "Corner radius of badges and switches, in px. 999 is fully round."
+        }
+      }
+    },
+    "placeholders": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "skeleton": {
+          "enum": [
+            "shimmer",
+            "pulse",
+            "static"
+          ],
+          "description": "Loading placeholder motion."
+        },
+        "emptyBorder": {
+          "enum": [
+            "dashed",
+            "solid",
+            "none"
+          ],
+          "description": "Border of the empty-data box."
+        },
+        "loading": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Accessible label of a loading skeleton."
+        },
+        "imageSearching": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Shown while an image resolves; {query} is the search query."
+        },
+        "imageMissing": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Shown when no photo matched."
+        },
+        "noData": {
+          "type": "string",
+          "minLength": 1,
+          "description": "A data component with no binding; {kind} is chart, table or map."
+        },
+        "chartNoRows": {
+          "type": "string",
+          "minLength": 1,
+          "description": "A chart whose data has no rows."
+        },
+        "chartNeedsFields": {
+          "type": "string",
+          "minLength": 1,
+          "description": "A chart missing its x or y field."
+        },
+        "tableNoRows": {
+          "type": "string",
+          "minLength": 1,
+          "description": "A table whose data has no rows."
+        },
+        "mapNoRows": {
+          "type": "string",
+          "minLength": 1,
+          "description": "A region map with no matching rows."
+        },
+        "noTabs": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Tabs with no items."
+        },
+        "noItems": {
+          "type": "string",
+          "minLength": 1,
+          "description": "A list card with no items."
+        },
+        "noProducts": {
+          "type": "string",
+          "minLength": 1,
+          "description": "A product grid with no items."
+        },
+        "selectPrompt": {
+          "type": "string",
+          "minLength": 1,
+          "description": "First option of a dropdown with nothing picked."
+        }
+      }
+    },
+    "labels": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "showAllRows": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Table expand button; {count} is the row count."
+        },
+        "showFewerRows": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Table collapse button."
+        },
+        "yes": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Screen-reader text for a check in a comparison table."
+        },
+        "no": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Screen-reader text for a cross in a comparison table."
+        },
+        "progressOf": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Progress with a format; {value} and {max}."
+        },
+        "mapNoData": {
+          "type": "string",
+          "minLength": 1,
+          "description": "A region without data on the map."
+        },
+        "mapShare": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Region share in the map legend; {share} is a percentage."
+        },
+        "mapNote": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Region map caption."
+        },
+        "mapNotPlaced": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Rows the map could not place; {regions} lists them."
+        },
+        "chartTotal": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Total row in a chart tooltip."
+        },
+        "lineChart": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Line and area chart accessible name; {series}, {categories} and {peak}."
+        },
+        "columnChart": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Column chart accessible name; {series}, {categories} and {peak}."
+        },
+        "oneCategory": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Fills {categories} when there is one."
+        },
+        "categories": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Fills {categories}; {count} is the number."
+        },
+        "barChart": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Bar chart accessible name; {count} items, {series} series."
+        },
+        "donutChart": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Donut chart accessible name; {items} lists the slices."
+        },
+        "sources": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Heading of the sources strip."
+        },
+        "previousSources": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Sources strip back button."
+        },
+        "nextSources": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Sources strip forward button."
+        },
+        "sourceItem": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Accessible name of a source card; {n} and {title}."
+        },
+        "recommendation": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Verdict kicker."
+        },
+        "chooseInstead": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Verdict alternative; {name} (shown bold) and {when}."
+        },
+        "confidenceLow": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Verdict confidence badge."
+        },
+        "confidenceMedium": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Verdict confidence badge."
+        },
+        "confidenceHigh": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Verdict confidence badge."
+        },
+        "cycleBack": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Note under a cycle Flow; {first} is the first step."
+        },
+        "copyCode": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Code copy button."
+        },
+        "viewProduct": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Product card link."
+        },
+        "feelsLike": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Weather detail; {value} is the temperature."
+        },
+        "humidity": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Weather detail; {value} is a percentage."
+        },
+        "wind": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Weather detail; {value} is km/h."
+        },
+        "weatherSun": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Weather condition."
+        },
+        "weatherPartly": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Weather condition."
+        },
+        "weatherCloud": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Weather condition."
+        },
+        "weatherRain": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Weather condition."
+        },
+        "weatherStorm": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Weather condition."
+        },
+        "weatherFog": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Weather condition."
+        },
+        "weatherWind": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Weather condition."
+        },
+        "weatherSnow": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Weather condition."
+        },
+        "options": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Accessible name of an option group without a label."
+        },
+        "rating": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Accessible name of a clickable rating without a label."
+        },
+        "dateTo": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Between the two fields of a date range."
+        },
+        "decrease": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Number input minus button."
+        },
+        "increase": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Number input plus button."
+        },
+        "startDate": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Date range start field."
+        },
+        "endDate": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Date range end field."
+        },
+        "starOf": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Rating star button; {n} and {max}."
+        },
+        "ratedOf": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Rating accessible name; {value} and {max}."
+        },
+        "send": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Multi-select chips send button."
+        },
+        "sendAgain": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Form button after sending."
+        },
+        "sentToAssistant": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Confirmation after chips or a form were sent."
+        },
+        "needsApproval": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Approval card status."
+        },
+        "approved": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Approval card status."
+        },
+        "cancelled": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Approval card status."
+        },
+        "editBeforeApproving": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Approval card edit field label."
+        },
+        "cancel": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Approval card cancel button."
+        },
+        "preview": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Approval card preview label."
+        },
+        "previewEdited": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Approval card preview label after edits."
+        },
+        "edit": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Approval card edit button."
+        },
+        "doneEditing": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Approval card edit button while editing."
+        },
+        "required": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Form error for an empty required field; {field} is its lowercased label."
+        },
+        "invalidEmail": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Form error for a bad email."
+        },
+        "invalidNumber": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Form error for a bad number."
+        }
+      }
+    }
+  }
+}

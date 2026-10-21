@@ -7,7 +7,9 @@ import { Rating } from './inputs'
 import { AsyncImage } from './media'
 import { CardHead, Delta, Empty } from './shared'
 import { Badge } from './text'
-import { cx, fmt, num, rowsOf, safeUrl, sortRows } from './utils'
+import type { Labels } from './theme/config'
+import { useLabels, usePlaceholders } from './theme/context'
+import { cx, fillTemplate, fmt, num, rowsOf, safeUrl, sortRows } from './utils'
 import type { CardTone, GoodWhen, NumberFormat, Row } from './types'
 
 function KpiTop({ label, icon }: { label: string; icon?: IconName }) {
@@ -147,6 +149,7 @@ export function ListCard({ title, items, primary, secondary, value, valueFormat 
   /** Header icon. */
   icon?: IconName
 }) {
+  const { noItems } = usePlaceholders()
   let rows = rowsOf(items)
   if (value) rows = sortRows(rows, value, 'desc')
   rows = rows.slice(0, num(limit) || 5)
@@ -168,7 +171,7 @@ export function ListCard({ title, items, primary, secondary, value, valueFormat 
             </li>
           ))}
         </ol>
-      ) : <Empty text="No items" />}
+      ) : <Empty text={noItems} />}
     </section>
   )
 }
@@ -262,7 +265,9 @@ export function ProductGrid({ items, format = 'currency', columns = 3 }: {
   /** Columns at full width; fewer on narrow screens. */
   columns?: 2 | 3 | 4
 }) {
-  if (!items.length) return <Empty text="No products" />
+  const { noProducts } = usePlaceholders()
+  const L = useLabels()
+  if (!items.length) return <Empty text={noProducts} />
   return (
     <div className={cx('ui-products', 'c' + columns)}>
       {items.map((p, i) => {
@@ -280,7 +285,7 @@ export function ProductGrid({ items, format = 'currency', columns = 3 }: {
               )}
               {href && (
                 <a className="ui-link" href={href} target="_blank" rel="noopener noreferrer">
-                  View product <Glyph name="external" size={14} />
+                  {L.viewProduct} <Glyph name="external" size={14} />
                 </a>
               )}
             </div>
@@ -293,15 +298,15 @@ export function ProductGrid({ items, format = 'currency', columns = 3 }: {
 
 export type WeatherCondition = 'sun' | 'partly' | 'cloud' | 'rain' | 'storm' | 'fog' | 'wind' | 'snow'
 
-const WEATHER: Record<WeatherCondition, { icon: LucideIcon; label: string }> = {
-  sun: { icon: Sun, label: 'Sunny' },
-  partly: { icon: CloudSun, label: 'Partly cloudy' },
-  cloud: { icon: Cloud, label: 'Cloudy' },
-  rain: { icon: CloudRain, label: 'Rain' },
-  storm: { icon: CloudLightning, label: 'Thunderstorms' },
-  fog: { icon: CloudFog, label: 'Fog' },
-  wind: { icon: Wind, label: 'Windy' },
-  snow: { icon: Snowflake, label: 'Snow' },
+const WEATHER: Record<WeatherCondition, { icon: LucideIcon; label: keyof Labels }> = {
+  sun: { icon: Sun, label: 'weatherSun' },
+  partly: { icon: CloudSun, label: 'weatherPartly' },
+  cloud: { icon: Cloud, label: 'weatherCloud' },
+  rain: { icon: CloudRain, label: 'weatherRain' },
+  storm: { icon: CloudLightning, label: 'weatherStorm' },
+  fog: { icon: CloudFog, label: 'weatherFog' },
+  wind: { icon: Wind, label: 'weatherWind' },
+  snow: { icon: Snowflake, label: 'weatherSnow' },
 }
 const weather = (c: unknown) => WEATHER[c as WeatherCondition] ?? WEATHER.cloud
 
@@ -344,13 +349,14 @@ export function WeatherCard({ location, now, forecast = [], unit = 'C', updated 
   /** As-of note, such as "Updated 09:00". */
   updated?: string
 }) {
+  const L = useLabels()
   const deg = (t: unknown) => (typeof t === 'number' ? Math.round(t) + '°' : '–')
   const cur = weather(now?.condition)
   const NowIcon = cur.icon
   const facts = [
-    typeof now?.feelsLike === 'number' && 'Feels like ' + deg(now.feelsLike),
-    typeof now?.humidity === 'number' && 'Humidity ' + Math.round(now.humidity) + '%',
-    typeof now?.wind === 'number' && 'Wind ' + Math.round(now.wind) + ' km/h',
+    typeof now?.feelsLike === 'number' && fillTemplate(L.feelsLike, { value: deg(now.feelsLike) }),
+    typeof now?.humidity === 'number' && fillTemplate(L.humidity, { value: Math.round(now.humidity) + '%' }),
+    typeof now?.wind === 'number' && fillTemplate(L.wind, { value: Math.round(now.wind) }),
   ].filter(Boolean) as string[]
   return (
     <section className="ui-card pad ui-weather">
@@ -359,7 +365,7 @@ export function WeatherCard({ location, now, forecast = [], unit = 'C', updated 
         <div className="wx-main">
           <span className="wx-loc">{location}</span>
           <span className="wx-temp">{deg(now?.temp)}<small>{unit}</small></span>
-          <span className="wx-cond">{now?.summary ?? cur.label}</span>
+          <span className="wx-cond">{now?.summary ?? L[cur.label]}</span>
         </div>
         {facts.length > 0 && <ul className="wx-facts">{facts.map((f) => <li key={f}>{f}</li>)}</ul>}
       </div>
@@ -369,7 +375,7 @@ export function WeatherCard({ location, now, forecast = [], unit = 'C', updated 
             const w = weather(f.condition)
             const Icon = w.icon
             return (
-              <li key={i} aria-label={`${f.label}: ${w.label}`}>
+              <li key={i} aria-label={`${f.label}: ${L[w.label]}`}>
                 <span className="wx-label">{f.label}</span>
                 <Icon size={22} strokeWidth={1.7} aria-hidden />
                 <span className="wx-range"><b>{deg(f.high)}</b>{typeof f.low === 'number' && <span>{deg(f.low)}</span>}</span>

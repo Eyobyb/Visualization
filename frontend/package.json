@@ -9,11 +9,17 @@
     "lint": "oxlint",
     "test": "vitest run",
     "export-vizlang": "VIZLANG_WRITE=1 vitest run src/vizlang/__tests__/export.test.ts",
+    "export-viz-style": "VIZ_STYLE_WRITE=1 vitest run src/components/visualization/theme",
     "preview": "vite preview",
     "export-prompt": "node scripts/export-openui-prompt.mjs",
     "postinstall": "node scripts/export-openui-prompt.mjs"
   },
   "dependencies": {
+    "@fontsource/atkinson-hyperlegible": "^5.3.0",
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "@fontsource/ibm-plex-sans": "^5.3.0",
+    "@fontsource/nunito": "^5.3.0",
+    "@fontsource/source-serif-4": "^5.3.1",
     "@openuidev/lang-core": "^1.0.1",
     "@openuidev/react-headless": "^0.18.1",
     "@openuidev/react-lang": "^1.0.1",

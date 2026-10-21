@@ -1,0 +1,81 @@
+{
+  "$schema": "../viz-style.schema.json",
+  "name": "sharp",
+  "label": "Sharp",
+  "description": "Blueprint feel: square corners everywhere, cobalt accent, flat (no shadows), dense spacing, solid empty boxes, still skeletons.",
+  "colors": {
+    "light": {
+      "bg": "#F2F4F7",
+      "panel": "#F8F9FB",
+      "surface": "#FFFFFF",
+      "sunk": "#E8EBF0",
+      "line": "#D3D8E0",
+      "lineStrong": "#A9B2C0",
+      "ink": "#0F172A",
+      "ink2": "#3B4558",
+      "ink3": "#667085",
+      "accent": "#1F4FD8",
+      "accentInk": "#FFFFFF",
+      "accentSoft": "#E1E9FB",
+      "good": "#13795B",
+      "bad": "#C2341F",
+      "warn": "#B25E09",
+      "info": "#1F4FD8",
+      "series": [
+        "#1F4FD8",
+        "#F28C28",
+        "#13795B",
+        "#C2341F",
+        "#7A5AF8",
+        "#0E9384"
+      ],
+      "shadow": "none"
+    },
+    "dark": {
+      "bg": "#0B0F17",
+      "panel": "#0F1420",
+      "surface": "#141A27",
+      "sunk": "#080B11",
+      "line": "#232B3B",
+      "lineStrong": "#3A465C",
+      "ink": "#E6EAF2",
+      "ink2": "#A6B0C3",
+      "ink3": "#76829A",
+      "accent": "#6E93FF",
+      "accentInk": "#060A14",
+      "accentSoft": "#18254A",
+      "good": "#4BC79B",
+      "bad": "#FF7A66",
+      "warn": "#F7B054",
+      "info": "#6E93FF",
+      "series": [
+        "#6E93FF",
+        "#F7A04B",
+        "#4BC79B",
+        "#FF7A66",
+        "#A88BFF",
+        "#3CC6B8"
+      ],
+      "shadow": "none"
+    }
+  },
+  "fonts": {
+    "ui": "\"IBM Plex Sans\", \"Helvetica Neue\", Helvetica, Arial, sans-serif",
+    "heading": "\"IBM Plex Sans\", \"Helvetica Neue\", Helvetica, Arial, sans-serif",
+    "mono": "\"IBM Plex Mono\", ui-monospace, Menlo, monospace",
+    "lineHeight": 1.5
+  },
+  "radius": {
+    "scale": 0,
+    "md": 0,
+    "lg": 0,
+    "pill": 0
+  },
+  "spacing": {
+    "scale": 0.85
+  },
+  "placeholders": {
+    "skeleton": "static",
+    "emptyBorder": "solid"
+  }
+}

@@ -1,7 +1,10 @@
-import { Component, type ErrorInfo, type ReactNode } from 'react'
+import { Component, useContext, useMemo, type CSSProperties, type ErrorInfo, type ReactNode } from 'react'
 import { Glyph, type IconName } from './Icon'
+import { fontFaceCss, styleVars, type VizStyle } from './theme/config'
+import { STYLE_PACKS, StyleContext, usePlaceholders } from './theme/context'
 import { cx } from './utils'
 import type { GoodWhen } from './types'
+import './theme/fonts.css'
 import './styles.css'
 
 /**
@@ -13,13 +16,33 @@ import './styles.css'
  *   <Col><Title text="Q3 sales review" /></Col>
  * </VizRoot>
  */
-export function VizRoot({ children, theme = 'light', className }: {
+export function VizRoot({ children, theme = 'light', stylePack, className }: {
   children: ReactNode
   /** `dark` switches every component to the dark palette. */
   theme?: 'light' | 'dark'
+  /**
+   * A built-in pack name (`STYLE_PACKS`) or a resolved style. Defaults to the enclosing VizRoot's style,
+   * or the one selected at startup with VIZ_STYLE.
+   */
+  stylePack?: string | VizStyle
   className?: string
 }) {
-  return <div className={cx('viz', className)} data-theme={theme}>{children}</div>
+  const inherited = useContext(StyleContext)
+  const style = typeof stylePack === 'string' ? STYLE_PACKS[stylePack] ?? inherited : stylePack ?? inherited
+  const vars = useMemo(() => styleVars(style, theme) as CSSProperties, [style, theme])
+  const faces = useMemo(() => fontFaceCss(style), [style])
+  return (
+    <StyleContext.Provider value={style}>
+      {faces && <style href={'viz-fonts-' + hash(faces)} precedence="default">{faces}</style>}
+      <div className={cx('viz', className)} data-theme={theme} data-style={style.name} data-skeleton={style.placeholders.skeleton} style={vars}>{children}</div>
+    </StyleContext.Provider>
+  )
+}
+
+const hash = (s: string) => {
+  let h = 0
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0
+  return (h >>> 0).toString(36)
 }
 
 /**
@@ -31,7 +54,8 @@ export function Skeleton({ height }: {
   /** Minimum height in pixels; defaults to 56. */
   height?: number
 }) {
-  return <div className="ui-skel" style={height ? { minHeight: height } : undefined} aria-label="Loading" />
+  const { loading } = usePlaceholders()
+  return <div className="ui-skel" style={height ? { minHeight: height } : undefined} aria-label={loading} />
 }
 
 /**

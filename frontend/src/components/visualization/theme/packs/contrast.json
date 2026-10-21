@@ -1,0 +1,82 @@
+{
+  "$schema": "../viz-style.schema.json",
+  "name": "contrast",
+  "label": "High contrast",
+  "description": "Accessibility first: black on white (white on black in dark), strong borders, 10% larger text, roomier lines and spacing, no skeleton motion.",
+  "colors": {
+    "light": {
+      "bg": "#FFFFFF",
+      "panel": "#FFFFFF",
+      "surface": "#FFFFFF",
+      "sunk": "#EFEFEF",
+      "line": "#8A8A8A",
+      "lineStrong": "#3D3D3D",
+      "ink": "#000000",
+      "ink2": "#1F1F1F",
+      "ink3": "#3D3D3D",
+      "accent": "#0041C2",
+      "accentInk": "#FFFFFF",
+      "accentSoft": "#DCE6FF",
+      "good": "#006B2D",
+      "bad": "#B00020",
+      "warn": "#7A4A00",
+      "info": "#0041C2",
+      "series": [
+        "#0041C2",
+        "#B35900",
+        "#006B2D",
+        "#B00020",
+        "#5B2BA6",
+        "#00695C"
+      ],
+      "shadow": "0 0 0 1px #3D3D3D"
+    },
+    "dark": {
+      "bg": "#000000",
+      "panel": "#000000",
+      "surface": "#0A0A0A",
+      "sunk": "#1A1A1A",
+      "line": "#8C8C8C",
+      "lineStrong": "#D6D6D6",
+      "ink": "#FFFFFF",
+      "ink2": "#F0F0F0",
+      "ink3": "#CFCFCF",
+      "accent": "#7FB2FF",
+      "accentInk": "#000000",
+      "accentSoft": "#0F2547",
+      "good": "#6EE59A",
+      "bad": "#FF8A9A",
+      "warn": "#FFC46B",
+      "info": "#7FB2FF",
+      "series": [
+        "#7FB2FF",
+        "#FFB066",
+        "#6EE59A",
+        "#FF8A9A",
+        "#C9A6FF",
+        "#5FE0D0"
+      ],
+      "shadow": "0 0 0 1px #D6D6D6"
+    }
+  },
+  "fonts": {
+    "ui": "\"Atkinson Hyperlegible\", Inter, ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", sans-serif",
+    "heading": "\"Atkinson Hyperlegible\", Inter, ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", sans-serif",
+    "scale": 1.1,
+    "lineHeight": 1.65,
+    "weightMedium": 600,
+    "weightStrong": 700
+  },
+  "radius": {
+    "scale": 0.7,
+    "md": 6,
+    "lg": 8
+  },
+  "spacing": {
+    "scale": 1.1
+  },
+  "placeholders": {
+    "skeleton": "static",
+    "emptyBorder": "solid"
+  }
+}

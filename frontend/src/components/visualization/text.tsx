@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { Glyph, type IconName } from './Icon'
+import { useLabels } from './theme/context'
 import { copyText, cx, richText, safeUrl } from './utils'
 import type { Tone } from './types'
 
@@ -192,6 +193,7 @@ export function Link({ text, href }: { text?: string; href: string }) {
  * @example <Code code={'SELECT region, SUM(revenue)\nFROM orders\nGROUP BY region;'} language="sql" />
  */
 export function Code({ code, language }: { code: string; language?: string }) {
+  const L = useLabels()
   const [done, setDone] = useState(false)
   const copy = () => {
     copyText(code)
@@ -201,7 +203,7 @@ export function Code({ code, language }: { code: string; language?: string }) {
   return (
     <div className="ui-codebox">
       {language && <span className="ui-code-lang">{language}</span>}
-      <button type="button" className="ui-code-copy" aria-label="Copy code" onClick={copy}>
+      <button type="button" className="ui-code-copy" aria-label={L.copyCode} onClick={copy}>
         <Glyph name={done ? 'check' : 'copy'} size={15} />
       </button>
       <pre className="ui-code">{code}</pre>

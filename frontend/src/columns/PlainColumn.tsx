@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { ColumnShell, UserBubble } from '../components/ColumnShell'
+import { SELECTED_STYLE, STYLE_PACKS, type VizStyle } from '../components/visualization'
 import { useConversation } from '../lib/useConversation'
 import type { StreamEvent } from '../lib/sse'
 import { compile } from '../vizlang'
@@ -10,6 +11,20 @@ import { VizTurnView } from '../viz/VizTurnView'
 import type { Submission } from '../App'
 
 const TABS = ['Route', 'Program', 'Data', 'Images', 'Diagnostics', 'Markdown'] as const
+
+/** Built-in packs, plus the VIZ_STYLE file when it is not one of them. */
+const PACKS: Record<string, VizStyle> = { ...STYLE_PACKS, [SELECTED_STYLE.name]: STYLE_PACKS[SELECTED_STYLE.name] ?? SELECTED_STYLE }
+const STYLE_KEY = 'viz-style'
+
+function initialStyle() {
+  try {
+    const saved = localStorage.getItem(STYLE_KEY)
+    if (saved && saved in PACKS) return saved
+  } catch {
+    /* storage unavailable */
+  }
+  return SELECTED_STYLE.name
+}
 
 const json = (v: unknown) => JSON.stringify(v, null, 2)
 
@@ -31,6 +46,15 @@ export function PlainColumn({ submission }: { submission: Submission | null }) {
   const [visualize, setVisualize] = useState(false)
   const [vizTurns, setVizTurns] = useState<Record<number, VizTurnData>>({})
   const [tab, setTab] = useState<(typeof TABS)[number]>('Route')
+  const [style, setStyle] = useState(initialStyle)
+  const pickStyle = (name: string) => {
+    setStyle(name)
+    try {
+      localStorage.setItem(STYLE_KEY, name)
+    } catch {
+      /* storage unavailable */
+    }
+  }
   const sent = useRef(new Set<number>())
 
   useEffect(() => {
@@ -91,10 +115,20 @@ export function PlainColumn({ submission }: { submission: Submission | null }) {
   }
 
   const switchEl = (
-    <label className="switch">
-      <button type="button" role="switch" aria-checked={visualize} onClick={() => setVisualize((v) => !v)} />
-      Visualize
-    </label>
+    <>
+      <label className="switch">
+        <button type="button" role="switch" aria-checked={visualize} onClick={() => setVisualize((v) => !v)} />
+        Visualize
+      </label>
+      {visualize && (
+        <label className="style-pick">
+          Style
+          <select value={style} onChange={(e) => pickStyle(e.target.value)}>
+            {Object.entries(PACKS).map(([name, s]) => <option key={name} value={name}>{s.label}</option>)}
+          </select>
+        </label>
+      )}
+    </>
   )
 
   if (visualize) {
@@ -138,6 +172,7 @@ export function PlainColumn({ submission }: { submission: Submission | null }) {
               streaming={convo.streaming && t.id === lastAssistant?.id}
               onSend={followUp}
               onFirstUI={markFirstUI}
+              stylePack={PACKS[style]}
             />
           ),
         )}

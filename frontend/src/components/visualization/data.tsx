@@ -1,7 +1,8 @@
 import { useState, type ReactNode } from 'react'
 import { Glyph, type IconName } from './Icon'
 import { Delta, Empty } from './shared'
-import { compact, cx, fmt, labelize, num, richText, rowsOf, sortRows } from './utils'
+import { useLabels, usePlaceholders } from './theme/context'
+import { compact, cx, fillTemplate, fmt, labelize, num, richText, rowsOf, sortRows } from './utils'
 import type { GoodWhen, NumberFormat, Row, Tone } from './types'
 
 /** A table column: a bare field name, or a field with its label, number format and alignment. */
@@ -26,8 +27,10 @@ export function Table({ data, columns, limit = 8, striped = false }: {
 }) {
   const [sort, setSort] = useState<{ f: string; d: 'asc' | 'desc' } | null>(null)
   const [all, setAll] = useState(false)
+  const ph = usePlaceholders()
+  const L = useLabels()
   const rows = rowsOf(data)
-  if (!rows.length) return <Empty text={data === undefined ? 'No data bound to this table' : 'No rows'} />
+  if (!rows.length) return <Empty text={data === undefined ? fillTemplate(ph.noData, { kind: 'table' }) : ph.tableNoRows} />
 
   const cols = (columns?.length ? columns : Object.keys(rows[0]))
     .map((c) => (typeof c === 'string' ? { field: c } : c))
@@ -76,7 +79,7 @@ export function Table({ data, columns, limit = 8, striped = false }: {
       </div>
       {(cut || (all && rows.length > lim)) && (
         <button type="button" className="ui-table-more" onClick={() => setAll((a) => !a)}>
-          {all ? 'Show fewer rows' : `Show all ${rows.length} rows`}
+          {all ? L.showFewerRows : fillTemplate(L.showAllRows, { count: rows.length })}
         </button>
       )}
     </div>
@@ -133,9 +136,10 @@ export function Progress({ value, max = 100, label, tone = 'accent', format }: {
   tone?: Tone
   format?: NumberFormat
 }) {
+  const L = useLabels()
   const top = num(max) || 100
   const pct = Math.max(0, Math.min(1, num(value) / top))
-  const right = format ? `${fmt(value, format)} of ${fmt(top, format)}` : Math.round(pct * 100) + '%'
+  const right = format ? fillTemplate(L.progressOf, { value: fmt(value, format), max: fmt(top, format) }) : Math.round(pct * 100) + '%'
   return (
     <div className="ui-progress">
       <div className="ui-progress-top">
@@ -203,11 +207,12 @@ export function ComparisonTable({ columns, rows, highlight, highlightLabel = 'Re
   /** Badge text on the highlighted column. */
   highlightLabel?: string
 }) {
+  const L = useLabels()
   const cols = columns.map((c) => (typeof c === 'string' ? { name: c } : c))
   const hi = typeof highlight === 'number' ? highlight : cols.findIndex((c) => c.name === highlight)
   const cell = (v: ComparisonRow['values'][number], row: ComparisonRow): ReactNode =>
-    v === true ? <span className="cmp-yes"><Glyph name="check" size={16} /><span className="sr">Yes</span></span>
-      : v === false ? <span className="cmp-no"><Glyph name="x" size={15} /><span className="sr">No</span></span>
+    v === true ? <span className="cmp-yes"><Glyph name="check" size={16} /><span className="sr">{L.yes}</span></span>
+      : v === false ? <span className="cmp-no"><Glyph name="x" size={15} /><span className="sr">{L.no}</span></span>
         : v == null || v === '' ? <span className="cmp-na">—</span>
           : typeof v === 'number' ? fmt(v, row.format) : richText(v)
   return (
@@ -279,6 +284,8 @@ export function RegionMap({ data, region, value, format = 'number', legend = tru
   caption?: string
 }) {
   const [hi, setHi] = useState<string | null>(null)
+  const ph = usePlaceholders()
+  const L = useLabels()
   const vals: Record<string, number> = {}
   const unmatched: string[] = []
   rowsOf(data).forEach((r) => {
@@ -287,7 +294,7 @@ export function RegionMap({ data, region, value, format = 'number', legend = tru
     else if (r[region] != null) unmatched.push(String(r[region]))
   })
   const nums = Object.values(vals)
-  if (!nums.length) return <Empty text={data === undefined ? 'No data bound to this map' : 'No rows matched a region of Ethiopia'} />
+  if (!nums.length) return <Empty text={data === undefined ? fillTemplate(ph.noData, { kind: 'map' }) : ph.mapNoRows} />
 
   const mn = Math.min(...nums), mx = Math.max(...nums)
   const total = nums.reduce((a, b) => a + b, 0) || 1
@@ -317,7 +324,7 @@ export function RegionMap({ data, region, value, format = 'number', legend = tru
                 onMouseEnter={() => setHi(g.k)}
                 onFocus={() => setHi(g.k)}
                 onClick={() => setHi(g.k)}
-                aria-label={`${g.n}: ${has ? fmt(vals[g.k], format) : 'no data'}`}
+                aria-label={`${g.n}: ${has ? fmt(vals[g.k], format) : L.mapNoData}`}
               >
                 <span className="rm-code">{g.c}</span>
                 <span className="rm-val">{has ? (format === 'percent' ? fmt(vals[g.k], 'percent') : compact(vals[g.k])) : '–'}</span>
@@ -340,13 +347,13 @@ export function RegionMap({ data, region, value, format = 'number', legend = tru
       {fg && (
         <p className="rm-detail">
           <b>{fg.n}</b>
-          {fg.k in vals ? ` · ${fmt(vals[fg.k], format)}${format !== 'percent' ? ` · ${share(fg.k)} of total` : ''}` : ' · no data'}
+          {fg.k in vals ? ` · ${fmt(vals[fg.k], format)}${format !== 'percent' ? ' · ' + fillTemplate(L.mapShare, { share: share(fg.k) }) : ''}` : ' · ' + L.mapNoData}
         </p>
       )}
       <div className="rm-scale" aria-hidden><span>{fmt(mn, format)}</span><i /><span>{fmt(mx, format)}</span></div>
       <figcaption className="ui-caption t-muted">
-        {caption ? caption + ' ' : ''}Tile map: one tile per region, positions approximate.
-        {unmatched.length > 0 && ` Not placed: ${[...new Set(unmatched)].join(', ')}.`}
+        {caption ? caption + ' ' : ''}{L.mapNote}
+        {unmatched.length > 0 && ' ' + fillTemplate(L.mapNotPlaced, { regions: [...new Set(unmatched)].join(', ') })}
       </figcaption>
     </figure>
   )

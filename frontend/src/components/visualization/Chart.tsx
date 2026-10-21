@@ -1,6 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react'
 import { Empty } from './shared'
-import { fmt, labelize, num, rowsOf, SERIES_COLORS, tickFmt, useWidth } from './utils'
+import { useLabels, usePlaceholders } from './theme/context'
+import { fillTemplate, fmt, labelize, num, rowsOf, SERIES_COLORS, tickFmt, useWidth } from './utils'
 import type { NumberFormat, Row } from './types'
 
 export type ChartType = 'line' | 'area' | 'bar' | 'hbar' | 'groupedBar' | 'stackedBar' | 'donut'
@@ -51,6 +52,7 @@ function arcPath(cx0: number, cy0: number, r0: number, r1: number, a0: number, a
 }
 
 function Tip({ x, w, title, rows, total }: { x: number; w: number; title: string; rows: { name: string; color: string; value: string }[]; total: string | null }) {
+  const L = useLabels()
   const tw = 160
   const left = Math.max(0, Math.min(w - tw, x + 14 + tw > w ? x - tw - 14 : x + 14))
   return (
@@ -62,7 +64,7 @@ function Tip({ x, w, title, rows, total }: { x: number; w: number; title: string
           <span className="tv">{r.value}</span>
         </div>
       ))}
-      {total && <div className="tt"><span>Total</span><span className="tv">{total}</span></div>}
+      {total && <div className="tt"><span>{L.chartTotal}</span><span className="tv">{total}</span></div>}
     </div>
   )
 }
@@ -77,6 +79,7 @@ interface PlotProps {
 }
 
 function Cartesian({ type, cats, ser, format, w, H, hi, setHi, compact }: PlotProps & { type: ChartType; H: number; compact?: boolean }) {
+  const L = useLabels()
   const m = { l: compact ? 40 : 50, r: 10, t: 12, b: 26 }
   const iw = Math.max(40, w - m.l - m.r), ih = H - m.t - m.b
   const stacked = type === 'stackedBar'
@@ -138,7 +141,11 @@ function Cartesian({ type, cats, ser, format, w, H, hi, setHi, compact }: PlotPr
     els.push(<rect key={'hit' + i} x={m.l + band * i} y={m.t} width={band} height={ih} className="hit" onMouseEnter={() => setHi(i)} onClick={() => setHi(i)} />)
   })
 
-  const label = `${type === 'line' || type === 'area' ? 'Line' : 'Bar'} chart: ${ser.map((s) => s.name).join(', ')} across ${n} ${n === 1 ? 'category' : 'categories'}, peak ${fmt(maxV, format)}`
+  const label = fillTemplate(type === 'line' || type === 'area' ? L.lineChart : L.columnChart, {
+    series: ser.map((s) => s.name).join(', '),
+    categories: n === 1 ? L.oneCategory : fillTemplate(L.categories, { count: n }),
+    peak: fmt(maxV, format),
+  })
   return (
     <div className="ui-chart-inner" onMouseLeave={() => setHi(null)}>
       <svg width={w} height={H} role="img" aria-label={label}>{els}</svg>
@@ -156,13 +163,14 @@ function Cartesian({ type, cats, ser, format, w, H, hi, setHi, compact }: PlotPr
 }
 
 function HBar({ cats, ser, format, w, hi, setHi }: PlotProps) {
+  const L = useLabels()
   const s = ser[0], rowH = 30
   const order = cats.map((_, i) => i).sort((a, b) => s.values[b] - s.values[a])
   const labW = Math.min(150, Math.max(...cats.map((c) => c.length)) * 7 + 12), valW = 76
   const H = cats.length * rowH + 4, iw = Math.max(40, w - labW - valW)
   const mx = Math.max(0, ...s.values) || 1
   return (
-    <svg width={w} height={H} role="img" aria-label={`Bar chart ranking ${cats.length} items by ${s.name}`} onMouseLeave={() => setHi(null)}>
+    <svg width={w} height={H} role="img" aria-label={fillTemplate(L.barChart, { count: cats.length, series: s.name })} onMouseLeave={() => setHi(null)}>
       {order.map((i, r) => {
         const y = r * rowH + 4, bw = Math.max(2, (Math.max(0, s.values[i]) / mx) * iw)
         return (
@@ -178,6 +186,7 @@ function HBar({ cats, ser, format, w, hi, setHi }: PlotProps) {
 }
 
 function Donut({ cats, ser, format, w, hi, setHi }: PlotProps) {
+  const L = useLabels()
   const vals = ser[0].values.map((v) => Math.max(0, v))
   const total = vals.reduce((a, b) => a + b, 0) || 1
   const size = Math.round(Math.min(176, Math.max(120, w * 0.42))), R = size / 2, r0 = R * 0.6
@@ -189,7 +198,7 @@ function Donut({ cats, ser, format, w, hi, setHi }: PlotProps) {
   })
   return (
     <div className="ui-donut" onMouseLeave={() => setHi(null)}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label={'Donut chart: ' + cats.map((c, i) => c + ' ' + fmt(vals[i], format)).join(', ')}>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label={fillTemplate(L.donutChart, { items: cats.map((c, i) => c + ' ' + fmt(vals[i], format)).join(', ') })}>
         {arcs.map(({ i, a0, a1 }) => (
           <path key={i} d={arcPath(R, R, r0, R - 1, a0, a1)} style={{ fill: color(i) }} className={hi != null && hi !== i ? 'mark is-dim' : 'mark'} onMouseEnter={() => setHi(i)} />
         ))}
@@ -239,14 +248,15 @@ export interface ChartProps {
  * @example <Chart type="donut" data={channels} x="channel" y="share" format="percent" />
  */
 export function Chart({ type, data, x, y, series, format = 'number', height = 'md', legend = true, caption, compact }: ChartProps) {
+  const ph = usePlaceholders()
   const [ref, w] = useWidth<HTMLDivElement>()
   const [hi, setHi] = useState<Highlight>(null)
   const H = { sm: 150, md: 220, lg: 300 }[height]
   const { cats, ser } = useMemo(() => normalizeChart(data, x, y, series), [data, x, y, series])
 
   let body: ReactNode = null
-  if (!x || !y || (Array.isArray(y) && !y.length)) body = <Empty text="This chart needs x and y fields" />
-  else if (!cats.length) body = <Empty text={data === undefined ? 'No data bound to this chart' : 'No rows to chart'} />
+  if (!x || !y || (Array.isArray(y) && !y.length)) body = <Empty text={ph.chartNeedsFields} />
+  else if (!cats.length) body = <Empty text={data === undefined ? fillTemplate(ph.noData, { kind: 'chart' }) : ph.chartNoRows} />
   else if (w > 0) {
     const plot = { cats, ser, format, w, hi, setHi }
     body = type === 'donut' ? <Donut {...plot} /> : type === 'hbar' ? <HBar {...plot} /> : <Cartesian {...plot} type={type} H={H} compact={compact} />

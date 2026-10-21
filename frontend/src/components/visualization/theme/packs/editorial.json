@@ -1,0 +1,30 @@
+{
+  "$schema": "../viz-style.schema.json",
+  "name": "editorial",
+  "label": "Editorial",
+  "description": "Magazine feel: serif headings, ink-red accent on paper tones, tight corners, rectangular tags.",
+  "colors": {
+    "light": {
+      "bg": "#F4F1EA", "panel": "#FAF8F3", "surface": "#FFFDF8", "sunk": "#ECE7DC", "line": "#DDD5C6", "lineStrong": "#C4B9A5",
+      "ink": "#1E1A16", "ink2": "#514840", "ink3": "#7A6F63",
+      "accent": "#9B2C2C", "accentInk": "#FFFFFF", "accentSoft": "#F3E1DC",
+      "good": "#2F6B3A", "bad": "#A3302A", "warn": "#9A6512", "info": "#2F4F7F",
+      "series": ["#9B2C2C", "#C08A2E", "#2F4F7F", "#5E7D4A", "#7A4E7E", "#4F7C82"],
+      "shadow": "0 1px 0 rgb(40 30 20 / .06), 0 4px 14px rgb(40 30 20 / .06)"
+    },
+    "dark": {
+      "bg": "#16130F", "panel": "#1B1813", "surface": "#211D17", "sunk": "#110E0B", "line": "#332C23", "lineStrong": "#463D31",
+      "ink": "#F0E9DE", "ink2": "#BFB4A5", "ink3": "#8D8273",
+      "accent": "#E07A6B", "accentInk": "#1A0F0C", "accentSoft": "#3A211C",
+      "good": "#7FBF86", "bad": "#F08C7E", "warn": "#E0B062", "info": "#8FB0E0",
+      "series": ["#E07A6B", "#E0B062", "#8FB0E0", "#9CC48A", "#C79BD0", "#86C1C7"],
+      "shadow": "0 1px 2px rgb(0 0 0 / .45), 0 8px 22px rgb(0 0 0 / .4)"
+    }
+  },
+  "fonts": {
+    "heading": "\"Source Serif 4\", \"Iowan Old Style\", \"Palatino Linotype\", Palatino, Charter, Georgia, serif",
+    "lineHeight": 1.6
+  },
+  "radius": { "scale": 0.5, "md": 4, "lg": 6, "pill": 4 },
+  "placeholders": { "skeleton": "pulse" }
+}

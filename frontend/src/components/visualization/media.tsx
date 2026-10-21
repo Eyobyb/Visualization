@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Glyph, type IconName } from './Icon'
-import { cx } from './utils'
+import { usePlaceholders } from './theme/context'
+import { cx, fillTemplate } from './utils'
 import type { Tone } from './types'
 
 /**
@@ -44,6 +45,7 @@ export function AsyncImage({ query, src, fallbackSrc, aspectRatio = '4:3', capti
   caption?: string
 }) {
   const [broken, setBroken] = useState<string[]>([])
+  const ph = usePlaceholders()
   const shown = src ? [src, fallbackSrc].find((u) => u && !broken.includes(u)) : undefined
   const missing = src === null || (src !== undefined && !shown)
   return (
@@ -59,14 +61,14 @@ export function AsyncImage({ query, src, fallbackSrc, aspectRatio = '4:3', capti
             onError={() => setBroken((b) => [...b, shown])}
           />
         ) : missing ? (
-          <div className="ui-img-missing">No matching photo</div>
+          <div className="ui-img-missing">{ph.imageMissing}</div>
         ) : (
           <div className="ui-skel fill" />
         )}
       </div>
       <figcaption>
         {caption && <span className="cap">{caption}</span>}
-        {src === undefined && <span className="ui-img-note">Searching for “{query}”</span>}
+        {src === undefined && <span className="ui-img-note">{fillTemplate(ph.imageSearching, { query })}</span>}
         {missing && !caption && <span className="ui-img-note">{query}</span>}
       </figcaption>
     </figure>
