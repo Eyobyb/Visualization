@@ -19,8 +19,8 @@ export { ICONS, isIconName, type IconName } from './icons'
 export { fmt, compact } from './utils'
 export { STYLE_PACKS, SELECTED_STYLE, useVizStyle, usePlaceholders, useLabels } from './theme/context'
 export {
-  resolveStyle, validateStyle, styleVars, fontFaceCss, StyleError,
+  resolveStyle, validateStyle, styleVars, fontFaceCss, diffStyle, isLeaf, STYLE_SHAPE, StyleError,
   type VizStyle, type StyleFile, type Palette, type Fonts, type FontFace, type Radius, type Spacing,
-  type Placeholders, type Labels, type Mode,
+  type Placeholders, type Labels, type Mode, type StyleShape, type StyleLeaf,
 } from './theme/config'
 export type { Tone, CardTone, NumberFormat, Space, Align, GoodWhen, Row as DataRow, OptionInput, ProseItem } from './types'

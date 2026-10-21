@@ -1,16 +1,22 @@
 import { useEffect, useMemo, useState, type ComponentType, type ReactNode } from 'react'
 import docs, { type ComponentDoc, type ExampleDoc } from 'virtual:viz-docs'
-import { SELECTED_STYLE, STYLE_PACKS, VizBoundary, VizRoot, type VizStyle } from '../components/visualization'
+import { SELECTED_STYLE, VizBoundary, VizRoot } from '../components/visualization'
+import { BUILT_IN_PACKS, useCustomStyles, useStylePacks } from '../lib/customStyles'
 import * as Examples from './examples'
 import { Playground } from './Playground'
+import { ThemeBuilder } from './ThemeBuilder'
 import { notify, useToast } from './toast'
 
-/** Built-in packs, plus the VIZ_STYLE file when it is not one of them. */
-const PACKS: Record<string, VizStyle> = { ...STYLE_PACKS, [SELECTED_STYLE.name]: STYLE_PACKS[SELECTED_STYLE.name] ?? SELECTED_STYLE }
-
-type View = 'components' | 'playground'
-const PLAYGROUND_HASH = '#playground'
-const viewFromHash = (): View => (window.location.hash === PLAYGROUND_HASH ? 'playground' : 'components')
+type View = 'components' | 'playground' | 'themes'
+const VIEWS: { id: View; label: string }[] = [
+  { id: 'components', label: 'Components' },
+  { id: 'playground', label: 'Playground' },
+  { id: 'themes', label: 'Themes' },
+]
+const viewFromHash = (): View => {
+  const h = window.location.hash.slice(1)
+  return h === 'playground' || h === 'themes' ? h : 'components'
+}
 
 const EXAMPLES = Examples as unknown as Record<string, ComponentType>
 
@@ -124,11 +130,14 @@ export function CatalogApp() {
   const [query, setQuery] = useState('')
   const [theme, setTheme] = useState<'light' | 'dark'>('light')
   const [view, setView] = useState<View>(viewFromHash)
-  const [style, setStyle] = useState<VizStyle>(() => PACKS[new URLSearchParams(window.location.search).get('style') ?? ''] ?? SELECTED_STYLE)
+  const [styleName, setStyleName] = useState(() => new URLSearchParams(window.location.search).get('style') ?? SELECTED_STYLE.name)
+  const packs = useStylePacks()
+  const custom = useCustomStyles()
+  const style = packs[styleName] ?? SELECTED_STYLE
   const toast = useToast()
 
   const pickStyle = (name: string) => {
-    setStyle(PACKS[name])
+    setStyleName(name)
     const url = new URL(window.location.href)
     url.searchParams.set('style', name)
     history.replaceState(null, '', url)
@@ -142,7 +151,7 @@ export function CatalogApp() {
 
   const openView = (v: View) => {
     setView(v)
-    history.pushState(null, '', v === 'playground' ? PLAYGROUND_HASH : window.location.pathname + window.location.search)
+    history.pushState(null, '', v === 'components' ? window.location.pathname + window.location.search : '#' + v)
   }
 
   const examplesFor = useMemo(() => {
@@ -166,8 +175,8 @@ export function CatalogApp() {
         </div>
         <div className="lab-top-actions">
           <div className="lab-seg" role="radiogroup" aria-label="View">
-            {(['components', 'playground'] as const).map((v) => (
-              <button key={v} type="button" role="radio" aria-checked={view === v} onClick={() => openView(v)}>{v === 'components' ? 'Components' : 'Playground'}</button>
+            {VIEWS.map((v) => (
+              <button key={v.id} type="button" role="radio" aria-checked={view === v.id} onClick={() => openView(v.id)}>{v.label}</button>
             ))}
           </div>
           <div className="lab-seg" role="radiogroup" aria-label="Theme">
@@ -176,13 +185,28 @@ export function CatalogApp() {
             ))}
           </div>
           <select className="lab-select lab-style" aria-label="Style pack" value={style.name} onChange={(e) => pickStyle(e.target.value)}>
-            {Object.values(PACKS).map((s) => <option key={s.name} value={s.name} title={s.description}>{s.label}</option>)}
+            <optgroup label="Built in">
+              {Object.values(BUILT_IN_PACKS).map((s) => <option key={s.name} value={s.name} title={s.description}>{s.label}</option>)}
+            </optgroup>
+            {Object.keys(custom).length > 0 && (
+              <optgroup label="Your themes">
+                {Object.values(custom).map(({ style: s }) => <option key={s.name} value={s.name} title={s.description}>{s.label}</option>)}
+              </optgroup>
+            )}
           </select>
           <a className="lab-btn" href="/">Back to the app</a>
         </div>
       </header>
 
-      {view === 'playground' ? (
+      {view === 'themes' ? (
+        <main className="lab-main">
+          <p className="lab-note">
+            Build a style pack: start from any pack, adjust its tokens and watch real components update. Saved themes stay in this
+            browser and appear in every Style list, including the chat; export the JSON to ship one with <code>VIZ_STYLE</code>.
+          </p>
+          <ThemeBuilder />
+        </main>
+      ) : view === 'playground' ? (
         <main className="lab-main">
           <p className="lab-note">
             Programs in the viz statement language, compiled in the browser by <code>src/vizlang</code> and drawn with the visualization

@@ -129,7 +129,7 @@ const LABEL_DESC = {
   invalidNumber: 'Form error for a bad number.',
 } as const
 
-export type Labels = { [K in keyof typeof LABEL_DESC]: string }
+export type Labels = { -readonly [K in keyof typeof LABEL_DESC]: string }
 
 export interface Radius {
   /** Multiplies the small fixed corners: buttons, inputs, chips, bars and icon tiles. */
@@ -178,14 +178,16 @@ type DeepPartial<T> = { [K in keyof T]?: T[K] extends unknown[] ? T[K] : T[K] ex
 /** What a style file on disk holds: any subset of VizStyle on top of the pack it extends. */
 export type StyleFile = DeepPartial<VizStyle> & { $schema?: string; extends?: string | null }
 
-/* Shape descriptor: drives validation and the generated JSON Schema. */
-type Leaf =
+/* Shape descriptor: drives validation, the generated JSON Schema and the catalog's theme builder. */
+export type StyleLeaf =
   | { t: 'string'; desc: string; color?: boolean }
   | { t: 'number'; desc: string; min: number; max: number; integer?: boolean }
   | { t: 'enum'; desc: string; values: readonly string[] }
   | { t: 'colors'; desc: string; length: number }
   | { t: 'faces'; desc: string }
-type Shape = { [k: string]: Leaf | Shape }
+export type StyleShape = { [k: string]: StyleLeaf | StyleShape }
+type Leaf = StyleLeaf
+type Shape = StyleShape
 
 const color = (desc: string): Leaf => ({ t: 'string', desc, color: true })
 const str = (desc: string): Leaf => ({ t: 'string', desc })
@@ -256,7 +258,7 @@ export const STYLE_SHAPE: Shape = {
   labels: Object.fromEntries(Object.entries(LABEL_DESC).map(([k, d]) => [k, str(d)])),
 }
 
-const isLeaf = (s: Leaf | Shape): s is Leaf => typeof (s as Leaf).t === 'string'
+export const isLeaf = (s: Leaf | Shape): s is Leaf => typeof (s as Leaf).t === 'string'
 const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v)
 
 function check(v: unknown, s: Leaf, path: string, errs: string[]) {
@@ -352,6 +354,23 @@ export function resolveStyle(file: unknown, packs: Record<string, unknown>, sour
   const errs = validateStyle(out)
   if (errs.length) throw new StyleError(source, errs)
   return out as unknown as VizStyle
+}
+
+/** The fields of `style` that differ from `base`, as a style file that extends it. */
+export function diffStyle(style: VizStyle, base: VizStyle): StyleFile {
+  const d = (a: unknown, b: unknown): unknown => {
+    if (isObj(a) && isObj(b)) {
+      const out: Record<string, unknown> = {}
+      for (const k of Object.keys(a)) {
+        const v = d(a[k], b[k])
+        if (v !== undefined) out[k] = v
+      }
+      return Object.keys(out).length ? out : undefined
+    }
+    return JSON.stringify(a) === JSON.stringify(b) ? undefined : a
+  }
+  const { name: _n, label: _l, description: _d, ...rest } = (d(style, base) ?? {}) as Partial<VizStyle>
+  return { name: style.name, label: style.label, description: style.description, extends: base.name, ...rest } as StyleFile
 }
 
 const px = (n: number) => n + 'px'

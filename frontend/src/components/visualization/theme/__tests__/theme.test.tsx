@@ -5,7 +5,7 @@ import { renderToString } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { AsyncImage, Chart, Table, Verdict, VizRoot, WeatherCard } from '../..'
 import { selectStyle } from '../../../../../scripts/vizStyle'
-import { fontFaceCss, resolveStyle, styleJsonSchema, styleVars, validateStyle, type StyleFile } from '../config'
+import { diffStyle, fontFaceCss, resolveStyle, styleJsonSchema, styleVars, validateStyle, type StyleFile } from '../config'
 import { SELECTED_STYLE, STYLE_PACKS } from '../context'
 
 const root = path.resolve(__dirname, '../../../../..')
@@ -90,6 +90,16 @@ describe('validation', () => {
     expect(() => resolveStyle({ extends: 'neon' }, raw, 'a.json')).toThrowError(/no pack named "neon"/)
     expect(() => resolveStyle({ name: 'a', extends: 'b' }, { ...raw, b: { name: 'b', extends: 'a' }, a: { name: 'a', extends: 'b' } }, 'a')).toThrowError(/cycle/)
     expect(() => resolveStyle({ extends: null, name: 'solo' }, raw, 'solo.json')).toThrowError(/colors: missing/)
+  })
+
+  it('diffs a style against its base into a file that resolves back to it', () => {
+    const edited = structuredClone(STYLE_PACKS.soft)
+    Object.assign(edited, { name: 'acme', label: 'Acme', description: 'Brand' })
+    edited.colors.dark.accent = '#FF5500'
+    edited.labels.recommendation = 'Our pick'
+    const file = diffStyle(edited, STYLE_PACKS.soft)
+    expect(file).toEqual({ name: 'acme', label: 'Acme', description: 'Brand', extends: 'soft', colors: { dark: { accent: '#FF5500' } }, labels: { recommendation: 'Our pick' } })
+    expect(resolveStyle(file, raw, 'acme.json')).toEqual(edited)
   })
 
   it('keeps viz-style.schema.json in sync with the shape', () => {

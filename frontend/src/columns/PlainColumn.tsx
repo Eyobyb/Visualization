@@ -2,7 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { ColumnShell, UserBubble } from '../components/ColumnShell'
-import { SELECTED_STYLE, STYLE_PACKS, type VizStyle } from '../components/visualization'
+import { SELECTED_STYLE } from '../components/visualization'
+import { BUILT_IN_PACKS, useCustomStyles, useStylePacks } from '../lib/customStyles'
 import { useConversation } from '../lib/useConversation'
 import type { StreamEvent } from '../lib/sse'
 import { compile } from '../vizlang'
@@ -12,14 +13,12 @@ import type { Submission } from '../App'
 
 const TABS = ['Route', 'Program', 'Data', 'Images', 'Diagnostics', 'Markdown'] as const
 
-/** Built-in packs, plus the VIZ_STYLE file when it is not one of them. */
-const PACKS: Record<string, VizStyle> = { ...STYLE_PACKS, [SELECTED_STYLE.name]: STYLE_PACKS[SELECTED_STYLE.name] ?? SELECTED_STYLE }
 const STYLE_KEY = 'viz-style'
 
 function initialStyle() {
   try {
     const saved = localStorage.getItem(STYLE_KEY)
-    if (saved && saved in PACKS) return saved
+    if (saved) return saved
   } catch {
     /* storage unavailable */
   }
@@ -47,6 +46,9 @@ export function PlainColumn({ submission }: { submission: Submission | null }) {
   const [vizTurns, setVizTurns] = useState<Record<number, VizTurnData>>({})
   const [tab, setTab] = useState<(typeof TABS)[number]>('Route')
   const [style, setStyle] = useState(initialStyle)
+  const packs = useStylePacks()
+  const custom = useCustomStyles()
+  const styleName = style in packs ? style : SELECTED_STYLE.name
   const pickStyle = (name: string) => {
     setStyle(name)
     try {
@@ -123,8 +125,15 @@ export function PlainColumn({ submission }: { submission: Submission | null }) {
       {visualize && (
         <label className="style-pick">
           Style
-          <select value={style} onChange={(e) => pickStyle(e.target.value)}>
-            {Object.entries(PACKS).map(([name, s]) => <option key={name} value={name}>{s.label}</option>)}
+          <select value={styleName} onChange={(e) => pickStyle(e.target.value)}>
+            <optgroup label="Built in">
+              {Object.entries(BUILT_IN_PACKS).map(([name, s]) => <option key={name} value={name}>{s.label}</option>)}
+            </optgroup>
+            {Object.keys(custom).length > 0 && (
+              <optgroup label="Your themes">
+                {Object.entries(custom).map(([name, c]) => <option key={name} value={name}>{c.style.label}</option>)}
+              </optgroup>
+            )}
           </select>
         </label>
       )}
@@ -172,7 +181,7 @@ export function PlainColumn({ submission }: { submission: Submission | null }) {
               streaming={convo.streaming && t.id === lastAssistant?.id}
               onSend={followUp}
               onFirstUI={markFirstUI}
-              stylePack={PACKS[style]}
+              stylePack={packs[styleName]}
             />
           ),
         )}
