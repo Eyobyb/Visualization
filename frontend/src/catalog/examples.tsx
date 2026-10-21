@@ -707,6 +707,10 @@ export function AsyncImage_still_searching() {
   return <AsyncImage query="hand-woven Ethiopian netela scarf with a colourful tibeb border" aspectRatio="5:4" />
 }
 
+export function AsyncImage_no_match() {
+  return <AsyncImage query="red sports car parked beside a jebena" src={null} aspectRatio="4:3" />
+}
+
 export function AsyncImageGroup_() {
   return (
     <AsyncImageGroup layout="strip" images={[

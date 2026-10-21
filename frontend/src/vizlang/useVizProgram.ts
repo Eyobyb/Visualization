@@ -2,7 +2,7 @@ import { useMemo, useState, type ReactNode } from 'react'
 import type { SendToModel } from '../components/visualization'
 import { copyText, safeUrl } from '../components/visualization/utils'
 import { compile, type ActionEvent, type CompileResult, type Effects } from './compile'
-import { renderNode } from './render'
+import { renderNode, type RenderContext } from './render'
 
 export interface VizProgramOptions {
   /** Program text. While streaming, pass everything received so far. */
@@ -11,8 +11,8 @@ export interface VizProgramOptions {
   data?: Record<string, unknown>
   /** Missing names render as skeletons and the unfinished last line is skipped. */
   streaming?: boolean
-  /** Server-resolved image URLs, keyed like `photo` or `photos.0`. */
-  resolved?: Record<string, string | undefined>
+  /** Server-resolved images, keyed like `photo` or `photos.0`. */
+  resolved?: RenderContext['resolved']
   /** Receives `@NewTurn` text and messages from ChoiceChips, Form and ApprovalCard. */
   onSend?: SendToModel
   /** Every action event, including copies, opened links and action errors. */

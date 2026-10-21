@@ -9,7 +9,7 @@ import { applyVizEvent, EMPTY_TURN, isVisual, type VizTurnData } from '../viz/tu
 import { VizTurnView } from '../viz/VizTurnView'
 import type { Submission } from '../App'
 
-const TABS = ['Route', 'Program', 'Data', 'Diagnostics', 'Markdown'] as const
+const TABS = ['Route', 'Program', 'Data', 'Images', 'Diagnostics', 'Markdown'] as const
 
 const json = (v: unknown) => JSON.stringify(v, null, 2)
 
@@ -81,6 +81,8 @@ export function PlainColumn({ submission }: { submission: Submission | null }) {
         return lastAssistant?.content || 'No program yet'
       case 'Data':
         return Object.keys(lastTurn.data).length ? json(lastTurn.data) : 'No bindings for this turn'
+      case 'Images':
+        return lastTurn.images.length ? json(lastTurn.images) : 'No images resolved yet'
       case 'Diagnostics':
         return `Server (${serverDiagnostics.length}):\n${json(serverDiagnostics)}\n\nBrowser (${browserDiagnostics.length}):\n${json(browserDiagnostics)}`
       case 'Markdown':
@@ -110,6 +112,8 @@ export function PlainColumn({ submission }: { submission: Submission | null }) {
             <summary>
               Debug: {routeSummary(lastTurn)}, {lastTurn.done?.statements ?? lastTurn.statements} statements,{' '}
               {serverDiagnostics.length} diagnostics
+              {lastTurn.images.length > 0 &&
+                `, ${lastTurn.images.filter((i) => i.url).length}/${lastTurn.images.length} images`}
             </summary>
             <div className="debug-tabs">
               {TABS.map((t) => (

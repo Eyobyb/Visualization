@@ -20,7 +20,7 @@ export type StreamEvent =
       diagnostics?: ServerDiagnostic[]
       statements?: number
       markdown?: string
-      images?: Array<{ key: string; query: string }>
+      images?: Array<{ key: string; query: string; url?: string | null }>
     }
   | { type: 'error'; message: string }
   | { type: 'app_data'; bindings: Record<string, Record<string, string>> }
@@ -29,10 +29,23 @@ export type StreamEvent =
   | { type: 'data'; bindings: Record<string, unknown> }
   | { type: 'statement'; name: string | null; text: string; line: number; refs: string[] }
   | ({ type: 'diagnostic' } & ServerDiagnostic)
+  | ({ type: 'image' } & VizImage)
+
+/** A resolved AsyncImage query. `url` is null when no photo matched or Jev rejected every candidate. */
+export type VizImage = {
+  key: string
+  query: string
+  url: string | null
+  thumbnail: string | null
+  page: string | null
+  title: string | null
+  score: number | null
+  verified: boolean
+}
 
 export async function streamSSE(
   url: string,
-  body: { messages: ChatMessage[] } & Record<string, unknown>,
+  body: Record<string, unknown>,
   onEvent: (event: StreamEvent) => void,
   signal?: AbortSignal,
 ): Promise<void> {

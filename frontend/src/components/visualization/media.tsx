@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Glyph, type IconName } from './Icon'
 import { cx } from './utils'
 import type { Tone } from './types'
@@ -26,36 +27,57 @@ const ratio = (r: AspectRatio) => r.replace(':', ' / ')
 /**
  * A photo found from a descriptive search query. The model writes the query and the server resolves
  * a real image URL; until `src` arrives the frame shows a loading skeleton, so the layout never jumps.
+ * `src={null}` means the search found no matching photo.
  *
  * @example
  * <AsyncImage query="hand-woven Ethiopian netela scarf on a wooden table" src={resolved} aspectRatio="5:4" caption="Netela scarf" />
  */
-export function AsyncImage({ query, src, aspectRatio = '4:3', caption }: {
+export function AsyncImage({ query, src, fallbackSrc, aspectRatio = '4:3', caption }: {
   /** Descriptive search query, 5 to 15 words. Also the alt text when there is no caption. */
   query: string
-  /** Resolved image URL; leave undefined while the search is still running. */
-  src?: string
+  /** Resolved image URL; undefined while the search is still running, null when nothing matched. */
+  src?: string | null
+  /** Shown instead when `src` fails to load, such as a search thumbnail of the same photo. */
+  fallbackSrc?: string
   aspectRatio?: AspectRatio
   /** Caption under the image. */
   caption?: string
 }) {
+  const [broken, setBroken] = useState<string[]>([])
+  const shown = src ? [src, fallbackSrc].find((u) => u && !broken.includes(u)) : undefined
+  const missing = src === null || (src !== undefined && !shown)
   return (
     <figure className="ui-img">
       <div className="ui-img-box" style={{ aspectRatio: ratio(aspectRatio) }}>
-        {src ? <img src={src} alt={caption ?? query} loading="lazy" /> : <div className="ui-skel fill" />}
+        {shown ? (
+          <img
+            key={shown}
+            src={shown}
+            alt={caption ?? query}
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            onError={() => setBroken((b) => [...b, shown])}
+          />
+        ) : missing ? (
+          <div className="ui-img-missing">No matching photo</div>
+        ) : (
+          <div className="ui-skel fill" />
+        )}
       </div>
       <figcaption>
         {caption && <span className="cap">{caption}</span>}
-        {!src && <span className="ui-img-note">Searching for “{query}”</span>}
+        {src === undefined && <span className="ui-img-note">Searching for “{query}”</span>}
+        {missing && !caption && <span className="ui-img-note">{query}</span>}
       </figcaption>
     </figure>
   )
 }
 
-/** One image in a group: the query, plus its URL once resolved. */
+/** One image in a group: the query, plus its URL once resolved (null when nothing matched). */
 export interface ImageQuery {
   query: string
-  src?: string
+  src?: string | null
+  fallbackSrc?: string
 }
 
 /**
@@ -72,7 +94,9 @@ export function AsyncImageGroup({ images, layout = 'grid', aspectRatio = '4:3' }
 }) {
   return (
     <div className={cx('ui-imggrid', layout === 'strip' && 'strip')}>
-      {images.map((img, i) => <AsyncImage key={img.query + i} query={img.query} src={img.src} aspectRatio={aspectRatio} />)}
+      {images.map((img, i) => (
+        <AsyncImage key={img.query + i} query={img.query} src={img.src} fallbackSrc={img.fallbackSrc} aspectRatio={aspectRatio} />
+      ))}
     </div>
   )
 }

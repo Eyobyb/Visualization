@@ -89,6 +89,30 @@ describe('viz stream turns', () => {
     expect(out).not.toContain('class="viz')
   })
 
+  it('patches resolved photos into the program by image key', () => {
+    const image = (key: string, query: string, url: string | null): StreamEvent => ({
+      type: 'image', key, query, url, thumbnail: url && url + '?thumb', page: null, title: null, score: url ? 0.9 : 0.1, verified: true,
+    })
+    const { turn, content } = replay([
+      route(0.9),
+      { type: 'data', bindings: {} },
+      statement('root = Col([photo, photos])', 1, 'root'),
+      statement('photo = AsyncImage("jebena on charcoal")', 2, 'photo'),
+      statement('photos = AsyncImageGroup(["a cup", "a pot"])', 3, 'photos'),
+      image('photo', 'jebena on charcoal', 'https://img.example/jebena.jpg'),
+      image('photos.0', 'a cup', null),
+    ])
+    expect(turn.resolved).toEqual({
+      photo: { src: 'https://img.example/jebena.jpg', fallback: 'https://img.example/jebena.jpg?thumb' },
+      'photos.0': null,
+    })
+    expect(turn.images.map((i) => i.key)).toEqual(['photo', 'photos.0'])
+    const out = html(content, turn, true)
+    expect(out).toContain('src="https://img.example/jebena.jpg"')
+    expect(out).toContain('No matching photo')
+    expect(out).toContain('Searching for “a pot”')
+  })
+
   it('shows a status line before the route arrives', () => {
     expect(html('', EMPTY_TURN, true)).toContain('Routing with Jev')
     expect(html('', applyVizEvent(EMPTY_TURN, route(0.9)), true)).toContain('Writing the interface')

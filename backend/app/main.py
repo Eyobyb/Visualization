@@ -15,7 +15,7 @@ from .dil import compile_dil  # noqa: E402
 from .dil.catalog import catalog_summary  # noqa: E402
 from .llm import stream_text  # noqa: E402
 from .search import search  # noqa: E402
-from .viz import viz_events  # noqa: E402
+from .viz import image_events, viz_events  # noqa: E402
 from .vizlang.prompt import catalog_prompt  # noqa: E402
 
 PROMPTS = Path(__file__).resolve().parent.parent / "prompts"
@@ -309,6 +309,20 @@ async def viz_stream(req: ChatRequest):
         extra=viz_data_context(req),
         prose=lambda: text_events(load_prompt("plain.md"), req, prose_extra),
     ))
+
+
+class ImageJob(BaseModel):
+    key: str = Field(max_length=200)
+    query: str = Field(min_length=1, max_length=300)
+
+
+class ImagesRequest(BaseModel):
+    images: List[ImageJob] = Field(max_length=12)
+
+
+@app.post("/api/viz/images")
+async def viz_images(req: ImagesRequest):
+    return sse_response(image_events([(j.key, j.query) for j in req.images]))
 
 
 @app.get("/api/health")

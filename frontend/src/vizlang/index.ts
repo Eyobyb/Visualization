@@ -7,6 +7,7 @@ export { P, REQ, checkType, typeLabel, type PropSpec, type PropType, type Compon
 export { SPECS } from './specs'
 export { PRESETS, type Preset } from './presets'
 export { PENDING, type ComponentNode, type StateBinding } from './values'
-export { renderNode, RENDERERS, registryMismatches, type RenderContext } from './render'
+export { renderNode, RENDERERS, registryMismatches, type RenderContext, type ResolvedImage } from './render'
+export { imageJobs, type ImageJob } from './images'
 export { useVizProgram, type VizProgramOptions, type VizProgramHandle } from './useVizProgram'
 export { VizProgram } from './VizProgram'

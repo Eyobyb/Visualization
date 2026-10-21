@@ -3,12 +3,14 @@ import { describe, expect, it } from 'vitest'
 import * as Viz from '../../components/visualization'
 import { ERRORS_PRESET, EXAMPLE_PROGRAMS, PRESET_PROGRAMS } from '../fixtures/programs'
 import { labData } from '../fixtures/labData'
-import { registryMismatches, RENDERERS } from '../render'
+import { registryMismatches, RENDERERS, type ResolvedImage } from '../render'
+import { compile } from '../compile'
+import { imageJobs } from '../images'
 import { VizProgram } from '../VizProgram'
 
 const ALL = [...EXAMPLE_PROGRAMS, ...PRESET_PROGRAMS]
 
-const html = (source: string, streaming = false, resolved?: Record<string, string>) =>
+const html = (source: string, streaming = false, resolved?: Record<string, ResolvedImage | null>) =>
   renderToString(<Viz.VizRoot><VizProgram source={source} data={labData} streaming={streaming} resolved={resolved} /></Viz.VizRoot>)
 
 describe('registry', () => {
@@ -56,10 +58,29 @@ describe('rendering', () => {
     expect(html('root = Col([title, later])\ntitle = Title("Hi")\n', true)).toContain('ui-skel')
   })
 
+  it('lists image jobs with the same keys the renderer reads', () => {
+    const src = 'root = Col([photo, group, Card([AsyncImage("inline " + "pot")])])\nphoto = AsyncImage("jebena on charcoal")\ngroup = AsyncImageGroup(["a cup", 3])'
+    const { root } = compile(src, { data: labData })
+    expect(imageJobs(root)).toEqual([
+      { key: 'photo', query: 'jebena on charcoal' },
+      { key: 'group.0', query: 'a cup' },
+      { key: 'group.1', query: '3' },
+      { key: 'root.children.2.children.0', query: 'inline pot' },
+    ])
+    expect(imageJobs(compile('root = Col([later])', { streaming: true }).root)).toEqual([])
+  })
+
   it('patches resolved image URLs in by node key', () => {
     const src = 'root = Col([photo, group])\nphoto = AsyncImage("jebena on charcoal")\ngroup = AsyncImageGroup(["a cup", "a pot"])'
-    const out = html(src, false, { photo: 'https://img.example/p.jpg', 'group.1': 'https://img.example/pot.jpg' })
+    const out = html(src, false, {
+      photo: { src: 'https://img.example/p.jpg', fallback: 'https://tse.example/p' },
+      'group.1': { src: 'https://img.example/pot.jpg' },
+      'group.0': null,
+    })
     expect(out).toContain('https://img.example/p.jpg')
     expect(out).toContain('https://img.example/pot.jpg')
+    expect(out).toContain('No matching photo')
+    expect(out).not.toContain('Searching for “a cup”')
+    expect(out).not.toContain('Searching for “jebena on charcoal”')
   })
 })

@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { VizRoot } from '../components/visualization'
-import { PRESETS, SPECS, useVizProgram, type ActionEvent } from '../vizlang'
+import { imageJobs, PRESETS, renderNode, SPECS, useVizProgram, type ActionEvent } from '../vizlang'
+import { useResolvedImages } from '../viz/useResolvedImages'
 import { labData } from '../vizlang/fixtures/labData'
 import { notify } from './toast'
 
@@ -48,13 +49,19 @@ export function Playground({ theme }: { theme: 'light' | 'dark' }) {
     return () => clearInterval(id)
   }, [streaming, speed, src.length])
 
-  const { result, element, resetState } = useVizProgram({
+  const { result, setState, resetState } = useVizProgram({
     source: streaming ? src.slice(0, shown ?? 0) : src,
     data: labData,
     streaming,
     onSend: send,
     onEvent,
   })
+  const jobs = useMemo(() => imageJobs(result.root), [result.root])
+  const resolved = useResolvedImages(jobs)
+  const element = useMemo(
+    () => renderNode(result.root, { state: result.state, set: setState, onSend: send, resolved }),
+    [result, setState, resolved],
+  )
 
   const pick = (id: string) => {
     const p = ALL_OPTIONS.find((o) => o.id === id)

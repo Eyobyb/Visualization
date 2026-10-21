@@ -17,7 +17,7 @@ interface Props {
 }
 
 function ProgramTurn({ source, turn, streaming, onSend, onFirstUI }: Props) {
-  const { result, element } = useVizProgram({ source, data: turn.data, streaming, onSend })
+  const { result, element } = useVizProgram({ source, data: turn.data, streaming, resolved: turn.resolved, onSend })
   const rendered = isNode(result.root)
   const reported = useRef(false)
   useEffect(() => {

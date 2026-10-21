@@ -11,9 +11,19 @@ export interface RenderContext {
   state: Record<string, unknown>
   set: (name: string, value: unknown) => void
   onSend: SendToModel
-  /** Server-resolved image URLs, keyed by node key (`photo`) or node key plus index (`photos.0`). */
-  resolved?: Record<string, string | undefined>
+  /** Server-resolved images, keyed by node key (`photo`) or node key plus index (`photos.0`). */
+  resolved?: Record<string, ResolvedImage | null | undefined>
 }
+
+/** A photo the server found for an image query; `null` in the map means no photo matched. */
+export interface ResolvedImage {
+  src: string
+  /** A smaller copy to show if `src` fails to load. */
+  fallback?: string
+}
+
+const imageProps = (r: ResolvedImage | null | undefined) =>
+  r ? { src: r.src, fallbackSrc: r.fallback } : { src: r }
 
 type Props = Record<string, unknown>
 type AnyComponent = ComponentType<Props>
@@ -75,13 +85,13 @@ export const RENDERERS: Record<string, Renderer> = {
   Icon: { component: as(V.Icon) },
   AsyncImage: {
     component: as(V.AsyncImage),
-    adapt: (p, n, ctx) => ({ ...p, src: ctx.resolved?.[n.key] }),
+    adapt: (p, n, ctx) => ({ ...p, ...imageProps(ctx.resolved?.[n.key]) }),
   },
   AsyncImageGroup: {
     component: as(V.AsyncImageGroup),
     adapt: ({ queries, ...p }, n, ctx) => ({
       ...p,
-      images: (queries as unknown[]).map((q, i) => ({ query: String(q), src: ctx.resolved?.[n.key + '.' + i] })),
+      images: (queries as unknown[]).map((q, i) => ({ query: String(q), ...imageProps(ctx.resolved?.[n.key + '.' + i]) })),
     }),
   },
   Summary: { component: as(V.Summary) },
