@@ -59,7 +59,8 @@ def _nodes(v: Any) -> Iterable[dict]:
 
 def image_jobs(root: Any) -> List[Tuple[str, str]]:
     """`(key, query)` for each image to resolve, keyed like the browser's `resolved` map:
-    `photo` for an AsyncImage, `photos.0` for each query of an AsyncImageGroup."""
+    `photo` for an AsyncImage, `photos.0` for each query of an AsyncImageGroup and each
+    item image of a ProductGrid."""
     jobs: List[Tuple[str, str]] = []
     for n in _nodes(root):
         p = n["props"]
@@ -69,6 +70,11 @@ def image_jobs(root: Any) -> List[Tuple[str, str]]:
             for i, q in enumerate(p["queries"]):
                 if q is not PENDING and not isinstance(q, (dict, list)):
                     jobs.append((n["key"] + "." + str(i), js_str(q)))
+        elif n["name"] == "ProductGrid" and isinstance(p.get("items"), list):
+            for i, it in enumerate(p["items"]):
+                q = it.get("image") if isinstance(it, dict) else None
+                if isinstance(q, str):
+                    jobs.append((n["key"] + "." + str(i), q))
     return jobs
 
 

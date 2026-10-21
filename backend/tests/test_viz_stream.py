@@ -10,6 +10,7 @@ from fastapi.testclient import TestClient
 
 from app import jev, llm, main
 from app.vizlang import compile_program, split_statements
+from app.vizlang.prompt import preset_source
 
 PROGRAM = """root = Col([title, summary, picks, sources])
 title = Title("Telegram or a website?", size: "lg")
@@ -163,6 +164,19 @@ def test_firm_layout_hint():
     assert r.layout == "dashboard" and r.render and r.model == "jev-1.13.0"
     assert r.hints[0].startswith("Use the dashboard layout")
     assert "$variable" in r.hints[1]
+
+
+def test_every_layout_has_a_preset():
+    for layout in jev.LAYOUTS:
+        assert preset_source(layout), layout
+
+
+def test_new_layouts_route_with_their_preset():
+    r = jev.parse_response(answers(product=0.82, comparison=0.1))
+    assert r.layout == "product" and r.hints[0].startswith("Use the product layout: shopping")
+    assert "ProductGrid(" in preset_source("product")
+    assert jev.parse_response(answers(weather=0.9)).layout == "weather"
+    assert "Verdict(" in preset_source(jev.parse_response(answers(comparison=0.75)).layout)
 
 
 def test_close_layouts_become_options():

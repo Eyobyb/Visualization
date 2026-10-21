@@ -29,6 +29,9 @@ LAYOUTS = {
     "calculator": "The user wants to try inputs and see derived numbers update",
     "split": "Dividing an amount between people or items, recalculated as values change",
     "moodboard": "Visual inspiration, mostly pictures",
+    "product": "Shopping or ranking products with prices, ratings and specs",
+    "weather": "Current weather or a forecast for a place",
+    "comparison": "Two or three options compared, ending in a recommendation",
 }
 
 QUESTIONS = {

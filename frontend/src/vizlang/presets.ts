@@ -79,6 +79,29 @@ palette = Row([Badge("Clay", tone: "warning"), Badge("Forest", tone: "success"),
 $style = "cozy"
 next = Card([SegmentedControl($style, options: ["cozy", "modern", "rustic"]), Button("Develop the " + $style + " direction", icon: "arrow-right", onClick: @NewTurn("Develop a " + $style + " cafe interior concept with a coffee ceremony corner"))], title: "Pick a direction")
 ` },
+  { id: 'product', label: 'Product picks', src: String.raw`// Shopping: product photos are server-resolved from each item's image query. Prices and ratings come from the sources.
+root = Col([title, intro, picks, verdict, refs])
+title = Title("Laptops for programming under ETB 220,000")
+intro = Text("Three machines that compile fast, stay cool and last a full workday.")
+picks = ProductGrid([{name: "MacBook Air M4 13-inch", image: "MacBook Air M4 laptop open on a wooden desk", price: 189000, rating: 4.7, specs: ["16 GB RAM", "512 GB SSD", "18 h battery"], badge: "Best battery"}, {name: "Lenovo ThinkPad X1 Carbon Gen 13", image: "Lenovo ThinkPad X1 Carbon laptop on an office table", price: 214000, rating: 4.5, specs: ["32 GB RAM", "1 TB SSD", "Linux friendly"], badge: "Best keyboard"}, {name: "Dell XPS 14", image: "Dell XPS 14 silver laptop with an OLED screen", price: 198500, rating: 4.3, specs: ["32 GB RAM", "RTX 4050", "OLED display"]}])
+verdict = Verdict("MacBook Air M4", reason: "The longest battery life and the fastest builds for the price.", alternative: {name: "ThinkPad X1 Carbon", when: "if you work in Linux or type all day"}, confidence: "medium")
+refs = Sources([{title: "Best programming laptops 2026", url: "https://www.example.com/laptops"}])
+` },
+  { id: 'weather', label: 'Weather', src: String.raw`// Weather: current conditions and a forecast. Only use figures from the sources and say when they are from.
+root = Col([now, hours, note])
+now = WeatherCard("Addis Ababa", now: {temp: 19, condition: "partly", feelsLike: 18, wind: 11, humidity: 62, summary: "Partly cloudy, showers after 3 pm"}, forecast: [{label: "Today", condition: "rain", high: 21, low: 11, rain: 70}, {label: "Thu", condition: "storm", high: 20, low: 12, rain: 80}, {label: "Fri", condition: "partly", high: 22, low: 11, rain: 30}, {label: "Sat", condition: "sun", high: 24, low: 10, rain: 10}, {label: "Sun", condition: "cloud", high: 22, low: 11, rain: 40}], updated: "Forecast as of 09:00 EAT")
+hourly = [{hour: "09:00", temp: 17}, {hour: "12:00", temp: 20}, {hour: "15:00", temp: 21}, {hour: "18:00", temp: 18}, {hour: "21:00", temp: 15}]
+hours = Chart(type: "line", data: hourly, x: "hour", y: "temp", height: "sm", caption: "Today, °C")
+note = Callout("Afternoon showers are likely through Thursday; carry an umbrella after 3 pm.", tone: "info")
+` },
+  { id: 'comparison', label: 'Comparison', src: String.raw`// Comparison: features side by side, code for each, key terms, then a clear recommendation.
+root = Col([title, table, code, terms, verdict])
+title = Title("FastAPI vs Django")
+table = ComparisonTable(columns: ["FastAPI", "Django"], rows: [{label: "Async by default", values: [true, false]}, {label: "Admin panel", values: [false, true]}, {label: "Built-in ORM", values: [false, true]}, {label: "Automatic API docs", values: [true, false]}, {label: "Best for", values: ["JSON APIs", "Full web apps"]}], highlight: "FastAPI")
+code = CodeTabs([{label: "FastAPI", language: "python", code: "@app.get(\"/items/{id}\")\nasync def item(id: int):\n    return {\"id\": id}"}, {label: "Django", language: "python", code: "def item(request, id):\n    return JsonResponse({\"id\": id})"}])
+terms = Row([Caption("Key terms:"), Term("ASGI", definition: "The async server interface FastAPI runs on."), Term("ORM", definition: "Maps database tables to Python classes.")])
+verdict = Verdict("FastAPI", reason: "For a typed JSON API it is faster to write and faster to run.", alternative: {name: "Django", when: "if you need the admin panel, auth and templates built in"}, confidence: "high")
+` },
   { id: 'errors', label: 'Diagnostics', src: String.raw`// Deliberate mistakes. The compiler drops what it cannot validate and keeps the rest.
 root = Col([heading, chart, sparkle, stock, tiles, ghost])
 heading = Title("Diagnostics demo", size: "md")

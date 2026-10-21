@@ -19,8 +19,8 @@ function find(v: unknown, name: string): ComponentNode | undefined {
 
 describe('lab programs', () => {
   it('covers every component example and preset', () => {
-    expect(EXAMPLE_PROGRAMS).toHaveLength(64)
-    expect(PRESET_PROGRAMS).toHaveLength(6)
+    expect(EXAMPLE_PROGRAMS).toHaveLength(78)
+    expect(PRESET_PROGRAMS).toHaveLength(9)
   })
 
   it.each(ALL.map((p) => [p.id, p.src]))('%s compiles cleanly', (_id, src) => {

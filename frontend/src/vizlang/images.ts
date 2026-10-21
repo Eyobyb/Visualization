@@ -18,7 +18,7 @@ function* nodes(v: unknown): Generator<ComponentNode> {
 
 /**
  * The images a compiled tree needs, keyed like the `resolved` map: `photo` for an AsyncImage,
- * `photos.0` for each query of an AsyncImageGroup. Mirrors `image_jobs` on the server.
+ * `photos.0` for each query of an AsyncImageGroup and each item image of a ProductGrid. Mirrors `image_jobs` on the server.
  */
 export function imageJobs(root: unknown): ImageJob[] {
   const jobs: ImageJob[] = []
@@ -28,6 +28,11 @@ export function imageJobs(root: unknown): ImageJob[] {
     else if (n.name === 'AsyncImageGroup' && Array.isArray(p.queries)) {
       p.queries.forEach((q, i) => {
         if (q !== PENDING && (typeof q !== 'object' || q === null)) jobs.push({ key: n.key + '.' + i, query: String(q) })
+      })
+    } else if (n.name === 'ProductGrid' && Array.isArray(p.items)) {
+      p.items.forEach((it, i) => {
+        const q = it && typeof it === 'object' ? (it as Record<string, unknown>).image : undefined
+        if (typeof q === 'string') jobs.push({ key: n.key + '.' + i, query: q })
       })
     }
   }

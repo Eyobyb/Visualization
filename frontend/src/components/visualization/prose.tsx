@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Glyph, type IconName } from './Icon'
 import { isIconName } from './icons'
 import { asProse, cx, fmt, richText, safeUrl, TONES } from './utils'
-import type { NumberFormat, ProseItem } from './types'
+import type { NumberFormat, ProseItem, Tone } from './types'
 
 function ItemBody({ item }: { item: ProseItem }) {
   const o = asProse(item)
@@ -417,5 +417,160 @@ export function Sources({ items }: { items: Source[] }) {
         })}
       </ol>
     </section>
+  )
+}
+
+/** One dated event in a Timeline. */
+export interface TimelineItem {
+  /** "2019", "Mar 2024" or "14:10". */
+  date: string
+  title: string
+  text?: ReactNode
+  tone?: Tone
+}
+
+/**
+ * Dated events in order: a history, a news story so far, or a project plan.
+ *
+ * @example
+ * <Timeline items={[{ date: '2018', title: 'Shop opens', text: 'Telegram orders only.' }, { date: '2024', title: 'Website launch', tone: 'success' }]} />
+ */
+export function Timeline({ items }: { items: TimelineItem[] }) {
+  return (
+    <ol className="ui-timeline">
+      {items.map((it, i) => (
+        <li key={i} className={'t-' + (it.tone && TONES.includes(it.tone) ? it.tone : 'accent')}>
+          <span className="tl-dot" aria-hidden />
+          <div className="tl-body">
+            <time className="tl-date">{it.date}</time>
+            <b className="pi-title">{it.title}</b>
+            {it.text != null && <span className="pi-text">{richText(it.text)}</span>}
+          </div>
+        </li>
+      ))}
+    </ol>
+  )
+}
+
+/** One stage in a Flow: a label, or `{ title, text, icon }`. */
+export type FlowStep = string | { title: string; text?: string; icon?: IconName }
+
+/**
+ * How something works, as stages joined by arrows. `cycle` notes that the last stage feeds the first.
+ * Stacks vertically on narrow screens.
+ *
+ * @example <Flow steps={['Pedals', 'Chainring', 'Chain', 'Cassette', 'Rear wheel']} />
+ */
+export function Flow({ steps, layout = 'line' }: { steps: FlowStep[]; layout?: 'line' | 'cycle' }) {
+  const norm = steps.map((s) => (typeof s === 'string' ? { title: s } : s))
+  return (
+    <div className={cx('ui-flow', layout === 'cycle' && 'is-cycle')}>
+      <ol className="ui-flow-steps">
+        {norm.map((s, i) => (
+          <li key={i}>
+            <div className="fl-node">
+              {s.icon && isIconName(s.icon) && <Glyph name={s.icon} size={18} />}
+              <b>{s.title}</b>
+              {'text' in s && s.text && <span>{s.text}</span>}
+            </div>
+            {i < norm.length - 1 && <span className="fl-arrow" aria-hidden><Glyph name="arrow-right" size={16} /></span>}
+          </li>
+        ))}
+      </ol>
+      {layout === 'cycle' && norm.length > 1 && (
+        <div className="fl-loop"><Glyph name="rotate-ccw" size={14} />Back to {norm[0].title}, then repeat</div>
+      )}
+    </div>
+  )
+}
+
+const CONFIDENCE = { low: 'warning', medium: 'info', high: 'success' } as const
+
+/**
+ * The recommendation that ends a comparison: the pick, why, and when to choose something else instead.
+ *
+ * @example
+ * <Verdict pick="FastAPI" reason="Async by default and the fastest way to ship a typed JSON API."
+ *   alternative={{ name: 'Django', when: 'if you want the admin panel and ORM built in' }} confidence="high" />
+ */
+export function Verdict({ pick, reason, alternative, confidence, action }: {
+  pick: string
+  reason?: ReactNode
+  /** The other option and when it wins, phrased to follow "Choose X instead", such as "if you need the admin panel". */
+  alternative?: { name: string; when: string }
+  confidence?: 'low' | 'medium' | 'high'
+  /** A follow-up button. */
+  action?: ReactNode
+}) {
+  return (
+    <section className="ui-verdict">
+      <div className="vd-top">
+        <span className="vd-kicker">Recommendation</span>
+        {confidence && CONFIDENCE[confidence] && (
+          <span className={cx('ui-badge', 'v-soft', 't-' + CONFIDENCE[confidence])}>{confidence[0].toUpperCase() + confidence.slice(1)} confidence</span>
+        )}
+      </div>
+      <div className="vd-pick"><Glyph name="check" size={20} />{pick}</div>
+      {reason != null && <p className="vd-reason">{richText(reason)}</p>}
+      {alternative?.name && (
+        <p className="vd-alt">Choose <b>{alternative.name}</b> instead {alternative.when}</p>
+      )}
+      {action && <div className="ui-actions">{action}</div>}
+    </section>
+  )
+}
+
+/**
+ * A word with its definition on hover, focus or tap, for jargon the reader may not know.
+ *
+ * @example <Term word="derailleur" definition="The arm that moves the chain between gears." />
+ */
+export function Term({ word, definition }: { word: string; definition: string }) {
+  const id = useId()
+  return (
+    <span className="ui-term" tabIndex={0} aria-describedby={id}>
+      {word}
+      <span role="tooltip" id={id} className="ui-term-tip">{definition}</span>
+    </span>
+  )
+}
+
+/** One line of a Formula: a label, the expression in words or symbols, and its value. */
+export interface FormulaStep {
+  label?: string
+  /** Such as "3 × ETB 450" or "subtotal × 15%". */
+  expr: string
+  value?: number | string
+  format?: NumberFormat
+}
+
+/**
+ * A calculation shown step by step, so the reader can check how a number was reached.
+ * Values can be live expressions over `$variables`.
+ *
+ * @example
+ * <Formula steps={[{ label: 'Coffee', expr: '3 × ETB 450', value: 1350, format: 'currency' }]}
+ *   result={{ label: 'Total', value: 1552.5, format: 'currency' }} />
+ */
+export function Formula({ steps, result }: {
+  steps: FormulaStep[]
+  result?: { label: string; value: number | string; format?: NumberFormat }
+}) {
+  const show = (v: unknown, f?: NumberFormat) => (typeof v === 'number' ? fmt(v, f) : v == null ? '' : String(v))
+  return (
+    <div className="ui-formula">
+      <ol>
+        {steps.map((s, i) => (
+          <li key={i}>
+            {s.label && <span className="fx-label">{s.label}</span>}
+            <code className="fx-expr">{s.expr}</code>
+            {s.value != null && <><span className="fx-eq">=</span><b className="fx-val">{show(s.value, s.format)}</b></>}
+          </li>
+        ))}
+      </ol>
+      {result && (
+        <div className="fx-result"><span>{result.label}</span><b>{show(result.value, result.format)}</b></div>
+      )}
+    </div>
   )
 }

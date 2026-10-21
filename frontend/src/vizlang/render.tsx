@@ -119,6 +119,40 @@ export const RENDERERS: Record<string, Renderer> = {
   ApprovalCard: { component: as(V.ApprovalCard), adapt: withSend },
   ComparisonTable: { component: as(V.ComparisonTable) },
   RegionMap: { component: as(V.RegionMap) },
+  ProductGrid: {
+    component: as(V.ProductGrid),
+    adapt: ({ items, ...p }, n, ctx) => ({
+      ...p,
+      items: (items as unknown[]).map((it, i) =>
+        it && typeof it === 'object' && typeof (it as Props).image === 'string'
+          ? { ...(it as Props), ...imageProps(ctx.resolved?.[n.key + '.' + i]) }
+          : it),
+    }),
+  },
+  WeatherCard: { component: as(V.WeatherCard) },
+  Timeline: { component: as(V.Timeline) },
+  Flow: { component: as(V.Flow) },
+  Verdict: { component: as(V.Verdict) },
+  Term: { component: as(V.Term) },
+  Formula: { component: as(V.Formula) },
+  CodeTabs: { component: as(V.CodeTabs) },
+  EmptyState: { component: as(V.EmptyState) },
+  NumberInput: { component: as(V.NumberInput), adapt: bindValue('value') },
+  DatePicker: {
+    component: as(V.DatePicker),
+    adapt: ({ end, ...p }, n, ctx) => {
+      const props = bindValue('value')(p, n, ctx)
+      if (!isBinding(end)) return props
+      return { ...props, end: ctx.state[end.$state], onEndChange: (v: unknown) => ctx.set(end.$state, v) }
+    },
+  },
+  Rating: {
+    component: as(V.Rating),
+    adapt: ({ rate, ...p }, _n, ctx) => {
+      if (!isBinding(rate)) return p
+      return { ...p, value: ctx.state[rate.$state], onChange: (v: unknown) => ctx.set(rate.$state, v) }
+    },
+  },
 }
 
 /** True when a value still holds a not-yet-streamed part outside any nested component. */

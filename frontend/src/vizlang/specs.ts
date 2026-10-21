@@ -214,3 +214,57 @@ def('RegionMap', 'Data', 'Values by Ethiopian region on a tile map, one tile per
   { data: P.data('Rows from a binding.', REQ), region: P.field('Field holding the region name.', REQ), value: P.field('Field holding the value.', REQ), format: fmtP(), legend: P.bool('Show the ranked list beside the map.', { def: true }), caption: P.str('Note under the map.') },
   [{ label: 'all regions', src: String.raw`root = RegionMap(data: data.customers_by_region, region: "region", value: "customers", caption: "Active customers, Q3.")` },
    { label: 'partial data', src: String.raw`root = RegionMap(data: @GroupBy(data.sales_by_region, "region", "revenue"), region: "region", value: "revenue", format: "currency")` }])
+
+const anyP = (desc: string, o?: { req?: boolean }): PropSpec => ({ type: 'any', desc, ...o })
+const CONDITIONS = ['sun', 'partly', 'cloud', 'rain', 'storm', 'fog', 'wind', 'snow']
+
+/* Shopping, weather and comparisons */
+def('ProductGrid', 'Cards', 'Products to shop or rank: photo, name, price, rating, key specs, link. Each image is a search query the server resolves. Use only prices and ratings from the sources.', ['items'],
+  { items: P.list('{name, image: search query, price, rating: 0-5, specs: up to four strings, badge, url}.', REQ), format: fmtP('currency'), columns: P.en([2, 3, 4], 'Columns at full width.', { def: 3 }) },
+  [String.raw`root = ProductGrid([{name: "MacBook Air M4 13-inch", image: "MacBook Air M4 laptop open on a wooden desk", price: 189000, rating: 4.7, specs: ["16 GB RAM", "512 GB SSD", "18 h battery"], badge: "Best battery"}, {name: "Lenovo ThinkPad X1 Carbon", image: "Lenovo ThinkPad X1 Carbon laptop on an office table", price: 214000, rating: 4.5, specs: ["32 GB RAM", "1 TB SSD", "Linux friendly"]}, {name: "Dell XPS 14", image: "Dell XPS 14 silver laptop with an OLED screen", price: 198500, rating: 4.3, specs: ["32 GB RAM", "RTX 4050", "OLED display"]}])`])
+def('WeatherCard', 'Cards', 'Current weather for a place plus an hourly or daily forecast. Use only figures from the sources and say when they are from.', ['location'],
+  { location: P.str('Place name.', REQ), now: anyP('{temp, condition, feelsLike, wind: km/h, humidity: 0-100, summary}. condition is one of ' + CONDITIONS.join(', ') + '.', REQ), forecast: P.list('{label, condition, high, low, rain: chance 0-100}, hours or days.'), unit: P.en(['C', 'F'], 'Temperature unit.', { def: 'C' }), updated: P.str('As-of note, such as "Updated 09:00".') },
+  [String.raw`root = WeatherCard("Addis Ababa", now: {temp: 19, condition: "partly", feelsLike: 18, wind: 11, humidity: 62, summary: "Partly cloudy, showers after 3 pm"}, forecast: [{label: "Today", condition: "rain", high: 21, low: 11, rain: 70}, {label: "Thu", condition: "storm", high: 20, low: 12, rain: 80}, {label: "Fri", condition: "partly", high: 22, low: 11, rain: 30}, {label: "Sat", condition: "sun", high: 24, low: 10, rain: 10}, {label: "Sun", condition: "cloud", high: 22, low: 11, rain: 40}], updated: "Forecast as of 09:00 EAT")`])
+def('Verdict', 'Prose', 'The recommendation that ends a comparison: the pick, why, and when the other option wins.', ['pick'],
+  { pick: P.str('The recommended option.', REQ), reason: P.str('Why, in one or two sentences.'), alternative: anyP('{name, when}: the other option and when it wins, phrased to follow "Choose X instead", such as "if you need the admin panel".'), confidence: P.en(['low', 'medium', 'high'], 'How sure the recommendation is.'), action: P.node('A follow-up Button.') },
+  [String.raw`root = Verdict("FastAPI", reason: "It is async by default and the quickest way to ship a typed JSON API with docs generated for you.", alternative: {name: "Django", when: "if you want the admin panel, ORM and auth built in"}, confidence: "high", action: Button("Show a starter project", variant: "outline", onClick: @NewTurn("Show a minimal FastAPI starter project")))`])
+
+/* Explaining */
+def('Timeline', 'Prose', 'Dated events in order: a history, a news story so far, or a project plan.', ['items'],
+  { items: itemsP('{date, title, text, tone}.') },
+  [String.raw`root = Timeline([{date: "2018", title: "Shop opens in Merkato", text: "Telegram orders only, one courier."}, {date: "2021", title: "Second shop in Bole"}, {date: "Mar 2024", title: "Website launch", text: "Orders from regional cities double.", tone: "success"}, {date: "Next", title: "Mobile app", text: "Planned for 2027.", tone: "muted"}])`])
+def('Flow', 'Prose', 'How something works, as stages joined by arrows. cycle when the last stage feeds the first.', ['steps'],
+  { steps: P.list('Strings or {title, text, icon}, three to six.', REQ), layout: P.en(['line', 'cycle'], 'Straight through, or looping back.', { def: 'line' }) },
+  [String.raw`root = Flow([{title: "Pedals", text: "Your legs turn the crank"}, {title: "Chainring", text: "Pulls the chain"}, {title: "Chain", text: "Carries the force back"}, {title: "Cassette", text: "Sets the gear ratio"}, {title: "Rear wheel", text: "Moves the bike"}])`,
+   { label: 'cycle', src: String.raw`root = Flow(["Roast the beans", "Grind", "Brew in the jebena", "Serve three rounds"], layout: "cycle")` }])
+def('Term', 'Prose', 'A word with its definition on hover or tap, for jargon. Put several in a Row as key terms.', ['word'],
+  { word: P.str('The term.', REQ), definition: P.str('One-sentence definition.', REQ) },
+  [String.raw`root = Row([Caption("Key terms:"), Term("derailleur", definition: "The arm that moves the chain between gears."), Term("cassette", definition: "The stack of rear sprockets."), Term("cadence", definition: "How fast you pedal, in turns per minute.")])`])
+def('Formula', 'Prose', 'A calculation shown step by step so the reader can check it. Values can be live expressions.', ['steps'],
+  { steps: P.list('{label, expr: the working in words or symbols, value, format}.', REQ), result: anyP('{label, value, format}: the final answer.') },
+  [String.raw`$cups = 3
+root = Col([Slider($cups, min: 1, max: 10, label: "Bags of coffee"), Formula([{label: "Coffee", expr: $cups + " × ETB 450", value: $cups * 450, format: "currency"}, {label: "VAT", expr: "15% of the subtotal", value: $cups * 450 * 0.15, format: "currency"}], result: {label: "Total", value: $cups * 450 * 1.15, format: "currency"})])`])
+def('CodeTabs', 'Text', 'The same task in several languages or frameworks, one tab each.', ['items'],
+  { items: P.list('{label, language, code}.', REQ) },
+  [String.raw`root = CodeTabs([{label: "FastAPI", language: "python", code: "@app.get(\"/items/{id}\")\nasync def item(id: int):\n    return {\"id\": id}"}, {label: "Django", language: "python", code: "def item(request, id):\n    return JsonResponse({\"id\": id})"}])`])
+def('EmptyState', 'Text', 'Explains an empty result, such as a filter that matched nothing, with a way forward.', ['title'],
+  { title: P.str('What is empty.', REQ), text: P.str('Why, or what to try.'), icon: P.icon('Icon.', { def: 'search' }), action: P.node('A Button that helps.') },
+  [String.raw`$region = "Gambela"
+rows = @Filter(data.sales_by_region, "region", $region)
+root = @Count(rows) > 0 ? Table(rows) : EmptyState("No sales in " + $region + " this quarter", text: "Orders there are still routed through Addis Ababa.", icon: "map-pin", action: Button("Show all regions", variant: "outline", onClick: @Set($region, "Addis Ababa")))`])
+
+/* More inputs */
+def('NumberInput', 'Inputs', 'An exact number with minus and plus buttons, for counts and amounts a Slider makes fiddly.', ['value'],
+  { value: P.state('Bound $variable.', REQ), min: P.num('Lowest value.'), max: P.num('Highest value.'), step: P.num('Increment.', { def: 1 }), label: P.str('Field label.'), format: P.en(FORMATS, 'Shows the value formatted under the field.'), prefix: P.str('Text before the value.'), suffix: P.str('Text after the value.') },
+  [String.raw`$guests = 8
+root = Col([NumberInput($guests, min: 1, max: 40, label: "Guests"), Text("Prepare " + $guests * 3 + " cups for three rounds.")])`])
+def('DatePicker', 'Inputs', 'A date, or a date range with end. Values are "YYYY-MM-DD" strings.', ['value'],
+  { value: P.state('Bound $variable for the date or range start.', REQ), end: P.state('Bound $variable for the range end; makes it a range.'), label: P.str('Field label.'), min: P.str('Earliest date, "YYYY-MM-DD".'), max: P.str('Latest date, "YYYY-MM-DD".') },
+  [String.raw`$from = "2026-11-02"
+$to = "2026-11-06"
+root = Col([DatePicker($from, end: $to, label: "Trip dates", min: "2026-10-21"), Text("From **" + $from + "** to **" + $to + "**")])`])
+def('Rating', 'Inputs', 'Stars out of max. value shows a fixed score such as 4.6; rate binds a $variable so the reader can click a rating.', ['value'],
+  { value: P.num('Score to show; may be fractional.'), rate: P.state('Bound $variable; makes the stars clickable.'), max: P.num('Number of stars.', { def: 5 }), label: P.str('Label above the stars.'), size: P.en(['sm', 'md'], 'Star size.', { def: 'md' }), showValue: P.bool('Show the number next to the stars.', { def: true }) },
+  [String.raw`root = Row([Rating(4.6, label: "Average review"), Rating(3.5, size: "sm")], gap: 6)`,
+   { label: 'clickable', src: String.raw`$stars = 0
+root = Col([Rating(rate: $stars, label: "How was the delivery?"), $stars > 0 ? Button("Send " + $stars + "-star feedback", onClick: @NewTurn("I rate the delivery " + $stars + " out of 5")) : Caption("Tap a star")])` }])

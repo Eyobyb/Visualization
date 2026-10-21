@@ -208,3 +208,56 @@ export function Code({ code, language }: { code: string; language?: string }) {
     </div>
   )
 }
+
+/** One tab of a CodeTabs block. */
+export interface CodeTab {
+  label: string
+  code: string
+  language?: string
+}
+
+/**
+ * The same task in several languages or frameworks, one tab each. The open tab is local UI state.
+ *
+ * @example
+ * <CodeTabs items={[{ label: 'FastAPI', language: 'python', code: '@app.get("/items")' }, { label: 'Django', language: 'python', code: 'path("items/", views.items)' }]} />
+ */
+export function CodeTabs({ items }: { items: CodeTab[] }) {
+  const [selected, setSelected] = useState(0)
+  if (!items.length) return null
+  const cur = Math.min(selected, items.length - 1)
+  return (
+    <div className="ui-codetabs">
+      <div className="ui-tablist" role="tablist">
+        {items.map((t, i) => (
+          <button key={i} type="button" role="tab" aria-selected={i === cur} className={cx('ui-tab', i === cur && 'is-on')} onClick={() => setSelected(i)}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+      <div role="tabpanel"><Code code={items[cur].code} language={items[cur].language} /></div>
+    </div>
+  )
+}
+
+/**
+ * Explains an empty result, such as a filter that matched nothing, and offers a way forward.
+ *
+ * @example <EmptyState title="No orders in this range" text="Try a wider date range." icon="calendar" />
+ */
+export function EmptyState({ title, text, icon = 'search', action }: {
+  title: string
+  text?: ReactNode
+  icon?: IconName
+  /** A button that helps, such as clearing the filter. */
+  action?: ReactNode
+}) {
+  return (
+    <div className="ui-empty ui-emptystate">
+      <span className="ui-card-icon"><Glyph name={icon} size={18} /></span>
+      <b>{title}</b>
+      {text != null && <p>{richText(text)}</p>}
+      {action && <div className="es-action">{action}</div>}
+    </div>
+  )
+}

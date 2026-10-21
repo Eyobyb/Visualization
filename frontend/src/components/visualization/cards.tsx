@@ -1,9 +1,13 @@
 import type { ReactNode } from 'react'
+import { Cloud, CloudFog, CloudLightning, CloudRain, CloudSun, Snowflake, Sun, Wind, type LucideIcon } from 'lucide-react'
 import { Chart } from './Chart'
 import { Progress, type StatBase } from './data'
 import { Glyph, type IconName } from './Icon'
+import { Rating } from './inputs'
+import { AsyncImage } from './media'
 import { CardHead, Delta, Empty } from './shared'
-import { cx, fmt, num, rowsOf, sortRows } from './utils'
+import { Badge } from './text'
+import { cx, fmt, num, rowsOf, safeUrl, sortRows } from './utils'
 import type { CardTone, GoodWhen, NumberFormat, Row } from './types'
 
 function KpiTop({ label, icon }: { label: string; icon?: IconName }) {
@@ -223,6 +227,159 @@ export function ActionableGraphCard({ title, subtitle, controls, chart, actions,
       {chart}
       {caption && <p className="ui-caption t-muted">{caption}</p>}
       {actions && <div className="ui-actions">{actions}</div>}
+    </section>
+  )
+}
+
+/** One product in a ProductGrid. */
+export interface Product {
+  name: string
+  /** Search query for the product photo, 5 to 15 words. The server resolves it to a real image. */
+  image?: string
+  /** Resolved photo URL: undefined while searching, null when nothing matched. */
+  src?: string | null
+  fallbackSrc?: string
+  price?: number
+  /** Out of 5. */
+  rating?: number
+  /** Three or four short spec lines. */
+  specs?: string[]
+  /** Short tag, such as "Best value". */
+  badge?: string
+  url?: string
+}
+
+/**
+ * Products to shop or rank: photo, name, price, star rating, key specs and a link.
+ *
+ * @example
+ * <ProductGrid items={[{ name: 'MacBook Air M4', image: 'MacBook Air M4 laptop on a desk', price: 189000, rating: 4.7, specs: ['16 GB RAM', '18 h battery'] }]} />
+ */
+export function ProductGrid({ items, format = 'currency', columns = 3 }: {
+  items: Product[]
+  /** How prices display. */
+  format?: NumberFormat
+  /** Columns at full width; fewer on narrow screens. */
+  columns?: 2 | 3 | 4
+}) {
+  if (!items.length) return <Empty text="No products" />
+  return (
+    <div className={cx('ui-products', 'c' + columns)}>
+      {items.map((p, i) => {
+        const href = safeUrl(p.url)
+        return (
+          <article key={i} className="ui-product">
+            {p.image && <AsyncImage query={p.image} src={p.src} fallbackSrc={p.fallbackSrc} aspectRatio="4:3" />}
+            <div className="ui-product-body">
+              {p.badge && <Badge text={p.badge} tone="accent" />}
+              <h4 className="ui-product-name">{p.name}</h4>
+              {typeof p.rating === 'number' && <Rating value={p.rating} size="sm" />}
+              {typeof p.price === 'number' && <div className="ui-product-price">{fmt(p.price, format)}</div>}
+              {!!p.specs?.length && (
+                <ul className="ui-product-specs">{p.specs.map((s, j) => <li key={j}>{s}</li>)}</ul>
+              )}
+              {href && (
+                <a className="ui-link" href={href} target="_blank" rel="noopener noreferrer">
+                  View product <Glyph name="external" size={14} />
+                </a>
+              )}
+            </div>
+          </article>
+        )
+      })}
+    </div>
+  )
+}
+
+export type WeatherCondition = 'sun' | 'partly' | 'cloud' | 'rain' | 'storm' | 'fog' | 'wind' | 'snow'
+
+const WEATHER: Record<WeatherCondition, { icon: LucideIcon; label: string }> = {
+  sun: { icon: Sun, label: 'Sunny' },
+  partly: { icon: CloudSun, label: 'Partly cloudy' },
+  cloud: { icon: Cloud, label: 'Cloudy' },
+  rain: { icon: CloudRain, label: 'Rain' },
+  storm: { icon: CloudLightning, label: 'Thunderstorms' },
+  fog: { icon: CloudFog, label: 'Fog' },
+  wind: { icon: Wind, label: 'Windy' },
+  snow: { icon: Snowflake, label: 'Snow' },
+}
+const weather = (c: unknown) => WEATHER[c as WeatherCondition] ?? WEATHER.cloud
+
+/** Current conditions in a WeatherCard. */
+export interface WeatherNow {
+  temp: number
+  condition?: WeatherCondition
+  feelsLike?: number
+  /** km/h. */
+  wind?: number
+  /** Percent, 0 to 100. */
+  humidity?: number
+  /** One short line, such as "Light rain after 3 pm". */
+  summary?: string
+}
+
+/** One period in a WeatherCard forecast. */
+export interface ForecastPeriod {
+  /** "Tue", "14:00" or "Today". */
+  label: string
+  condition?: WeatherCondition
+  high?: number
+  low?: number
+  /** Chance of rain, percent 0 to 100. */
+  rain?: number
+}
+
+/**
+ * Current weather for a place with an hourly or daily forecast strip. Use only figures from the sources.
+ *
+ * @example
+ * <WeatherCard location="Addis Ababa" now={{ temp: 19, condition: 'partly', humidity: 62, wind: 11 }}
+ *   forecast={[{ label: 'Wed', condition: 'rain', high: 21, low: 11, rain: 70 }]} />
+ */
+export function WeatherCard({ location, now, forecast = [], unit = 'C', updated }: {
+  location: string
+  now: WeatherNow
+  forecast?: ForecastPeriod[]
+  unit?: 'C' | 'F'
+  /** As-of note, such as "Updated 09:00". */
+  updated?: string
+}) {
+  const deg = (t: unknown) => (typeof t === 'number' ? Math.round(t) + '°' : '–')
+  const cur = weather(now?.condition)
+  const NowIcon = cur.icon
+  const facts = [
+    typeof now?.feelsLike === 'number' && 'Feels like ' + deg(now.feelsLike),
+    typeof now?.humidity === 'number' && 'Humidity ' + Math.round(now.humidity) + '%',
+    typeof now?.wind === 'number' && 'Wind ' + Math.round(now.wind) + ' km/h',
+  ].filter(Boolean) as string[]
+  return (
+    <section className="ui-card pad ui-weather">
+      <div className="ui-weather-now">
+        <NowIcon size={44} strokeWidth={1.6} className="wx-icon" aria-hidden />
+        <div className="wx-main">
+          <span className="wx-loc">{location}</span>
+          <span className="wx-temp">{deg(now?.temp)}<small>{unit}</small></span>
+          <span className="wx-cond">{now?.summary ?? cur.label}</span>
+        </div>
+        {facts.length > 0 && <ul className="wx-facts">{facts.map((f) => <li key={f}>{f}</li>)}</ul>}
+      </div>
+      {forecast.length > 0 && (
+        <ol className="ui-weather-strip">
+          {forecast.map((f, i) => {
+            const w = weather(f.condition)
+            const Icon = w.icon
+            return (
+              <li key={i} aria-label={`${f.label}: ${w.label}`}>
+                <span className="wx-label">{f.label}</span>
+                <Icon size={22} strokeWidth={1.7} aria-hidden />
+                <span className="wx-range"><b>{deg(f.high)}</b>{typeof f.low === 'number' && <span>{deg(f.low)}</span>}</span>
+                {typeof f.rain === 'number' && <span className="wx-rain">{Math.round(f.rain)}%</span>}
+              </li>
+            )
+          })}
+        </ol>
+      )}
+      {updated && <p className="ui-caption t-muted">{updated}</p>}
     </section>
   )
 }

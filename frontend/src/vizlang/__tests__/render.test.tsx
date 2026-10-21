@@ -6,6 +6,7 @@ import { labData } from '../fixtures/labData'
 import { registryMismatches, RENDERERS, type ResolvedImage } from '../render'
 import { compile } from '../compile'
 import { imageJobs } from '../images'
+import type { ComponentNode } from '../values'
 import { VizProgram } from '../VizProgram'
 
 const ALL = [...EXAMPLE_PROGRAMS, ...PRESET_PROGRAMS]
@@ -82,5 +83,63 @@ describe('rendering', () => {
     expect(out).toContain('No matching photo')
     expect(out).not.toContain('Searching for “a cup”')
     expect(out).not.toContain('Searching for “jebena on charcoal”')
+  })
+
+  it('binds NumberInput, DatePicker and Rating to their $variables', () => {
+    const state: Record<string, unknown> = { guests: 8, from: '2026-11-02', to: '2026-11-06', stars: 2 }
+    const ctx = { state, set: (k: string, v: unknown) => { state[k] = v }, onSend: () => {} }
+    const adapt = (name: string, src: string) => {
+      const root = compile(src, { data: labData }).root as ComponentNode
+      expect(root.name).toBe(name)
+      return RENDERERS[name].adapt!(root.props, root, ctx)
+    }
+
+    const num = adapt('NumberInput', '$guests = 8\nroot = NumberInput($guests, min: 1, max: 40)')
+    expect(num.value).toBe(8)
+    ;(num.onChange as (v: number) => void)(12)
+    expect(state.guests).toBe(12)
+
+    const dates = adapt('DatePicker', '$from = "2026-11-02"\n$to = "2026-11-06"\nroot = DatePicker($from, end: $to)')
+    expect([dates.value, dates.end]).toEqual(['2026-11-02', '2026-11-06'])
+    ;(dates.onChange as (v: string) => void)('2026-11-03')
+    ;(dates.onEndChange as (v: string) => void)('2026-11-09')
+    expect([state.from, state.to]).toEqual(['2026-11-03', '2026-11-09'])
+    expect(adapt('DatePicker', '$from = "2026-11-02"\nroot = DatePicker($from)')).not.toHaveProperty('onEndChange')
+
+    const rate = adapt('Rating', '$stars = 2\nroot = Rating(rate: $stars)')
+    expect(rate.value).toBe(2)
+    ;(rate.onChange as (v: number) => void)(4)
+    expect(state.stars).toBe(4)
+    const shown = adapt('Rating', 'root = Rating(4.6)')
+    expect(shown.value).toBe(4.6)
+    expect(shown).not.toHaveProperty('onChange')
+  })
+
+  it('renders Rating with a literal value as display-only and a bound one as clickable', () => {
+    const shown = html('root = Rating(4.6)')
+    expect(shown).toContain('4.6')
+    expect(shown).not.toContain('<button')
+    expect(html('$stars = 3\nroot = Rating(rate: $stars)').match(/<button/g)).toHaveLength(5)
+  })
+
+  it('disables the NumberInput steppers at its limits', () => {
+    const atMin = html('$n = 1\nroot = NumberInput($n, min: 1, max: 3)')
+    expect(atMin).toMatch(/aria-label="Decrease" disabled=""/)
+    expect(atMin).not.toMatch(/aria-label="Increase" disabled=""/)
+    expect(html('$n = 3\nroot = NumberInput($n, min: 1, max: 3)')).toMatch(/aria-label="Increase" disabled=""/)
+  })
+
+  it('resolves ProductGrid item photos by item index', () => {
+    const src = 'root = ProductGrid(shop)\nshop = [{name: "A", image: "laptop a", price: 10}, {name: "B"}, {name: "C", image: "laptop c"}]'
+    expect(imageJobs(compile(src).root)).toEqual([
+      { key: 'root.0', query: 'laptop a' },
+      { key: 'root.2', query: 'laptop c' },
+    ])
+    const out = html('root = ProductGrid([{name: "A", image: "laptop a"}, {name: "C", image: "laptop c"}])', false, {
+      'root.0': { src: 'https://img.example/a.jpg' },
+      'root.1': null,
+    })
+    expect(out).toContain('https://img.example/a.jpg')
+    expect(out).toContain('No matching photo')
   })
 })

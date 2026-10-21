@@ -1,4 +1,5 @@
-import { useId } from 'react'
+import { useId, useState } from 'react'
+import { Minus, Plus, Star } from 'lucide-react'
 import { Glyph, type IconName } from './Icon'
 import { cx, fmt, normOption, num } from './utils'
 import type { NumberFormat, OptionInput } from './types'
@@ -223,6 +224,202 @@ export function RadioGroup<V extends string | number>({ value, onChange, options
           </button>
         ))}
       </div>
+    </div>
+  )
+}
+
+const decimals = (step: number) => (String(step).split('.')[1] ?? '').length
+
+/**
+ * An exact number with minus and plus buttons, for counts and amounts a slider makes fiddly.
+ * Typed values are clamped to `min` and `max` when the field loses focus.
+ *
+ * @example <NumberInput value={guests} onChange={setGuests} min={1} max={40} label="Guests" />
+ */
+export function NumberInput({ value, onChange, min, max, step = 1, label, format, prefix, suffix }: {
+  value: number
+  onChange: (value: number) => void
+  min?: number
+  max?: number
+  step?: number
+  label?: string
+  /** Shows the value formatted under the field, such as currency. */
+  format?: NumberFormat
+  prefix?: string
+  suffix?: string
+}) {
+  const id = useId()
+  const [draft, setDraft] = useState<string | null>(null)
+  const val = num(value)
+  const clamp = (n: number) =>
+    Number(Math.min(max ?? Infinity, Math.max(min ?? -Infinity, n)).toFixed(decimals(step)))
+  const inRange = (n: number) => (min === undefined || n >= min) && (max === undefined || n <= max)
+  return (
+    <div className="ui-field">
+      {label && <label className="ui-label" htmlFor={id}>{label}</label>}
+      <div className="ui-inputwrap ui-stepper">
+        <button type="button" aria-label="Decrease" disabled={min !== undefined && val <= min} onClick={() => onChange(clamp(val - step))}>
+          <Minus size={15} />
+        </button>
+        {prefix && <span className="ui-affix">{prefix}</span>}
+        <input
+          id={id}
+          className="ui-input"
+          type="number"
+          inputMode="decimal"
+          value={draft ?? String(val)}
+          min={min}
+          max={max}
+          step={step}
+          onChange={(e) => {
+            setDraft(e.target.value)
+            const n = e.target.value === '' ? NaN : +e.target.value
+            if (Number.isFinite(n) && inRange(n)) onChange(n)
+          }}
+          onBlur={() => {
+            const n = draft === null || draft === '' ? val : +draft
+            if (Number.isFinite(n)) onChange(clamp(n))
+            setDraft(null)
+          }}
+        />
+        {suffix && <span className="ui-affix">{suffix}</span>}
+        <button type="button" aria-label="Increase" disabled={max !== undefined && val >= max} onClick={() => onChange(clamp(val + step))}>
+          <Plus size={15} />
+        </button>
+      </div>
+      {format && <span className="ui-num-hint">{fmt(val, format)}</span>}
+    </div>
+  )
+}
+
+/**
+ * Picks a date, or a date range when `onEndChange` is given. Dates are ISO `YYYY-MM-DD` strings.
+ * Moving the start past the end moves the end with it.
+ *
+ * @example <DatePicker value={from} onChange={setFrom} end={to} onEndChange={setTo} label="Trip dates" />
+ */
+export function DatePicker({ value, onChange, end, onEndChange, label, min, max }: {
+  value: string | undefined
+  onChange: (value: string) => void
+  /** End of the range. */
+  end?: string
+  onEndChange?: (value: string) => void
+  label?: string
+  /** Earliest selectable date, `YYYY-MM-DD`. */
+  min?: string
+  /** Latest selectable date, `YYYY-MM-DD`. */
+  max?: string
+}) {
+  const id = useId()
+  const range = !!onEndChange
+  return (
+    <div className="ui-field">
+      {label && <label className="ui-label" htmlFor={id}>{label}</label>}
+      <div className="ui-daterow">
+        <div className="ui-inputwrap">
+          <input
+            id={id}
+            className="ui-input"
+            type="date"
+            aria-label={range ? 'Start date' : undefined}
+            value={value ?? ''}
+            min={min}
+            max={max}
+            onChange={(e) => {
+              onChange(e.target.value)
+              if (range && end && e.target.value > end) onEndChange(e.target.value)
+            }}
+          />
+        </div>
+        {range && (
+          <>
+            <span className="ui-daterow-to">to</span>
+            <div className="ui-inputwrap">
+              <input
+                className="ui-input"
+                type="date"
+                aria-label="End date"
+                value={end ?? ''}
+                min={value || min}
+                max={max}
+                onChange={(e) => onEndChange(e.target.value)}
+              />
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function Stars({ value, max, size }: { value: number; max: number; size: number }) {
+  return (
+    <>
+      {Array.from({ length: max }, (_, i) => {
+        const fill = Math.min(1, Math.max(0, value - i))
+        return (
+          <span key={i} className="ui-star" style={{ width: size, height: size }}>
+            <Star size={size} className="empty" />
+            {fill > 0 && (
+              <span className="full" style={{ width: fill * 100 + '%' }}>
+                <Star size={size} fill="currentColor" />
+              </span>
+            )}
+          </span>
+        )
+      })}
+    </>
+  )
+}
+
+/**
+ * Stars out of `max`. With `onChange` the reader can click a rating; without it the score is display-only
+ * and may be fractional, such as 4.6.
+ *
+ * @example <Rating value={4.6} label="Reviews" />
+ */
+export function Rating({ value, onChange, max = 5, label, size = 'md', showValue = true }: {
+  value: number | undefined
+  onChange?: (value: number) => void
+  max?: number
+  label?: string
+  size?: 'sm' | 'md'
+  /** Show the number next to the stars. */
+  showValue?: boolean
+}) {
+  const [hover, setHover] = useState<number | null>(null)
+  const val = Math.min(max, Math.max(0, num(value)))
+  const px = size === 'sm' ? 14 : 20
+  const shown = showValue && <span className="ui-rating-val">{Number.isInteger(val) ? val : val.toFixed(1)}</span>
+  const body = onChange ? (
+    <div className="ui-rating" role="radiogroup" aria-label={label || 'Rating'} onMouseLeave={() => setHover(null)}>
+      {Array.from({ length: max }, (_, i) => (
+        <button
+          key={i}
+          type="button"
+          role="radio"
+          aria-checked={Math.round(val) === i + 1}
+          aria-label={`${i + 1} of ${max}`}
+          className="ui-star-btn"
+          onMouseEnter={() => setHover(i + 1)}
+          onClick={() => onChange(i + 1)}
+        >
+          <Stars value={(hover ?? val) > i ? 1 : 0} max={1} size={px} />
+        </button>
+      ))}
+      {shown}
+    </div>
+  ) : (
+    <div className={cx('ui-rating', 's-' + size)} role="img" aria-label={`Rated ${val} out of ${max}`}>
+      <Stars value={val} max={max} size={px} />
+      {shown}
+    </div>
+  )
+  if (!label) return body
+  return (
+    <div className="ui-field">
+      <span className="ui-label">{label}</span>
+      {body}
     </div>
   )
 }

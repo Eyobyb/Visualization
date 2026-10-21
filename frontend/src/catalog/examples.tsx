@@ -5,10 +5,11 @@
 import { useState } from 'react'
 import {
   Accordion, ActionableGraphCard, ApprovalCard, AsyncImage, AsyncImageGroup, Badge, Box, BulletColumns, Button, Callout,
-  Caption, Card, CardHead, Chart, Checkbox, Checklist, ChoiceChips, Code, Col, ComparisonTable, Delta, Divider, Empty, FactList,
+  Caption, Card, CardHead, Chart, Checkbox, Checklist, ChoiceChips, Code, CodeTabs, Col, ComparisonTable, DatePicker, Delta, Divider, Empty, EmptyState, FactList, Flow, Formula,
   Form, GraphCard, Grid, Icon, IconList, Input, KeyPoints, KpiCard, KpiGraphCard, Link, List, ListCard, Markdown, MultiKpiCard,
-  NestedList, Progress, ProsCons, Quote, RadioGroup, RegionMap, Row, SegmentedControl, Select, Skeleton, Slider, Sources,
-  Sparkline, Stat, Steps, Summary, Switch, Table, Tabs, Text, Title, VizBoundary, VizRoot,
+  NestedList, NumberInput, ProductGrid, Progress, ProsCons, Quote, RadioGroup, Rating, RegionMap, Row, SegmentedControl, Select, Skeleton, Slider, Sources,
+  Sparkline, Stat, Steps, Summary, Switch, Table, Tabs, Term, Text, Timeline, Title, Verdict, VizBoundary, VizRoot,
+  WeatherCard,
 } from '../components/visualization'
 import {
   channels, customersByRegion, kpis, revenueByRegion, salesByRegion, samplePhotoUrl, topProducts, weekly,
@@ -719,4 +720,144 @@ export function AsyncImageGroup_() {
       { query: 'small cafe counter in Addis Ababa with wooden stools' },
     ]} />
   )
+}
+
+/* Shopping, weather and comparisons */
+
+export function ProductGrid_() {
+  return (
+    <ProductGrid items={[
+      { name: 'MacBook Air M4 13-inch', image: 'MacBook Air M4 laptop open on a desk', src: samplePhotoUrl, price: 189000, rating: 4.7, specs: ['16 GB RAM', '512 GB SSD', '18 h battery'], badge: 'Best battery', url: 'https://www.apple.com/macbook-air/' },
+      { name: 'Lenovo ThinkPad X1 Carbon', image: 'Lenovo ThinkPad X1 Carbon laptop', price: 214000, rating: 4.5, specs: ['32 GB RAM', '1 TB SSD', 'Linux friendly'] },
+      { name: 'Dell XPS 14', image: 'Dell XPS 14 laptop with OLED screen', src: null, price: 198500, rating: 4.3, specs: ['32 GB RAM', 'RTX 4050'] },
+    ]} />
+  )
+}
+
+export function WeatherCard_() {
+  return (
+    <WeatherCard
+      location="Addis Ababa"
+      now={{ temp: 19, condition: 'partly', feelsLike: 18, wind: 11, humidity: 62, summary: 'Partly cloudy, showers after 3 pm' }}
+      forecast={[
+        { label: 'Today', condition: 'rain', high: 21, low: 11, rain: 70 },
+        { label: 'Thu', condition: 'storm', high: 20, low: 12, rain: 80 },
+        { label: 'Fri', condition: 'partly', high: 22, low: 11, rain: 30 },
+        { label: 'Sat', condition: 'sun', high: 24, low: 10, rain: 10 },
+      ]}
+      updated="Forecast as of 09:00 EAT"
+    />
+  )
+}
+
+export function Verdict_() {
+  return (
+    <Verdict
+      pick="FastAPI"
+      reason="It is async by default and the quickest way to ship a typed JSON API."
+      alternative={{ name: 'Django', when: 'if you want the admin panel, ORM and auth built in' }}
+      confidence="high"
+      action={<Button label="Show a starter project" variant="outline" onClick={() => send('Show a minimal FastAPI starter project')} />}
+    />
+  )
+}
+
+/* Explaining */
+
+export function Timeline_() {
+  return (
+    <Timeline items={[
+      { date: '2018', title: 'Shop opens in Merkato', text: 'Telegram orders only, one courier.' },
+      { date: '2021', title: 'Second shop in Bole' },
+      { date: 'Mar 2024', title: 'Website launch', text: 'Orders from regional cities double.', tone: 'success' },
+      { date: 'Next', title: 'Mobile app', text: 'Planned for 2027.', tone: 'muted' },
+    ]} />
+  )
+}
+
+export function Flow_() {
+  return (
+    <Flow steps={[
+      { title: 'Pedals', text: 'Your legs turn the crank' },
+      { title: 'Chain', text: 'Carries the force back' },
+      { title: 'Cassette', text: 'Sets the gear ratio' },
+      { title: 'Rear wheel', text: 'Moves the bike' },
+    ]} />
+  )
+}
+
+export function Flow_cycle() {
+  return <Flow layout="cycle" steps={['Roast the beans', 'Grind', 'Brew in the jebena', 'Serve three rounds']} />
+}
+
+export function Term_() {
+  return (
+    <Text text={<>
+      Shift with the <Term word="derailleur" definition="The arm that moves the chain between gears." /> while
+      keeping your <Term word="cadence" definition="How fast you pedal, in turns per minute." /> steady.
+    </>} />
+  )
+}
+
+export function Formula_() {
+  const [bags, setBags] = useState(3)
+  return (
+    <Col>
+      <Slider value={bags} onChange={setBags} min={1} max={10} label="Bags of coffee" />
+      <Formula
+        steps={[
+          { label: 'Coffee', expr: bags + ' × ETB 450', value: bags * 450, format: 'currency' },
+          { label: 'VAT', expr: '15% of the subtotal', value: bags * 450 * 0.15, format: 'currency' },
+        ]}
+        result={{ label: 'Total', value: bags * 450 * 1.15, format: 'currency' }}
+      />
+    </Col>
+  )
+}
+
+export function CodeTabs_() {
+  return (
+    <CodeTabs items={[
+      { label: 'FastAPI', language: 'python', code: '@app.get("/items/{id}")\nasync def item(id: int):\n    return {"id": id}' },
+      { label: 'Django', language: 'python', code: 'def item(request, id):\n    return JsonResponse({"id": id})' },
+    ]} />
+  )
+}
+
+export function EmptyState_() {
+  return (
+    <EmptyState
+      title="No sales in Gambela this quarter"
+      text="Orders there are still routed through Addis Ababa."
+      icon="map-pin"
+      action={<Button label="Show all regions" variant="outline" onClick={() => notify('Filter cleared')} />}
+    />
+  )
+}
+
+/* More inputs */
+
+export function NumberInput_() {
+  const [guests, setGuests] = useState(8)
+  return (
+    <Col>
+      <NumberInput value={guests} onChange={setGuests} min={1} max={40} label="Guests" />
+      <Text text={'Prepare ' + guests * 3 + ' cups for three rounds.'} />
+    </Col>
+  )
+}
+
+export function DatePicker_range() {
+  const [from, setFrom] = useState('2026-11-02')
+  const [to, setTo] = useState('2026-11-06')
+  return <DatePicker value={from} onChange={setFrom} end={to} onEndChange={setTo} label="Trip dates" min="2026-10-21" />
+}
+
+export function Rating_() {
+  const [stars, setStars] = useState(0)
+  return <Rating value={stars} onChange={setStars} label="How was the delivery?" />
+}
+
+export function Rating_display() {
+  return <Rating value={4.6} label="Average review" />
 }

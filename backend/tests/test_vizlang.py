@@ -135,6 +135,11 @@ def test_image_jobs_single_image():
     assert image_jobs(r.root) == [("photo", "injera platter")]
 
 
+def test_image_jobs_product_grid_items():
+    r = compile_program('root = ProductGrid(shop)\nshop = [{name: "A", image: "laptop a"}, {name: "B"}, {name: "C", image: "laptop c"}]')
+    assert image_jobs(r.root) == [("root.0", "laptop a"), ("root.2", "laptop c")]
+
+
 def test_to_markdown_has_title_and_kpis():
     md = to_markdown(compile_program(SOURCES["preset: dashboard"], data=DATA).root)
     assert md.startswith("# Q3 sales review")
