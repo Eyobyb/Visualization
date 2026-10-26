@@ -3,16 +3,17 @@ import { describe, expect, it } from 'vitest'
 import * as Viz from '../../components/visualization'
 import { ERRORS_PRESET, EXAMPLE_PROGRAMS, PRESET_PROGRAMS } from '../fixtures/programs'
 import { labData } from '../fixtures/labData'
-import { registryMismatches, RENDERERS, type ResolvedImage } from '../render'
+import { registryMismatches, RENDERERS, type ResolvedImage, type ResolvedPlace } from '../render'
 import { compile } from '../compile'
-import { imageJobs } from '../images'
+import { imageJobs, placeJobs } from '../images'
 import type { ComponentNode } from '../values'
 import { VizProgram } from '../VizProgram'
 
 const ALL = [...EXAMPLE_PROGRAMS, ...PRESET_PROGRAMS]
 
-const html = (source: string, streaming = false, resolved?: Record<string, ResolvedImage | null>) =>
-  renderToString(<Viz.VizRoot><VizProgram source={source} data={labData} streaming={streaming} resolved={resolved} /></Viz.VizRoot>)
+const html = (
+  source: string, streaming = false, resolved?: Record<string, ResolvedImage | null>, places?: Record<string, ResolvedPlace | null>,
+) => renderToString(<Viz.VizRoot><VizProgram source={source} data={labData} streaming={streaming} resolved={resolved} places={places} /></Viz.VizRoot>)
 
 describe('registry', () => {
   it('has a renderer for every spec and a spec for every renderer', () => {
@@ -141,5 +142,30 @@ describe('rendering', () => {
     })
     expect(out).toContain('https://img.example/a.jpg')
     expect(out).toContain('No matching photo')
+  })
+
+  it('lists PlaceMap places with their geocoding status and keeps Leaflet out of server rendering', () => {
+    const src = 'root = PlaceMap(title: "Coffee", near: "Addis Ababa", places: [{name: "Tomoca", address: "Bole Road", image: "tomoca cafe", category: "Roastery"}, {name: "Kaldi"}, {name: "Park", lat: 9.02, lng: 38.76}, {name: "Ghost"}])'
+    expect(placeJobs(compile(src).root)).toEqual([
+      { key: 'root.0', query: 'Tomoca, Bole Road, Addis Ababa' },
+      { key: 'root.1', query: 'Kaldi, Addis Ababa' },
+      { key: 'root.3', query: 'Ghost, Addis Ababa' },
+    ])
+    expect(imageJobs(compile(src).root)).toEqual([{ key: 'root.0', query: 'tomoca cafe' }])
+    const out = html(src, false, { 'root.0': { src: 'https://img.example/t.jpg' } }, { 'root.0': { lat: 9.03, lng: 38.75 }, 'root.3': null })
+    for (const text of ['Coffee', 'Tomoca', 'Roastery', 'Kaldi', 'Park', 'Ghost', 'Locating…', 'Not on the map']) expect(out).toContain(text)
+    expect(out.match(/Locating…/g)).toHaveLength(1)
+    expect(out).toContain('ui-map-box loading')
+    expect(out).not.toContain('leaflet')
+  })
+
+  it('reads PlaceMap places from data rows through field props', () => {
+    const src = 'shops = [{shop: "Bole hub", y: 8.99, x: 38.78}, {shop: "Merkato", street: "Merkato"}]\nroot = PlaceMap(data: shops, name: "shop", address: "street", lat: "y", lng: "x")'
+    expect(placeJobs(compile(src).root)).toEqual([{ key: 'root.1', query: 'Merkato' }])
+    expect(html(src)).toContain('Bole hub')
+  })
+
+  it('shows an empty state for a PlaceMap without places', () => {
+    expect(html('root = PlaceMap(places: [])')).toContain('No places to show')
   })
 })

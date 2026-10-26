@@ -1886,6 +1886,60 @@
    ]
   },
   {
+   "src": "root = PlaceMap(title: \"Coffee in Bole\", near: \"Addis Ababa, Ethiopia\", places: [{name: \"Tomoca Coffee Bole\", address: \"Bole Road\", image: \"Tomoca coffee shop interior Addis Ababa\", category: \"Roastery\", rating: 4.7, text: \"Espresso bar since 1953.\"}, {name: \"Kaldi's Coffee\", address: \"Bole Medhanialem\", image: \"Kaldi's Coffee Addis Ababa storefront\", category: \"Café\", rating: 4.3}, {name: \"Galani Coffee\", address: \"Gotera, Kirkos\", image: \"Galani coffee shop Addis Ababa\", category: \"Café\"}])",
+   "streaming": false,
+   "out": [
+    {
+     "text": "root = PlaceMap(title: \"Coffee in Bole\", near: \"Addis Ababa, Ethiopia\", places: [{name: \"Tomoca Coffee Bole\", address: \"Bole Road\", image: \"Tomoca coffee shop interior Addis Ababa\", category: \"Roastery\", rating: 4.7, text: \"Espresso bar since 1953.\"}, {name: \"Kaldi's Coffee\", address: \"Bole Medhanialem\", image: \"Kaldi's Coffee Addis Ababa storefront\", category: \"Café\", rating: 4.3}, {name: \"Galani Coffee\", address: \"Gotera, Kirkos\", image: \"Galani coffee shop Addis Ababa\", category: \"Café\"}])",
+     "line": 1,
+     "partial": false
+    }
+   ]
+  },
+  {
+   "src": "root = PlaceMap(title: \"Coffee in Bole\", near: \"Addis Ababa, Ethiopia\", places: [{name: \"Tomoca Coffee Bole\", address: \"Bole Road\", image: \"Tomoca coffee shop interior Addis Ababa\", category: \"Roastery\", rating: 4.7, text: \"Espresso bar since 1953.\"}, {name: \"Kaldi's Coffee\", address: \"Bole Medhanialem\", image: \"Kaldi's Coffee Addis Ababa storefront\", category: \"Café\", rating: 4.3}, {name: \"Galani Coffee\", address: \"Gotera, Kirkos\", image: \"Galani coffee shop Addis Ababa\", category: \"Café\"}])",
+   "streaming": true,
+   "out": [
+    {
+     "text": "root = PlaceMap(title: \"Coffee in Bole\", near: \"Addis Ababa, Ethiopia\", places: [{name: \"Tomoca Coffee Bole\", address: \"Bole Road\", image: \"Tomoca coffee shop interior Addis Ababa\", category: \"Roastery\", rating: 4.7, text: \"Espresso bar since 1953.\"}, {name: \"Kaldi's Coffee\", address: \"Bole Medhanialem\", image: \"Kaldi's Coffee Addis Ababa storefront\", category: \"Café\", rating: 4.3}, {name: \"Galani Coffee\", address: \"Gotera, Kirkos\", image: \"Galani coffee shop Addis Ababa\", category: \"Café\"}])",
+     "line": 1,
+     "partial": true
+    }
+   ]
+  },
+  {
+   "src": "branches = [{branch: \"Bole hub\", lat: 8.9958, lng: 38.7873, orders: 412}, {branch: \"Merkato shop\", lat: 9.0346, lng: 38.7369, orders: 288}, {branch: \"Piassa shop\", lat: 9.0379, lng: 38.7525, orders: 196}]\nroot = PlaceMap(data: branches, name: \"branch\", title: \"Our branches\", height: \"sm\")",
+   "streaming": false,
+   "out": [
+    {
+     "text": "branches = [{branch: \"Bole hub\", lat: 8.9958, lng: 38.7873, orders: 412}, {branch: \"Merkato shop\", lat: 9.0346, lng: 38.7369, orders: 288}, {branch: \"Piassa shop\", lat: 9.0379, lng: 38.7525, orders: 196}]",
+     "line": 1,
+     "partial": false
+    },
+    {
+     "text": "root = PlaceMap(data: branches, name: \"branch\", title: \"Our branches\", height: \"sm\")",
+     "line": 2,
+     "partial": false
+    }
+   ]
+  },
+  {
+   "src": "branches = [{branch: \"Bole hub\", lat: 8.9958, lng: 38.7873, orders: 412}, {branch: \"Merkato shop\", lat: 9.0346, lng: 38.7369, orders: 288}, {branch: \"Piassa shop\", lat: 9.0379, lng: 38.7525, orders: 196}]\nroot = PlaceMap(data: branches, name: \"branch\", title: \"Our branches\", height: \"sm\")",
+   "streaming": true,
+   "out": [
+    {
+     "text": "branches = [{branch: \"Bole hub\", lat: 8.9958, lng: 38.7873, orders: 412}, {branch: \"Merkato shop\", lat: 9.0346, lng: 38.7369, orders: 288}, {branch: \"Piassa shop\", lat: 9.0379, lng: 38.7525, orders: 196}]",
+     "line": 1,
+     "partial": false
+    },
+    {
+     "text": "root = PlaceMap(data: branches, name: \"branch\", title: \"Our branches\", height: \"sm\")",
+     "line": 2,
+     "partial": true
+    }
+   ]
+  },
+  {
    "src": "root = WeatherCard(\"Addis Ababa\", now: {temp: 19, condition: \"partly\", feelsLike: 18, wind: 11, humidity: 62, summary: \"Partly cloudy, showers after 3 pm\"}, forecast: [{label: \"Today\", condition: \"rain\", high: 21, low: 11, rain: 70}, {label: \"Thu\", condition: \"storm\", high: 20, low: 12, rain: 80}, {label: \"Fri\", condition: \"partly\", high: 22, low: 11, rain: 30}, {label: \"Sat\", condition: \"sun\", high: 24, low: 10, rain: 10}, {label: \"Sun\", condition: \"cloud\", high: 22, low: 11, rain: 40}], updated: \"Forecast as of 09:00 EAT\")",
    "streaming": false,
    "out": [
@@ -3083,6 +3137,88 @@
     {
      "text": "note = Callout(\"Afternoon showers are likely through Thursday; carry an umbrella after 3 pm.\", tone: \"info\")",
      "line": 6,
+     "partial": false
+    }
+   ]
+  },
+  {
+   "src": "// Places: a map with photo pins. The server geocodes each address and finds each photo; never invent coordinates.\nroot = Col([title, intro, map, tip, refs])\ntitle = Title(\"Coffee shops in Bole\")\nintro = Text(\"Four places for a good macchiato within a short ride of Bole Medhanialem.\")\nmap = PlaceMap(near: \"Addis Ababa, Ethiopia\", places: [{name: \"Tomoca Coffee Bole\", address: \"Bole Road\", image: \"Tomoca coffee shop Addis Ababa interior\", category: \"Roastery\", rating: 4.7, text: \"Historic roaster; strong macchiato.\"}, {name: \"Kaldi's Coffee Bole\", address: \"Bole Medhanialem\", image: \"Kaldi's Coffee Addis Ababa storefront\", category: \"Café\", rating: 4.3, text: \"Busy, reliable, good for meetings.\"}, {name: \"Galani Coffee\", address: \"Gotera, Kirkos\", image: \"Galani coffee shop Addis Ababa\", category: \"Café and gallery\", text: \"Specialty single origins and art.\"}, {name: \"Alem Bunna\", address: \"Bole Atlas\", image: \"Alem Bunna coffee Addis Ababa\", category: \"Café\", text: \"Quiet, with outdoor seating.\"}])\ntip = Callout(\"Most cafés close around 9 pm; Tomoca Bole opens earliest, at 6:30 am.\", tone: \"info\")\nrefs = Sources([{title: \"Best coffee in Addis Ababa\", url: \"https://www.example.com/addis-coffee\"}])\n",
+   "streaming": false,
+   "out": [
+    {
+     "text": "// Places: a map with photo pins. The server geocodes each address and finds each photo; never invent coordinates.",
+     "line": 1,
+     "partial": false
+    },
+    {
+     "text": "root = Col([title, intro, map, tip, refs])",
+     "line": 2,
+     "partial": false
+    },
+    {
+     "text": "title = Title(\"Coffee shops in Bole\")",
+     "line": 3,
+     "partial": false
+    },
+    {
+     "text": "intro = Text(\"Four places for a good macchiato within a short ride of Bole Medhanialem.\")",
+     "line": 4,
+     "partial": false
+    },
+    {
+     "text": "map = PlaceMap(near: \"Addis Ababa, Ethiopia\", places: [{name: \"Tomoca Coffee Bole\", address: \"Bole Road\", image: \"Tomoca coffee shop Addis Ababa interior\", category: \"Roastery\", rating: 4.7, text: \"Historic roaster; strong macchiato.\"}, {name: \"Kaldi's Coffee Bole\", address: \"Bole Medhanialem\", image: \"Kaldi's Coffee Addis Ababa storefront\", category: \"Café\", rating: 4.3, text: \"Busy, reliable, good for meetings.\"}, {name: \"Galani Coffee\", address: \"Gotera, Kirkos\", image: \"Galani coffee shop Addis Ababa\", category: \"Café and gallery\", text: \"Specialty single origins and art.\"}, {name: \"Alem Bunna\", address: \"Bole Atlas\", image: \"Alem Bunna coffee Addis Ababa\", category: \"Café\", text: \"Quiet, with outdoor seating.\"}])",
+     "line": 5,
+     "partial": false
+    },
+    {
+     "text": "tip = Callout(\"Most cafés close around 9 pm; Tomoca Bole opens earliest, at 6:30 am.\", tone: \"info\")",
+     "line": 6,
+     "partial": false
+    },
+    {
+     "text": "refs = Sources([{title: \"Best coffee in Addis Ababa\", url: \"https://www.example.com/addis-coffee\"}])",
+     "line": 7,
+     "partial": false
+    }
+   ]
+  },
+  {
+   "src": "// Places: a map with photo pins. The server geocodes each address and finds each photo; never invent coordinates.\nroot = Col([title, intro, map, tip, refs])\ntitle = Title(\"Coffee shops in Bole\")\nintro = Text(\"Four places for a good macchiato within a short ride of Bole Medhanialem.\")\nmap = PlaceMap(near: \"Addis Ababa, Ethiopia\", places: [{name: \"Tomoca Coffee Bole\", address: \"Bole Road\", image: \"Tomoca coffee shop Addis Ababa interior\", category: \"Roastery\", rating: 4.7, text: \"Historic roaster; strong macchiato.\"}, {name: \"Kaldi's Coffee Bole\", address: \"Bole Medhanialem\", image: \"Kaldi's Coffee Addis Ababa storefront\", category: \"Café\", rating: 4.3, text: \"Busy, reliable, good for meetings.\"}, {name: \"Galani Coffee\", address: \"Gotera, Kirkos\", image: \"Galani coffee shop Addis Ababa\", category: \"Café and gallery\", text: \"Specialty single origins and art.\"}, {name: \"Alem Bunna\", address: \"Bole Atlas\", image: \"Alem Bunna coffee Addis Ababa\", category: \"Café\", text: \"Quiet, with outdoor seating.\"}])\ntip = Callout(\"Most cafés close around 9 pm; Tomoca Bole opens earliest, at 6:30 am.\", tone: \"info\")\nrefs = Sources([{title: \"Best coffee in Addis Ababa\", url: \"https://www.example.com/addis-coffee\"}])\n",
+   "streaming": true,
+   "out": [
+    {
+     "text": "// Places: a map with photo pins. The server geocodes each address and finds each photo; never invent coordinates.",
+     "line": 1,
+     "partial": false
+    },
+    {
+     "text": "root = Col([title, intro, map, tip, refs])",
+     "line": 2,
+     "partial": false
+    },
+    {
+     "text": "title = Title(\"Coffee shops in Bole\")",
+     "line": 3,
+     "partial": false
+    },
+    {
+     "text": "intro = Text(\"Four places for a good macchiato within a short ride of Bole Medhanialem.\")",
+     "line": 4,
+     "partial": false
+    },
+    {
+     "text": "map = PlaceMap(near: \"Addis Ababa, Ethiopia\", places: [{name: \"Tomoca Coffee Bole\", address: \"Bole Road\", image: \"Tomoca coffee shop Addis Ababa interior\", category: \"Roastery\", rating: 4.7, text: \"Historic roaster; strong macchiato.\"}, {name: \"Kaldi's Coffee Bole\", address: \"Bole Medhanialem\", image: \"Kaldi's Coffee Addis Ababa storefront\", category: \"Café\", rating: 4.3, text: \"Busy, reliable, good for meetings.\"}, {name: \"Galani Coffee\", address: \"Gotera, Kirkos\", image: \"Galani coffee shop Addis Ababa\", category: \"Café and gallery\", text: \"Specialty single origins and art.\"}, {name: \"Alem Bunna\", address: \"Bole Atlas\", image: \"Alem Bunna coffee Addis Ababa\", category: \"Café\", text: \"Quiet, with outdoor seating.\"}])",
+     "line": 5,
+     "partial": false
+    },
+    {
+     "text": "tip = Callout(\"Most cafés close around 9 pm; Tomoca Bole opens earliest, at 6:30 am.\", tone: \"info\")",
+     "line": 6,
+     "partial": false
+    },
+    {
+     "text": "refs = Sources([{title: \"Best coffee in Addis Ababa\", url: \"https://www.example.com/addis-coffee\"}])",
+     "line": 7,
      "partial": false
     }
    ]
@@ -7898,6 +8034,98 @@
    "statements": 1
   },
   {
+   "id": "PlaceMap",
+   "src": "root = PlaceMap(title: \"Coffee in Bole\", near: \"Addis Ababa, Ethiopia\", places: [{name: \"Tomoca Coffee Bole\", address: \"Bole Road\", image: \"Tomoca coffee shop interior Addis Ababa\", category: \"Roastery\", rating: 4.7, text: \"Espresso bar since 1953.\"}, {name: \"Kaldi's Coffee\", address: \"Bole Medhanialem\", image: \"Kaldi's Coffee Addis Ababa storefront\", category: \"Café\", rating: 4.3}, {name: \"Galani Coffee\", address: \"Gotera, Kirkos\", image: \"Galani coffee shop Addis Ababa\", category: \"Café\"}])",
+   "diagnostics": [],
+   "root": {
+    "__c": true,
+    "name": "PlaceMap",
+    "props": {
+     "title": "Coffee in Bole",
+     "near": "Addis Ababa, Ethiopia",
+     "places": [
+      {
+       "name": "Tomoca Coffee Bole",
+       "address": "Bole Road",
+       "image": "Tomoca coffee shop interior Addis Ababa",
+       "category": "Roastery",
+       "rating": 4.7,
+       "text": "Espresso bar since 1953."
+      },
+      {
+       "name": "Kaldi's Coffee",
+       "address": "Bole Medhanialem",
+       "image": "Kaldi's Coffee Addis Ababa storefront",
+       "category": "Café",
+       "rating": 4.3
+      },
+      {
+       "name": "Galani Coffee",
+       "address": "Gotera, Kirkos",
+       "image": "Galani coffee shop Addis Ababa",
+       "category": "Café"
+      }
+     ],
+     "name": "name",
+     "address": "address",
+     "lat": "lat",
+     "lng": "lng",
+     "image": "image",
+     "text": "text",
+     "height": "md",
+     "list": true
+    },
+    "key": "root"
+   },
+   "defaults": {},
+   "state": {},
+   "statements": 1
+  },
+  {
+   "id": "PlaceMap: from data with coordinates",
+   "src": "branches = [{branch: \"Bole hub\", lat: 8.9958, lng: 38.7873, orders: 412}, {branch: \"Merkato shop\", lat: 9.0346, lng: 38.7369, orders: 288}, {branch: \"Piassa shop\", lat: 9.0379, lng: 38.7525, orders: 196}]\nroot = PlaceMap(data: branches, name: \"branch\", title: \"Our branches\", height: \"sm\")",
+   "diagnostics": [],
+   "root": {
+    "__c": true,
+    "name": "PlaceMap",
+    "props": {
+     "data": [
+      {
+       "branch": "Bole hub",
+       "lat": 8.9958,
+       "lng": 38.7873,
+       "orders": 412
+      },
+      {
+       "branch": "Merkato shop",
+       "lat": 9.0346,
+       "lng": 38.7369,
+       "orders": 288
+      },
+      {
+       "branch": "Piassa shop",
+       "lat": 9.0379,
+       "lng": 38.7525,
+       "orders": 196
+      }
+     ],
+     "name": "branch",
+     "title": "Our branches",
+     "height": "sm",
+     "address": "address",
+     "lat": "lat",
+     "lng": "lng",
+     "image": "image",
+     "text": "text",
+     "list": true
+    },
+    "key": "root"
+   },
+   "defaults": {},
+   "state": {},
+   "statements": 2
+  },
+  {
    "id": "WeatherCard",
    "src": "root = WeatherCard(\"Addis Ababa\", now: {temp: 19, condition: \"partly\", feelsLike: 18, wind: 11, humidity: 62, summary: \"Partly cloudy, showers after 3 pm\"}, forecast: [{label: \"Today\", condition: \"rain\", high: 21, low: 11, rain: 70}, {label: \"Thu\", condition: \"storm\", high: 20, low: 12, rain: 80}, {label: \"Fri\", condition: \"partly\", high: 22, low: 11, rain: 30}, {label: \"Sat\", condition: \"sun\", high: 24, low: 10, rain: 10}, {label: \"Sun\", condition: \"cloud\", high: 22, low: 11, rain: 40}], updated: \"Forecast as of 09:00 EAT\")",
    "diagnostics": [],
@@ -9988,6 +10216,115 @@
    "defaults": {},
    "state": {},
    "statements": 5
+  },
+  {
+   "id": "preset: places",
+   "src": "// Places: a map with photo pins. The server geocodes each address and finds each photo; never invent coordinates.\nroot = Col([title, intro, map, tip, refs])\ntitle = Title(\"Coffee shops in Bole\")\nintro = Text(\"Four places for a good macchiato within a short ride of Bole Medhanialem.\")\nmap = PlaceMap(near: \"Addis Ababa, Ethiopia\", places: [{name: \"Tomoca Coffee Bole\", address: \"Bole Road\", image: \"Tomoca coffee shop Addis Ababa interior\", category: \"Roastery\", rating: 4.7, text: \"Historic roaster; strong macchiato.\"}, {name: \"Kaldi's Coffee Bole\", address: \"Bole Medhanialem\", image: \"Kaldi's Coffee Addis Ababa storefront\", category: \"Café\", rating: 4.3, text: \"Busy, reliable, good for meetings.\"}, {name: \"Galani Coffee\", address: \"Gotera, Kirkos\", image: \"Galani coffee shop Addis Ababa\", category: \"Café and gallery\", text: \"Specialty single origins and art.\"}, {name: \"Alem Bunna\", address: \"Bole Atlas\", image: \"Alem Bunna coffee Addis Ababa\", category: \"Café\", text: \"Quiet, with outdoor seating.\"}])\ntip = Callout(\"Most cafés close around 9 pm; Tomoca Bole opens earliest, at 6:30 am.\", tone: \"info\")\nrefs = Sources([{title: \"Best coffee in Addis Ababa\", url: \"https://www.example.com/addis-coffee\"}])\n",
+   "diagnostics": [],
+   "root": {
+    "__c": true,
+    "name": "Col",
+    "props": {
+     "children": [
+      {
+       "__c": true,
+       "name": "Title",
+       "props": {
+        "text": "Coffee shops in Bole",
+        "size": "lg",
+        "tone": "ink"
+       },
+       "key": "title"
+      },
+      {
+       "__c": true,
+       "name": "Text",
+       "props": {
+        "text": "Four places for a good macchiato within a short ride of Bole Medhanialem.",
+        "size": "md",
+        "tone": "ink"
+       },
+       "key": "intro"
+      },
+      {
+       "__c": true,
+       "name": "PlaceMap",
+       "props": {
+        "near": "Addis Ababa, Ethiopia",
+        "places": [
+         {
+          "name": "Tomoca Coffee Bole",
+          "address": "Bole Road",
+          "image": "Tomoca coffee shop Addis Ababa interior",
+          "category": "Roastery",
+          "rating": 4.7,
+          "text": "Historic roaster; strong macchiato."
+         },
+         {
+          "name": "Kaldi's Coffee Bole",
+          "address": "Bole Medhanialem",
+          "image": "Kaldi's Coffee Addis Ababa storefront",
+          "category": "Café",
+          "rating": 4.3,
+          "text": "Busy, reliable, good for meetings."
+         },
+         {
+          "name": "Galani Coffee",
+          "address": "Gotera, Kirkos",
+          "image": "Galani coffee shop Addis Ababa",
+          "category": "Café and gallery",
+          "text": "Specialty single origins and art."
+         },
+         {
+          "name": "Alem Bunna",
+          "address": "Bole Atlas",
+          "image": "Alem Bunna coffee Addis Ababa",
+          "category": "Café",
+          "text": "Quiet, with outdoor seating."
+         }
+        ],
+        "name": "name",
+        "address": "address",
+        "lat": "lat",
+        "lng": "lng",
+        "image": "image",
+        "text": "text",
+        "height": "md",
+        "list": true
+       },
+       "key": "map"
+      },
+      {
+       "__c": true,
+       "name": "Callout",
+       "props": {
+        "text": "Most cafés close around 9 pm; Tomoca Bole opens earliest, at 6:30 am.",
+        "tone": "info"
+       },
+       "key": "tip"
+      },
+      {
+       "__c": true,
+       "name": "Sources",
+       "props": {
+        "items": [
+         {
+          "title": "Best coffee in Addis Ababa",
+          "url": "https://www.example.com/addis-coffee"
+         }
+        ]
+       },
+       "key": "refs"
+      }
+     ],
+     "gap": 3,
+     "align": "stretch"
+    },
+    "key": "root"
+   },
+   "defaults": {},
+   "state": {},
+   "statements": 6
   },
   {
    "id": "preset: comparison",
@@ -15888,6 +16225,135 @@
    "shape": []
   },
   {
+   "program": "PlaceMap",
+   "n": 149,
+   "diagnostics": [
+    {
+     "code": "streaming",
+     "msg": "Line 1 is still being written; it renders once complete",
+     "where": "line 1",
+     "transient": true
+    }
+   ],
+   "shape": []
+  },
+  {
+   "program": "PlaceMap",
+   "n": 273,
+   "diagnostics": [
+    {
+     "code": "streaming",
+     "msg": "Line 1 is still being written; it renders once complete",
+     "where": "line 1",
+     "transient": true
+    }
+   ],
+   "shape": []
+  },
+  {
+   "program": "PlaceMap",
+   "n": 397,
+   "diagnostics": [
+    {
+     "code": "streaming",
+     "msg": "Line 1 is still being written; it renders once complete",
+     "where": "line 1",
+     "transient": true
+    }
+   ],
+   "shape": []
+  },
+  {
+   "program": "PlaceMap",
+   "n": 497,
+   "diagnostics": [
+    {
+     "code": "streaming",
+     "msg": "Line 1 is still being written; it renders once complete",
+     "where": "line 1",
+     "transient": true
+    }
+   ],
+   "shape": []
+  },
+  {
+   "program": "PlaceMap: from data with coordinates",
+   "n": 86,
+   "diagnostics": [
+    {
+     "code": "streaming",
+     "msg": "Line 1 is still being written; it renders once complete",
+     "where": "line 1",
+     "transient": true
+    }
+   ],
+   "shape": []
+  },
+  {
+   "program": "PlaceMap: from data with coordinates",
+   "n": 158,
+   "diagnostics": [
+    {
+     "code": "streaming",
+     "msg": "Line 1 is still being written; it renders once complete",
+     "where": "line 1",
+     "transient": true
+    }
+   ],
+   "shape": []
+  },
+  {
+   "program": "PlaceMap: from data with coordinates",
+   "n": 205,
+   "diagnostics": [
+    {
+     "code": "no_root",
+     "msg": "Start the program with root = …",
+     "where": "program",
+     "transient": true
+    }
+   ],
+   "shape": []
+  },
+  {
+   "program": "PlaceMap: from data with coordinates",
+   "n": 231,
+   "diagnostics": [
+    {
+     "code": "streaming",
+     "msg": "Line 2 is still being written; it renders once complete",
+     "where": "line 2",
+     "transient": true
+    },
+    {
+     "code": "no_root",
+     "msg": "Start the program with root = …",
+     "where": "program",
+     "transient": true
+    }
+   ],
+   "shape": []
+  },
+  {
+   "program": "PlaceMap: from data with coordinates",
+   "n": 289,
+   "diagnostics": [
+    {
+     "code": "streaming",
+     "msg": "Line 2 is still being written; it renders once complete",
+     "where": "line 2",
+     "transient": true
+    },
+    {
+     "code": "no_root",
+     "msg": "Start the program with root = …",
+     "where": "program",
+     "transient": true
+    }
+   ],
+   "shape": []
+  },
+  {
    "program": "WeatherCard",
    "n": 159,
    "diagnostics": [
@@ -18430,6 +18896,150 @@
     "WeatherCard@now",
     "Chart@hours",
     "Callout@note"
+   ]
+  },
+  {
+   "program": "preset: places",
+   "n": 115,
+   "diagnostics": [],
+   "shape": []
+  },
+  {
+   "program": "preset: places",
+   "n": 158,
+   "diagnostics": [],
+   "shape": [
+    "Col@root",
+    "…",
+    "…",
+    "…",
+    "…",
+    "…"
+   ]
+  },
+  {
+   "program": "preset: places",
+   "n": 196,
+   "diagnostics": [],
+   "shape": [
+    "Col@root",
+    "Title@title",
+    "…",
+    "…",
+    "…",
+    "…"
+   ]
+  },
+  {
+   "program": "preset: places",
+   "n": 286,
+   "diagnostics": [],
+   "shape": [
+    "Col@root",
+    "Title@title",
+    "Text@intro",
+    "…",
+    "…",
+    "…"
+   ]
+  },
+  {
+   "program": "preset: places",
+   "n": 364,
+   "diagnostics": [
+    {
+     "code": "streaming",
+     "msg": "Line 5 is still being written; it renders once complete",
+     "where": "line 5",
+     "transient": true
+    }
+   ],
+   "shape": [
+    "Col@root",
+    "Title@title",
+    "Text@intro",
+    "…",
+    "…",
+    "…"
+   ]
+  },
+  {
+   "program": "preset: places",
+   "n": 668,
+   "diagnostics": [
+    {
+     "code": "streaming",
+     "msg": "Line 5 is still being written; it renders once complete",
+     "where": "line 5",
+     "transient": true
+    }
+   ],
+   "shape": [
+    "Col@root",
+    "Title@title",
+    "Text@intro",
+    "…",
+    "…",
+    "…"
+   ]
+  },
+  {
+   "program": "preset: places",
+   "n": 972,
+   "diagnostics": [
+    {
+     "code": "streaming",
+     "msg": "Line 5 is still being written; it renders once complete",
+     "where": "line 5",
+     "transient": true
+    }
+   ],
+   "shape": [
+    "Col@root",
+    "Title@title",
+    "Text@intro",
+    "…",
+    "…",
+    "…"
+   ]
+  },
+  {
+   "program": "preset: places",
+   "n": 1014,
+   "diagnostics": [],
+   "shape": [
+    "Col@root",
+    "Title@title",
+    "Text@intro",
+    "PlaceMap@map",
+    "…",
+    "…"
+   ]
+  },
+  {
+   "program": "preset: places",
+   "n": 1115,
+   "diagnostics": [],
+   "shape": [
+    "Col@root",
+    "Title@title",
+    "Text@intro",
+    "PlaceMap@map",
+    "Callout@tip",
+    "…"
+   ]
+  },
+  {
+   "program": "preset: places",
+   "n": 1216,
+   "diagnostics": [],
+   "shape": [
+    "Col@root",
+    "Title@title",
+    "Text@intro",
+    "PlaceMap@map",
+    "Callout@tip",
+    "Sources@refs"
    ]
   },
   {

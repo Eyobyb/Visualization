@@ -1,6 +1,7 @@
 import type { ComponentType, ReactNode } from 'react'
 import * as V from '../components/visualization'
 import type { SendToModel } from '../components/visualization'
+import { placeRows } from './images'
 import { SPECS } from './specs'
 import type { PropSpec } from './schema'
 import { hasOwn, isBinding, isNode, PENDING, type ComponentNode } from './values'
@@ -13,6 +14,16 @@ export interface RenderContext {
   onSend: SendToModel
   /** Server-resolved images, keyed by node key (`photo`) or node key plus index (`photos.0`). */
   resolved?: Record<string, ResolvedImage | null | undefined>
+  /** Server-geocoded PlaceMap places, keyed by node key plus index (`map.0`). */
+  places?: Record<string, ResolvedPlace | null | undefined>
+}
+
+/** Where the server's geocoder found a place; `null` in the map means it found nothing. */
+export interface ResolvedPlace {
+  lat: number
+  lng: number
+  /** The geocoder's full name for the match. */
+  label?: string
 }
 
 /** A photo the server found for an image query; `null` in the map means no photo matched. */
@@ -127,6 +138,23 @@ export const RENDERERS: Record<string, Renderer> = {
         it && typeof it === 'object' && typeof (it as Props).image === 'string'
           ? { ...(it as Props), ...imageProps(ctx.resolved?.[n.key + '.' + i]) }
           : it),
+    }),
+  },
+  PlaceMap: {
+    component: as(V.PlaceMap),
+    adapt: (p, n, ctx) => ({
+      title: p.title,
+      height: p.height,
+      list: p.list,
+      places: placeRows(p).map(({ query, ...r }, i) => {
+        const key = n.key + '.' + i
+        const at = query ? ctx.places?.[key] : undefined
+        return {
+          ...r,
+          ...(r.image ? imageProps(ctx.resolved?.[key]) : {}),
+          ...(!query ? {} : at ? { lat: at.lat, lng: at.lng } : { status: at === null ? 'missing' : 'pending' }),
+        }
+      }),
     }),
   },
   WeatherCard: { component: as(V.WeatherCard) },

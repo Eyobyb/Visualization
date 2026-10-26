@@ -47,6 +47,27 @@ const html = (source: string, turn: VizTurnData, streaming = false) =>
   renderToStaticMarkup(<VizTurnView source={source} turn={turn} streaming={streaming} onSend={() => {}} />)
 
 describe('viz stream turns', () => {
+  it('collects place events and the done summary', () => {
+    const place = (key: string, found: boolean): StreamEvent => ({
+      type: 'place', key, query: key, lat: found ? 9.03 : null, lng: found ? 38.75 : null, label: found ? 'Tomoca' : null, found,
+    })
+    const { turn, content } = replay([
+      route(0.9),
+      { type: 'data', bindings: {} },
+      statement('root = PlaceMap(places: [{name: "Tomoca", address: "Bole"}, {name: "Ghost"}])', 1, 'root'),
+      place('root.0', true),
+      place('root.1', false),
+      { type: 'done', diagnostics: [], statements: 1, markdown: '', images: [], places: [{ key: 'root.0', query: 'Bole', lat: 9.03, lng: 38.75, found: true }] },
+    ])
+    expect(turn.places).toEqual({ 'root.0': { lat: 9.03, lng: 38.75, label: 'Tomoca' }, 'root.1': null })
+    expect(turn.placeEvents.map((p) => p.key)).toEqual(['root.0', 'root.1'])
+    expect(turn.done?.places).toHaveLength(1)
+    const out = html(content, turn)
+    expect(out).toContain('Tomoca')
+    expect(out).toContain('Not on the map')
+    expect(out).not.toContain('Locating…')
+  })
+
   it('collects route, data, statements and done', () => {
     const { turn, content } = replay(VISUAL)
     expect(isVisual(turn)).toBe(true)
@@ -116,5 +137,47 @@ describe('viz stream turns', () => {
   it('shows a status line before the route arrives', () => {
     expect(html('', EMPTY_TURN, true)).toContain('Routing with Jev')
     expect(html('', applyVizEvent(EMPTY_TURN, route(0.9)), true)).toContain('Writing the interface')
+  })
+
+  it('collects agent steps and datasets, and shows progress until the route arrives', () => {
+    const laptops = [{ model: 'MacBook Air M4', price_usd: 1299 }, { model: 'ThinkPad X1', price_usd: 1899 }]
+    const sources = [{ id: 's1', title: 'Review', url: 'https://reviews.example/laptops', snippet: 'Source for data.laptops' }]
+    const steps: StreamEvent[] = [
+      { type: 'agent_step', tool: 'web_search', query: 'dev laptops 2026' },
+      { type: 'agent_step', tool: 'fetch_page', url: 'https://www.reviews.example/laptops' },
+    ]
+    const agent: StreamEvent = {
+      type: 'agent', steps: 2, fallback: false, error: null, notes: ['One review.'],
+      datasets: [{ id: 'laptops', description: 'Laptops, USD', fields: { model: 'string', price_usd: 'number' }, rows: laptops, sources: [{ title: 'Review', url: sources[0].url }] }],
+    }
+    const working = replay(steps).turn
+    expect(working.agentSteps).toEqual([
+      { tool: 'web_search', query: 'dev laptops 2026', url: undefined },
+      { tool: 'fetch_page', query: undefined, url: 'https://www.reviews.example/laptops' },
+    ])
+    const out = html('', working, true)
+    expect(out).toContain('Searching “dev laptops 2026”')
+    expect(out).toContain('Reading reviews.example')
+    expect(out).toContain('Gathering data')
+
+    const gathered = replay([...steps, agent]).turn
+    expect(gathered.agent?.datasets[0].rows).toEqual(laptops)
+    expect(html('', gathered, true)).toContain('Gathered laptops (2 rows)')
+
+    const { turn, content } = replay([
+      ...steps, agent, route(0.9), { type: 'data', bindings: { laptops, results: sources } },
+      statement('root = Col([t, s])', 1, 'root'),
+      statement('t = Table(data.laptops)', 2, 't', ['laptops']),
+      statement('s = Sources(data.results)', 3, 's', ['results']),
+    ])
+    const page = html(content, turn)
+    expect(page).toContain('ThinkPad X1')
+    expect(page).toContain('https://reviews.example/laptops')
+    expect(page).not.toContain('Gathering data')
+  })
+
+  it('says when the agent fell back to the search results', () => {
+    const { turn } = replay([{ type: 'agent', steps: 3, fallback: true, error: 'no usable datasets', notes: [], datasets: [] }])
+    expect(html('', turn, true)).toContain('No datasets (no usable datasets); using the search results')
   })
 })

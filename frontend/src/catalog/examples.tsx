@@ -7,7 +7,7 @@ import {
   Accordion, ActionableGraphCard, ApprovalCard, AsyncImage, AsyncImageGroup, Badge, Box, BulletColumns, Button, Callout,
   Caption, Card, CardHead, Chart, Checkbox, Checklist, ChoiceChips, Code, CodeTabs, Col, ComparisonTable, DatePicker, Delta, Divider, Empty, EmptyState, FactList, Flow, Formula,
   Form, GraphCard, Grid, Icon, IconList, Input, KeyPoints, KpiCard, KpiGraphCard, Link, List, ListCard, Markdown, MultiKpiCard,
-  NestedList, NumberInput, ProductGrid, Progress, ProsCons, Quote, RadioGroup, Rating, RegionMap, Row, SegmentedControl, Select, Skeleton, Slider, Sources,
+  NestedList, NumberInput, PlaceMap, ProductGrid, Progress, ProsCons, Quote, RadioGroup, Rating, RegionMap, Row, SegmentedControl, Select, Skeleton, Slider, Sources,
   Sparkline, Stat, Steps, Summary, Switch, Table, Tabs, Term, Text, Timeline, Title, Verdict, VizBoundary, VizRoot,
   WeatherCard,
 } from '../components/visualization'
@@ -730,6 +730,26 @@ export function ProductGrid_() {
       { name: 'MacBook Air M4 13-inch', image: 'MacBook Air M4 laptop open on a desk', src: samplePhotoUrl, price: 189000, rating: 4.7, specs: ['16 GB RAM', '512 GB SSD', '18 h battery'], badge: 'Best battery', url: 'https://www.apple.com/macbook-air/' },
       { name: 'Lenovo ThinkPad X1 Carbon', image: 'Lenovo ThinkPad X1 Carbon laptop', price: 214000, rating: 4.5, specs: ['32 GB RAM', '1 TB SSD', 'Linux friendly'] },
       { name: 'Dell XPS 14', image: 'Dell XPS 14 laptop with OLED screen', src: null, price: 198500, rating: 4.3, specs: ['32 GB RAM', 'RTX 4050'] },
+    ]} />
+  )
+}
+
+export function PlaceMap_() {
+  return (
+    <PlaceMap title="Coffee in Bole and Piassa" places={[
+      { name: 'Tomoca Coffee', lat: 9.0336, lng: 38.7469, src: samplePhotoUrl, category: 'Roastery', rating: 4.7, text: 'Espresso bar since 1953.' },
+      { name: 'Kaldi\'s Coffee Bole', lat: 8.9958, lng: 38.7873, category: 'Café', rating: 4.3 },
+      { name: 'Galani Coffee', lat: 8.9989, lng: 38.7733, src: samplePhotoUrl, category: 'Café', url: 'https://example.com/galani' },
+    ]} />
+  )
+}
+
+export function PlaceMap_still_locating() {
+  return (
+    <PlaceMap height="sm" places={[
+      { name: 'Unity Park', lat: 9.0215, lng: 38.7631 },
+      { name: 'Entoto Park', status: 'pending' },
+      { name: 'A café with no address', status: 'missing' },
     ]} />
   )
 }

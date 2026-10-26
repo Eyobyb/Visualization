@@ -94,6 +94,14 @@ hourly = [{hour: "09:00", temp: 17}, {hour: "12:00", temp: 20}, {hour: "15:00", 
 hours = Chart(type: "line", data: hourly, x: "hour", y: "temp", height: "sm", caption: "Today, °C")
 note = Callout("Afternoon showers are likely through Thursday; carry an umbrella after 3 pm.", tone: "info")
 ` },
+  { id: 'places', label: 'Places', src: String.raw`// Places: a map with photo pins. The server geocodes each address and finds each photo; never invent coordinates.
+root = Col([title, intro, map, tip, refs])
+title = Title("Coffee shops in Bole")
+intro = Text("Four places for a good macchiato within a short ride of Bole Medhanialem.")
+map = PlaceMap(near: "Addis Ababa, Ethiopia", places: [{name: "Tomoca Coffee Bole", address: "Bole Road", image: "Tomoca coffee shop Addis Ababa interior", category: "Roastery", rating: 4.7, text: "Historic roaster; strong macchiato."}, {name: "Kaldi's Coffee Bole", address: "Bole Medhanialem", image: "Kaldi's Coffee Addis Ababa storefront", category: "Café", rating: 4.3, text: "Busy, reliable, good for meetings."}, {name: "Galani Coffee", address: "Gotera, Kirkos", image: "Galani coffee shop Addis Ababa", category: "Café and gallery", text: "Specialty single origins and art."}, {name: "Alem Bunna", address: "Bole Atlas", image: "Alem Bunna coffee Addis Ababa", category: "Café", text: "Quiet, with outdoor seating."}])
+tip = Callout("Most cafés close around 9 pm; Tomoca Bole opens earliest, at 6:30 am.", tone: "info")
+refs = Sources([{title: "Best coffee in Addis Ababa", url: "https://www.example.com/addis-coffee"}])
+` },
   { id: 'comparison', label: 'Comparison', src: String.raw`// Comparison: features side by side, code for each, key terms, then a clear recommendation.
 root = Col([title, table, code, terms, verdict])
 title = Title("FastAPI vs Django")

@@ -11,21 +11,37 @@ import { applyVizEvent, EMPTY_TURN, isVisual, type VizTurnData } from '../viz/tu
 import { VizTurnView } from '../viz/VizTurnView'
 import type { Submission } from '../App'
 
-const TABS = ['Route', 'Program', 'Data', 'Images', 'Diagnostics', 'Markdown'] as const
+const TABS = ['Agent', 'Route', 'Program', 'Data', 'Media', 'Diagnostics', 'Markdown'] as const
 
 const STYLE_KEY = 'viz-style'
+const AGENT_KEY = 'viz-agent'
 
-function initialStyle() {
+function stored(key: string) {
   try {
-    const saved = localStorage.getItem(STYLE_KEY)
-    if (saved) return saved
+    return localStorage.getItem(key)
+  } catch {
+    return null
+  }
+}
+
+function store(key: string, value: string) {
+  try {
+    localStorage.setItem(key, value)
   } catch {
     /* storage unavailable */
   }
-  return SELECTED_STYLE.name
 }
 
+const initialStyle = () => stored(STYLE_KEY) || SELECTED_STYLE.name
+
 const json = (v: unknown) => JSON.stringify(v, null, 2)
+
+function agentSummary(t: VizTurnData) {
+  if (!t.agent) return t.agentSteps.length ? `agent working (${t.agentSteps.length} steps)` : null
+  if (t.agent.fallback) return 'agent fallback'
+  const n = t.agent.datasets.length
+  return `agent: ${n} dataset${n === 1 ? '' : 's'}`
+}
 
 function routeSummary(t: VizTurnData) {
   const r = t.route
@@ -46,16 +62,18 @@ export function PlainColumn({ submission }: { submission: Submission | null }) {
   const [vizTurns, setVizTurns] = useState<Record<number, VizTurnData>>({})
   const [tab, setTab] = useState<(typeof TABS)[number]>('Route')
   const [style, setStyle] = useState(initialStyle)
+  const [agentData, setAgentData] = useState(() => stored(AGENT_KEY) === '1')
+  const toggleAgent = (on: boolean) => {
+    setAgentData(on)
+    store(AGENT_KEY, on ? '1' : '0')
+  }
+  const extra = useMemo(() => (agentData ? { agent: true } : undefined), [agentData])
   const packs = useStylePacks()
   const custom = useCustomStyles()
   const styleName = style in packs ? style : SELECTED_STYLE.name
   const pickStyle = (name: string) => {
     setStyle(name)
-    try {
-      localStorage.setItem(STYLE_KEY, name)
-    } catch {
-      /* storage unavailable */
-    }
+    store(STYLE_KEY, name)
   }
   const sent = useRef(new Set<number>())
 
@@ -78,15 +96,15 @@ export function PlainColumn({ submission }: { submission: Submission | null }) {
   useEffect(() => {
     if (!visualize || !last || sent.current.has(last.id)) return
     sent.current.add(last.id)
-    void send(last.text, last.search, last.context)
-  }, [visualize, last, send])
+    void send(last.text, last.search, last.context, extra)
+  }, [visualize, last, send, extra])
 
   const followUp = useCallback(
     (text: string) => {
-      if (last && !last.search) void send(text, null, last.context)
-      else void searchAndSend(text, last?.context)
+      if (last && !last.search) void send(text, null, last.context, extra)
+      else void searchAndSend(text, last?.context, extra)
     },
-    [last, send, searchAndSend],
+    [last, send, searchAndSend, extra],
   )
 
   const lastAssistant = turns.filter((t) => t.role === 'assistant').at(-1)
@@ -101,14 +119,18 @@ export function PlainColumn({ submission }: { submission: Submission | null }) {
 
   const debugBody = () => {
     switch (tab) {
+      case 'Agent':
+        if (!lastTurn.agent && !lastTurn.agentSteps.length) return agentData ? 'No agent run yet' : 'Agent data is off'
+        return json({ steps: lastTurn.agentSteps, result: lastTurn.agent })
       case 'Route':
         return lastTurn.route ? json(lastTurn.route) : 'No route yet'
       case 'Program':
         return lastAssistant?.content || 'No program yet'
       case 'Data':
         return Object.keys(lastTurn.data).length ? json(lastTurn.data) : 'No bindings for this turn'
-      case 'Images':
-        return lastTurn.images.length ? json(lastTurn.images) : 'No images resolved yet'
+      case 'Media':
+        if (!lastTurn.images.length && !lastTurn.placeEvents.length) return 'No images or places resolved yet'
+        return json({ images: lastTurn.images, places: lastTurn.placeEvents })
       case 'Diagnostics':
         return `Server (${serverDiagnostics.length}):\n${json(serverDiagnostics)}\n\nBrowser (${browserDiagnostics.length}):\n${json(browserDiagnostics)}`
       case 'Markdown':
@@ -137,6 +159,12 @@ export function PlainColumn({ submission }: { submission: Submission | null }) {
           </select>
         </label>
       )}
+      {visualize && (
+        <label className="agent-pick" title="A research agent searches and reads pages to gather datasets before the answer is written">
+          <input type="checkbox" checked={agentData} onChange={(e) => toggleAgent(e.target.checked)} />
+          Agent data
+        </label>
+      )}
     </>
   )
 
@@ -153,10 +181,12 @@ export function PlainColumn({ submission }: { submission: Submission | null }) {
         footer={
           <details className="debug">
             <summary>
-              Debug: {routeSummary(lastTurn)}, {lastTurn.done?.statements ?? lastTurn.statements} statements,{' '}
+              Debug: {agentSummary(lastTurn) && `${agentSummary(lastTurn)}, `}{routeSummary(lastTurn)}, {lastTurn.done?.statements ?? lastTurn.statements} statements,{' '}
               {serverDiagnostics.length} diagnostics
               {lastTurn.images.length > 0 &&
                 `, ${lastTurn.images.filter((i) => i.url).length}/${lastTurn.images.length} images`}
+              {lastTurn.placeEvents.length > 0 &&
+                `, ${lastTurn.placeEvents.filter((p) => p.found).length}/${lastTurn.placeEvents.length} places`}
             </summary>
             <div className="debug-tabs">
               {TABS.map((t) => (
@@ -182,6 +212,7 @@ export function PlainColumn({ submission }: { submission: Submission | null }) {
               onSend={followUp}
               onFirstUI={markFirstUI}
               stylePack={packs[styleName]}
+              gathering={agentData && convo.streaming && t.id === lastAssistant?.id}
             />
           ),
         )}

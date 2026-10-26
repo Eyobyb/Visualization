@@ -8,7 +8,7 @@ import httpx
 import pytest
 from fastapi.testclient import TestClient
 
-from app import jev, llm, main
+from app import geo, jev, llm, main
 from app.vizlang import compile_program, split_statements
 from app.vizlang.prompt import preset_source
 
@@ -133,6 +133,133 @@ def test_route_hints_reach_claude(client, monkeypatch):
     assert "Use the explainer layout." in seen["extra"] and "Text-heavy answer" in seen["extra"]
 
 
+# Data agent
+
+DATASET = {
+    "id": "laptops", "description": "Developer laptops, USD", "fields": {"model": "string", "price_usd": "number"},
+    "rows": [{"model": "MacBook Air M4", "price_usd": 1299}, {"model": "ThinkPad X1", "price_usd": 1899}],
+    "sources": [{"title": "Review", "url": "https://reviews.example/laptops"}],
+}
+
+
+def fake_gather(result):
+    async def gather(messages, on_step=lambda s: None, **kw):
+        on_step({"tool": "web_search", "query": "dev laptops"})
+        on_step({"tool": "fetch_page", "url": "https://reviews.example/laptops"})
+        await asyncio.sleep(0)
+        return result
+    return gather
+
+
+def test_agent_datasets_become_bindings(client, monkeypatch):
+    from app import agent
+    monkeypatch.setattr(agent, "gather", fake_gather(agent.validate({"datasets": [DATASET], "notes": "One review."})))
+    seen = {}
+
+    async def capture(system, messages, extra_system=None, max_tokens=8000):
+        seen["extra"] = extra_system
+        yield "root = Table(data.laptops)\n"
+    monkeypatch.setattr(llm, "stream_text", capture)
+    routed = {}
+
+    async def route(query, bindings, client=None):
+        routed["bindings"] = bindings
+        return jev.Route(visual=0.9)
+    monkeypatch.setattr(jev, "route", route)
+
+    ev = events(post(client, search=SEARCH, agent=True))
+    types = [e["type"] for e in ev]
+    assert types[:4] == ["agent_step", "agent_step", "agent", "route"] and types[4] == "data"
+    assert ev[1] == {"type": "agent_step", "tool": "fetch_page", "url": "https://reviews.example/laptops"}
+    assert ev[2]["datasets"][0]["id"] == "laptops" and not ev[2]["fallback"]
+    data = ev[4]["bindings"]
+    assert data["laptops"] == DATASET["rows"] and data["results"][0]["url"] == "https://reviews.example/laptops"
+    assert set(routed["bindings"]) == {"laptops", "results"}
+    assert "### `data.laptops`: Developer laptops, USD" in seen["extra"]
+    assert "model (string), price_usd (number)" in seen["extra"] and '"price_usd": 1899' in seen["extra"]
+    assert "One review." in seen["extra"] and "a.example" not in seen["extra"]
+    assert ev[-1]["type"] == "done" and ev[-1]["diagnostics"] == []
+
+
+def test_agent_fallback_keeps_search_bindings(client, monkeypatch):
+    from app import agent
+    monkeypatch.setattr(agent, "gather", fake_gather(agent.AgentResult(fallback=True, error="boom")))
+    seen = {}
+
+    async def capture(system, messages, extra_system=None, max_tokens=8000):
+        seen["extra"] = extra_system
+        yield "root = Sources(data.results)\n"
+    monkeypatch.setattr(llm, "stream_text", capture)
+    ev = events(post(client, search=SEARCH, agent=True))
+    agent_ev = next(e for e in ev if e["type"] == "agent")
+    assert agent_ev["fallback"] and agent_ev["error"] == "boom"
+    data = next(e for e in ev if e["type"] == "data")
+    assert data["bindings"]["results"][0] == SEARCH["results"][0]
+    assert "https://a.example" in seen["extra"]
+
+
+def test_agent_prose_uses_datasets(monkeypatch):
+    from app import agent
+    monkeypatch.setattr(agent, "gather", fake_gather(agent.validate({"datasets": [DATASET]})))
+    monkeypatch.setattr(jev, "route", fake_route(jev.Route(visual=0.2)))
+    seen = {}
+
+    async def capture(system, messages, extra_system=None, max_tokens=8000):
+        seen["extra"] = extra_system
+        yield "The ThinkPad costs more."
+    monkeypatch.setattr(main, "stream_text", capture)
+    ev = events(post(TestClient(main.app), search=SEARCH, agent=True))
+    assert [e["type"] for e in ev][2:4] == ["agent", "route"]
+    assert "data.laptops" in seen["extra"] and "https://a.example" not in seen["extra"]
+
+
+def test_without_agent_flag_nothing_runs(client, monkeypatch):
+    from app import agent
+
+    async def never(*a, **k):
+        raise AssertionError("agent should not run")
+    monkeypatch.setattr(agent, "gather", never)
+    monkeypatch.setattr(llm, "stream_text", fake_stream(PROGRAM))
+    types = [e["type"] for e in events(post(client, search=SEARCH))]
+    assert "agent" not in types and "agent_step" not in types and types[0] == "route"
+
+
+def test_place_map_streams_place_events(client, monkeypatch):
+    async def lookup(self, query):
+        return geo.Location(lat=9.03, lng=38.75, label="Tomoca, Addis Ababa") if query.startswith("Tomoca") else None
+
+    monkeypatch.setattr(geo.PlaceResolver, "lookup", lookup)
+    src = 'root = PlaceMap(near: "Addis Ababa", places: [{name: "Tomoca", address: "Tomoca Bole"}, {name: "Nowhere"}, {name: "Park", lat: 9, lng: 38.7}])\n'
+    monkeypatch.setattr(llm, "stream_text", fake_stream(src))
+    ev = events(client.post("/api/viz/stream", json={"messages": [{"role": "user", "content": "coffee near me"}], "search": SEARCH}))
+    places = {e["key"]: e for e in ev if e["type"] == "place"}
+    assert places["root.0"]["found"] and places["root.0"]["lat"] == 9.03
+    assert places["root.1"] == {"type": "place", "key": "root.1", "query": "Nowhere, Addis Ababa", "lat": None, "lng": None, "label": None, "found": False}
+    assert "root.2" not in places
+    done = ev[-1]
+    assert done["type"] == "done" and [p["key"] for p in done["places"]] == ["root.0", "root.1"]
+    assert done["places"][1]["found"] is False and "1. **Tomoca**" in done["markdown"]
+
+
+def test_places_endpoint(monkeypatch):
+    async def lookup(self, query):
+        return geo.Location(lat=1.0, lng=2.0, label=query)
+
+    monkeypatch.setattr(geo.PlaceResolver, "lookup", lookup)
+    ev = events(TestClient(main.app).post("/api/viz/places", json={"places": [{"key": "a", "query": "Unity Park"}]}))
+    assert ev == [
+        {"type": "place", "key": "a", "query": "Unity Park", "lat": 1.0, "lng": 2.0, "label": "Unity Park", "found": True},
+        {"type": "done"},
+    ]
+    too_many = [{"key": str(i), "query": "q"} for i in range(13)]
+    assert TestClient(main.app).post("/api/viz/places", json={"places": too_many}).status_code == 422
+
+
+def test_jev_summary_describes_dataset_rows():
+    data = jev.summarize_bindings({"laptops": DATASET["rows"]})
+    assert data["laptops"].startswith("2 rows, fields: model, price_usd; first: {")
+
+
 # Router
 
 def answers(visual=0.89, interactive=0.3, **layouts):
@@ -177,6 +304,9 @@ def test_new_layouts_route_with_their_preset():
     assert "ProductGrid(" in preset_source("product")
     assert jev.parse_response(answers(weather=0.9)).layout == "weather"
     assert "Verdict(" in preset_source(jev.parse_response(answers(comparison=0.75)).layout)
+    places = jev.parse_response(answers(places=0.8, explainer=0.1))
+    assert places.layout == "places" and places.hints[0].startswith("Use the places layout: places to visit")
+    assert "PlaceMap(" in preset_source("places")
 
 
 def test_close_layouts_become_options():

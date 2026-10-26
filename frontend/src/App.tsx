@@ -63,6 +63,9 @@ export default function App() {
   return (
     <div className="app">
       <header className="app-bar">
+        <a className="catalog-link" href="/viz.html">
+          Visualizer
+        </a>
         <a className="catalog-link" href="/catalog.html">
           <LayoutGrid size={14} aria-hidden />
           Component catalog

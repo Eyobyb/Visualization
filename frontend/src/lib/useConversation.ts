@@ -34,7 +34,7 @@ export function useConversation(endpoint: string, onEvent?: (event: StreamEvent,
   }, [])
 
   const send = useCallback(
-    async (text: string, search?: SearchPayload | null, context?: string) => {
+    async (text: string, search?: SearchPayload | null, context?: string, extra?: Record<string, unknown>) => {
       abortRef.current?.abort()
       const controller = new AbortController()
       abortRef.current = controller
@@ -55,7 +55,7 @@ export function useConversation(endpoint: string, onEvent?: (event: StreamEvent,
       try {
         await streamSSE(
           endpoint,
-          { messages: [...history, { role: 'user', content: text }], search: search ?? null, context: context || null },
+          { ...extra, messages: [...history, { role: 'user', content: text }], search: search ?? null, context: context || null },
           (event) => {
             if (event.type === 'delta') {
               setMetrics((m) => (m.ttft === undefined ? { ...m, ttft: performance.now() - startRef.current } : m))
@@ -90,12 +90,12 @@ export function useConversation(endpoint: string, onEvent?: (event: StreamEvent,
 
   /** Follow-ups from inside a column search again, for that column only. */
   const searchAndSend = useCallback(
-    async (text: string, context?: string) => {
+    async (text: string, context?: string, extra?: Record<string, unknown>) => {
       setSearching(true)
       setError(null)
       try {
         const search = await searchFor(text)
-        await send(text, search, context)
+        await send(text, search, context, extra)
       } catch (e) {
         setError(String(e))
       } finally {

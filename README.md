@@ -39,6 +39,12 @@ ANTHROPIC_MODEL=
 JEV_API_KEY=
 # Optional. Defaults to jev-latest.
 JEV_MODEL=
+# Optional. Model for the data agent; defaults to ANTHROPIC_MODEL.
+AGENT_MODEL=
+# Optional. Identifies you to OpenStreetMap's geocoder (its usage policy requires it).
+GEOCODER_USER_AGENT=MyApp/1.0 (you@example.com)
+# Optional. Your own Nominatim instance instead of nominatim.openstreetmap.org.
+GEOCODER_URL=
 ```
 
 Run it:
@@ -62,6 +68,7 @@ npm run dev
 Open:
 
 - `http://localhost:5180/`: the three-column app. Vite proxies `/api` to `127.0.0.1:8100`, so the backend must be on port 8100.
+- `http://localhost:5180/viz.html`: the visualizer on its own. Style chips along the top, the chat box at the bottom, and a Context toggle that opens the editor and removes it again when closed.
 - `http://localhost:5180/catalog.html`: component catalog, `#playground`, `#themes`.
 
 ### Optional: pick a style at startup
@@ -98,8 +105,11 @@ backend/
   app/main.py          HTTP endpoints, prompt assembly for every column
   app/llm.py           The only Claude call (stream_text)
   app/jev.py           Jev routing for the Visualize column
-  app/viz.py           Visualize stream: route, stream Claude, split, validate, resolve images
+  app/viz.py           Visualize stream: agent, route, stream Claude, split, validate, resolve images and places
+  app/agent.py         Data agent: Claude tool loop (web_search, fetch_page, search_maps, submit_data)
+  app/maps.py          Google Maps lookup the data agent calls for place questions
   app/images.py        Image search (Bing) + Jev photo check
+  app/geo.py           PlaceMap geocoding (OpenStreetMap Nominatim), rate-limited and cached
   app/search.py        DuckDuckGo search with an in-memory cache
   app/vizlang/         Python port of the statement-language compiler (validation on the server)
     catalog.json       GENERATED from the TypeScript specs; do not edit by hand
@@ -212,7 +222,7 @@ Only a one-line summary of each binding is sent (`summarize_bindings`), not the 
 | `layout` | top two within 0.15 | Hint "An X or Y layout would fit", plus the top preset |
 | `interactive` | above 0.6 | Hint "Include at least one input bound to a $variable" |
 
-Layouts: `dashboard`, `explainer`, `twoway`, `calculator`, `split`, `moodboard`, `product`, `weather`, `comparison`. Each key in `LAYOUTS` (jev.py) must match a preset `id` in `presets.ts`.
+Layouts: `dashboard`, `explainer`, `twoway`, `calculator`, `split`, `moodboard`, `product`, `weather`, `comparison`, `places`. Each key in `LAYOUTS` (jev.py) must match a preset `id` in `presets.ts`.
 
 Jev is never on the critical path. A missing `JEV_API_KEY`, a timeout or a malformed response returns `Route(fallback=True)`: the turn renders visually with no hints. The route is always sent to the browser as the first `route` event. Look at the **Route** tab in the column's Debug panel to see it.
 
@@ -233,7 +243,8 @@ sources = Sources(data.results)
 
 - `StatementSplitter` cuts the text into complete statements. Each one is sent as a `statement` event; this is what the browser renders from.
 - The Python compiler (`app/vizlang/compile.py`, a port of the TypeScript one) checks the program so far and sends new problems as `diagnostic` events: unknown components, bad prop values, missing bindings and so on.
-- `image_jobs` finds image queries in completed statements (`AsyncImage`, `AsyncImageGroup`, `ProductGrid` item `image`). The `ImageResolver` starts on them right away, without waiting for the end of the program.
+- `image_jobs` finds image queries in completed statements (`AsyncImage`, `AsyncImageGroup`, `ProductGrid` and `PlaceMap` item `image`). The `ImageResolver` starts on them right away, without waiting for the end of the program.
+- `place_jobs` finds `PlaceMap` places that have no coordinates. The `PlaceResolver` (`geo.py`) starts geocoding them the same way.
 
 **Step 5: images** (`images.py`). For each query:
 
@@ -244,11 +255,18 @@ sources = Sources(data.results)
 
 Results stream as `image` events keyed like `photo`, `photos.0` or `products.2`. After Claude finishes, the server waits up to 8 seconds for unfinished images.
 
-**Step 6: `done`.** The final event has the full-program diagnostics, statement count, a Markdown fallback (`to_markdown`) and every image.
+**Step 5b: places** (`geo.py`). Each PlaceMap place without `lat`/`lng` is geocoded from its `address` (or its name), with the map's `near` text appended, through OpenStreetMap Nominatim (`search?format=jsonv2&limit=1`). The model never supplies coordinates it did not read.
+
+- Nominatim allows one request per second, so every request in the process goes through one gate, and results (misses too) are cached by query (512 entries). Network errors are not cached.
+- Results stream as `place` events: `{key: "map.0", query, lat, lng, label, found}`.
+- Places still unresolved when the 8-second budget runs out are left out (not reported as missing). The browser geocodes them afterwards through `POST /api/viz/places`.
+- There is no importance cutoff: Nominatim gives correct small places (a café, a park) importance values near 0.0001, so a cutoff would drop exactly the places people ask about.
+
+**Step 6: `done`.** The final event has the full-program diagnostics, statement count, a Markdown fallback (`to_markdown`), every image, and every place (`found` is `null` for places not located in time).
 
 **In the browser** (`PlainColumn.tsx`, `viz/turnData.ts`, `vizlang/useVizProgram.ts`):
 
-- `applyVizEvent` folds events into the turn: `route`, `data`, `diagnostic`, `image`, `done`.
+- `applyVizEvent` folds events into the turn: `agent_step`, `agent`, `route`, `data`, `diagnostic`, `image`, `place`, `done`.
 - The program text accumulates from `statement` events. `useVizProgram` compiles it on every change with the TypeScript compiler (`vizlang/compile.ts`) and renders it (`vizlang/render.tsx`) inside `VizRoot`, using the selected style pack.
 - Names that are not defined yet render as skeletons, so the page fills in top to bottom while it streams.
 - `$state` variables (sliders, selects and so on) recalculate locally without calling Claude.
@@ -257,12 +275,50 @@ Results stream as `image` events keyed like `photo`, `photos.0` or `products.2`.
 Event sequence:
 
 ```
-route → data → (statement | diagnostic | image)* → done
-route → delta* → done              (prose path)
-error                              (any failure)
+[agent_step* → agent] → route → data → (statement | diagnostic | image | place)* → done
+[agent_step* → agent] → route → delta* → done              (prose path)
+error                                                      (any failure)
 ```
 
-`POST /api/viz/images` (`{images: [{key, query}]}`, at most 12) runs only the image resolver. The Playground uses it to fill images for programs you paste.
+`POST /api/viz/images` (`{images: [{key, query}]}`, at most 12) runs only the image resolver. The Playground uses it to fill images for programs you paste. `POST /api/viz/places` (`{places: [{key, query}]}`, at most 12) does the same for geocoding; `useResolvedPlaces` calls it from the Playground and for places a turn did not finish locating.
+
+#### Maps (`PlaceMap`)
+
+`PlaceMap` (`components/visualization/map.tsx`) draws places on a real map with [Leaflet](https://leafletjs.com/) and OpenStreetMap's standard tiles (`tile.openstreetmap.org`, no API key, attribution shown on the map). In dark mode (`data-theme="dark"`) a CSS filter darkens the tiles.
+
+- OSM's tiles are for light use under their [tile usage policy](https://operations.osmfoundation.org/policies/tiles/). For production traffic, point `TILES` in `map.tsx` at a tile provider or your own tile server. CARTO's basemaps (`basemaps.cartocdn.com`) now return an "API KEY REQUIRED" placeholder without a CARTO key.
+
+- Leaflet and its CSS are loaded with `import()` inside an effect, so they are a separate chunk that only downloads when a map renders. Server rendering and tests get the numbered list and a skeleton box.
+- Pins are photo thumbnails (from each place's `image` query) or numbers. Selecting a pin or a list row highlights both and shows a card with the photo, rating, text, an "Open in map" link (OpenStreetMap) and the website.
+- List rows show "Locating…" while a place is being geocoded and "Not on the map" when it was not found.
+- In the language: `PlaceMap(places: [{name, address, image, ...}], near: "Addis Ababa, Ethiopia")`, or `PlaceMap(data: data.shops, name: "shop", address: "street")` to read rows from a binding. Places are keyed `map.0`, `map.1` (node key plus index) in both the `resolved` (photos) and `places` (coordinates) maps.
+
+### 3.2.1 Data agent (the "Agent data" checkbox)
+
+With **Agent data** on (Visualize column toolbar; saved in `localStorage` as `viz-agent`), the request carries `agent: true` and a research agent gathers datasets before Jev and Claude run. Code: `backend/app/agent.py`, prompt `backend/prompts/agent_system.md`.
+
+**The loop.** `gather()` runs a Claude tool loop (model `AGENT_MODEL`, then `ANTHROPIC_MODEL`, then the default) with four tools:
+
+| Tool | What it does |
+| --- | --- |
+| `web_search` | DuckDuckGo through `search.py` (cached). Times out after `SEARCH_TIMEOUT_S` = 18 s, because parallel searches can take about 14 s |
+| `fetch_page` | Downloads a page (at most 1 MB, 4 redirects), strips it to text and returns up to 6,000 characters. Pages are cached (64 entries). Times out after `TOOL_TIMEOUT_S` = 10 s |
+| `search_maps` | Reads Google Maps for a place search (`maps.py`): the results list, then each place page (name, rating, address, hours, phone, website, coordinates). Headless Chrome, a fresh profile, up to 8 places. Times out after `MAPS_TIMEOUT_S` = 40 s. The agent calls it on its own when the question is about places, and submits those rows; the program writer turns them into a map |
+| `submit_data` | Ends the loop with `{datasets, notes}` |
+
+The prompt asks for three rounds (search, read, submit) with several tool calls per round, because every round costs seconds.
+
+**Budgets.** At most `MAX_STEPS` = 8 rounds. After `SUBMIT_AFTER_S` = 28 s the last round offers only `submit_data` and appends "submit now" to the user turn, so the agent submits what it has already read. `DEADLINE_S` = 60 s is the hard stop. (The model does not support forced `tool_choice`, which is why the final round narrows the tool list instead.)
+
+**Safety.** `fetch_page` only fetches public `http(s)` addresses: `check_url` resolves the host and rejects anything that is not globally routable (localhost, private ranges, link-local), and repeats the check on every redirect. Page and search text is wrapped as untrusted data.
+
+**Validation.** `validate()` keeps at most 6 datasets, 200 rows and 12 fields each. Ids and field names are normalized to snake_case (ids at most 30 characters, with a "Renamed …" note), values are coerced to their declared types, and a dataset without a source URL is dropped. `results`, `context` and `data` are reserved ids.
+
+**Events.** Each tool call streams as `agent_step` (`{tool, query?, url?}`), shown live above the answer. Then one `agent` event: `{datasets, notes, steps, fallback, error}`.
+
+**Using the result.** If the agent returned usable datasets, each becomes a binding `data.<id>`, described to Claude with up to 20 sample rows (`dataset_section`) and to Jev in its one-line summary. Otherwise (`fallback: true`: no datasets, an error or a timeout) the turn continues with the DuckDuckGo bindings as if the checkbox were off. `gather()` never raises.
+
+See the **Agent** tab in the Debug panel for the steps and the datasets.
 
 ### 3.3 OpenUI column: `POST /api/openui/stream`
 
@@ -420,7 +476,7 @@ When the language props differ from the React props, add `adapt`:
 
 A test (`registryMismatches`) fails if a spec has no renderer or a renderer has no spec.
 
-### Step 5 (only if it shows photos): image jobs on both sides
+### Step 5 (only if it shows photos or places): image jobs on both sides
 
 If a prop holds an image **search query**, add the component to both:
 
@@ -428,6 +484,8 @@ If a prop holds an image **search query**, add the component to both:
 - `backend/app/vizlang/analyze.py` (`image_jobs`).
 
 They must produce the same keys. Claude must never write image URLs; the prompt rule says so.
+
+Places work the same way: `placeJobs`/`placeRows` in `images.ts` and `place_jobs`/`place_rows` in `analyze.py` list what to geocode, and the renderer reads `ctx.places?.[n.key + '.' + i]`. Coordinates come from the data or the geocoder, never from the model.
 
 ### Step 6 (if it has fixed text): theme labels
 
@@ -499,7 +557,10 @@ If Claude never picks the component, improve the description in `specs.ts` (say 
 | Column shows an Anthropic error | `ANTHROPIC_API_KEY` missing or wrong in `backend/.env`; restart uvicorn after editing |
 | `/api` requests fail with 502/ECONNREFUSED | Backend not running on port 8100 |
 | Debug summary says "Jev fallback" | `JEV_API_KEY` missing, Jev timed out (4 s) or returned an unexpected shape. The turn still renders, without hints. See the uvicorn log |
-| Images missing or wrong | Bing returned nothing or Jev rejected every candidate. See the **Images** tab (score, verified) |
+| Images missing or wrong | Bing returned nothing or Jev rejected every candidate. See the **Media** tab (score, verified) |
+| Map pins missing or in the wrong place | The geocoder found nothing or a different place with that name. See the **Media** tab (`label` is what it matched). Ask for addresses, or set `near` on the PlaceMap |
+| Map tiles are grey | The browser cannot reach `tile.openstreetmap.org` (offline or blocked) |
+| Debug summary says "agent fallback" | The data agent found no usable datasets, timed out or failed. The turn used the DuckDuckGo results instead. See the **Agent** tab (`error`, `notes`) |
 | "catalog.json is stale" in `npm test` | Run `npm run export-vizlang` after changing specs, functions, icons or presets |
 | Claude uses a component that is "unknown" | The backend still has the old prompt: re-export and restart uvicorn |
 | `npm install` fails with ERESOLVE | Use `npm install --force` (zustand peer conflict in `@openuidev`) |

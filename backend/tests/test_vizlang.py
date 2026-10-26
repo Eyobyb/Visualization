@@ -11,9 +11,10 @@ from pathlib import Path
 import pytest
 
 from app.vizlang import (
-    PENDING, UNDEFINED, StatementSplitter, compile_program, data_refs, image_jobs, split_statements, to_json_value,
-    to_markdown,
+    PENDING, UNDEFINED, StatementSplitter, compile_program, data_refs, image_jobs, place_jobs, split_statements,
+    to_json_value, to_markdown,
 )
+from app.vizlang.analyze import place_rows
 from app.vizlang.jsvalues import fmt, is_node, js_round, js_str, strict_eq, to_fixed, truthy
 
 CASES = json.loads((Path(__file__).parent / "fixtures" / "vizlang_cases.json").read_text(encoding="utf-8"))
@@ -138,6 +139,33 @@ def test_image_jobs_single_image():
 def test_image_jobs_product_grid_items():
     r = compile_program('root = ProductGrid(shop)\nshop = [{name: "A", image: "laptop a"}, {name: "B"}, {name: "C", image: "laptop c"}]')
     assert image_jobs(r.root) == [("root.0", "laptop a"), ("root.2", "laptop c")]
+
+
+def test_place_jobs_geocode_addresses_and_skip_coordinates():
+    r = compile_program(
+        'root = PlaceMap(near: "Addis Ababa", places: [{name: "Tomoca", address: "Bole Road", image: "tomoca cafe"},'
+        ' {name: ""}, {name: "Unity Park", lat: 9.02, lng: 38.76}, {name: "Galani, Addis Ababa"}])'
+    )
+    assert place_jobs(r.root) == [("root.0", "Tomoca, Bole Road, Addis Ababa"), ("root.2", "Galani, Addis Ababa")]
+    assert image_jobs(r.root) == [("root.0", "tomoca cafe")]
+    assert "1. **Tomoca**" in to_markdown(r.root) and "2. **Unity Park**" in to_markdown(r.root)
+
+
+def test_place_jobs_read_data_through_field_props():
+    data = {"shops": [{"shop": "A", "street": "Bole"}, {"shop": "B", "y": "9.0", "x": 38.7}, {"street": "no name"}]}
+    r = compile_program('root = PlaceMap(data: data.shops, name: "shop", address: "street", lat: "y", lng: "x")', data=data)
+    assert place_jobs(r.root) == [("root.0", "A, Bole")]
+    assert place_rows(r.root["props"])[1] == {"name": "B", "lat": 9.0, "lng": 38.7}
+
+
+def test_place_queries_clean_names_and_drop_repeated_parts():
+    r = compile_program(
+        'root = PlaceMap(near: "Addis Ababa, Ethiopia", places: [{name: "Dukamo Coffee | ዱካሞ ቡና", address: "Bole, Addis Ababa"},'
+        ' {name: "Kaldi\'s Coffee (Bole)"}])'
+    )
+    assert [q for _, q in place_jobs(r.root)] == [
+        "Dukamo Coffee, Bole, Addis Ababa, Ethiopia", "Kaldi's Coffee, Addis Ababa, Ethiopia",
+    ]
 
 
 def test_to_markdown_has_title_and_kpis():

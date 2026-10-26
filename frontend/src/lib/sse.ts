@@ -21,6 +21,8 @@ export type StreamEvent =
       statements?: number
       markdown?: string
       images?: Array<{ key: string; query: string; url?: string | null }>
+      /** `found` is null for places the turn had not finished locating. */
+      places?: Array<{ key: string; query: string; lat: number | null; lng: number | null; found: boolean | null }>
     }
   | { type: 'error'; message: string }
   | { type: 'app_data'; bindings: Record<string, Record<string, string>> }
@@ -30,6 +32,30 @@ export type StreamEvent =
   | { type: 'statement'; name: string | null; text: string; line: number; refs: string[] }
   | ({ type: 'diagnostic' } & ServerDiagnostic)
   | ({ type: 'image' } & VizImage)
+  | ({ type: 'place' } & VizPlace)
+  | ({ type: 'agent_step' } & AgentStep)
+  | ({ type: 'agent' } & AgentResult)
+
+/** One tool call of the data agent, reported while it works. */
+export type AgentStep = { tool: string; query?: string; url?: string }
+
+/** A validated dataset the agent gathered; its rows are bound as `data.<id>`. */
+export type AgentDataset = {
+  id: string
+  description: string
+  fields: Record<string, 'string' | 'number' | 'bool' | 'date'>
+  rows: Record<string, unknown>[]
+  sources: Array<{ title: string; url: string }>
+}
+
+/** The data agent's outcome. With `fallback`, the turn used the search results instead. */
+export type AgentResult = {
+  datasets: AgentDataset[]
+  notes: string[]
+  steps: number
+  fallback: boolean
+  error: string | null
+}
 
 /** A resolved AsyncImage query. `url` is null when no photo matched or Jev rejected every candidate. */
 export type VizImage = {
@@ -41,6 +67,16 @@ export type VizImage = {
   title: string | null
   score: number | null
   verified: boolean
+}
+
+/** A geocoded PlaceMap place. `lat` and `lng` are null when the geocoder found nothing. */
+export type VizPlace = {
+  key: string
+  query: string
+  lat: number | null
+  lng: number | null
+  label: string | null
+  found: boolean
 }
 
 export async function streamSSE(

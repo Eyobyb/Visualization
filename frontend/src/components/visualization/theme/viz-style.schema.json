@@ -437,6 +437,11 @@
           "minLength": 1,
           "description": "A product grid with no items."
         },
+        "mapNoPlaces": {
+          "type": "string",
+          "minLength": 1,
+          "description": "A place map with no places."
+        },
         "selectPrompt": {
           "type": "string",
           "minLength": 1,
@@ -492,6 +497,31 @@
           "type": "string",
           "minLength": 1,
           "description": "Rows the map could not place; {regions} lists them."
+        },
+        "mapRegion": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Accessible name of an untitled place map."
+        },
+        "mapLocating": {
+          "type": "string",
+          "minLength": 1,
+          "description": "A place still being located."
+        },
+        "mapNotFound": {
+          "type": "string",
+          "minLength": 1,
+          "description": "A place the geocoder could not find."
+        },
+        "mapOpen": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Link that opens a place in OpenStreetMap."
+        },
+        "mapWebsite": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Link to a place's own website."
         },
         "chartTotal": {
           "type": "string",

@@ -94,6 +94,7 @@
     "noTabs": "No tabs",
     "noItems": "No items",
     "noProducts": "No products",
+    "mapNoPlaces": "No places to show",
     "selectPrompt": "Choose…"
   },
   "labels": {
@@ -106,6 +107,11 @@
     "mapShare": "{share} of total",
     "mapNote": "Tile map: one tile per region, positions approximate.",
     "mapNotPlaced": "Not placed: {regions}.",
+    "mapRegion": "Map",
+    "mapLocating": "Locating…",
+    "mapNotFound": "Not on the map",
+    "mapOpen": "Open in map",
+    "mapWebsite": "Website",
     "chartTotal": "Total",
     "lineChart": "Line chart: {series} across {categories}, peak {peak}",
     "columnChart": "Bar chart: {series} across {categories}, peak {peak}",

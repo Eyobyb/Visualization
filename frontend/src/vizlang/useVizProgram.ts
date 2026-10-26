@@ -13,6 +13,8 @@ export interface VizProgramOptions {
   streaming?: boolean
   /** Server-resolved images, keyed like `photo` or `photos.0`. */
   resolved?: RenderContext['resolved']
+  /** Server-geocoded PlaceMap places, keyed like `map.0`. */
+  places?: RenderContext['places']
   /** Receives `@NewTurn` text and messages from ChoiceChips, Form and ApprovalCard. */
   onSend?: SendToModel
   /** Every action event, including copies, opened links and action errors. */
@@ -32,7 +34,7 @@ export interface VizProgramHandle {
  * Compiles a program, keeps its `$state`, and renders it. Recompiles on every source, data or state change,
  * and when `onSend` or `onEvent` change identity, so pass stable callbacks.
  */
-export function useVizProgram({ source, data, streaming = false, resolved, onSend, onEvent }: VizProgramOptions): VizProgramHandle {
+export function useVizProgram({ source, data, streaming = false, resolved, places, onSend, onEvent }: VizProgramOptions): VizProgramHandle {
   const [userState, setUserState] = useState<Record<string, unknown>>({})
 
   const effects = useMemo<Effects>(() => ({
@@ -63,8 +65,9 @@ export function useVizProgram({ source, data, streaming = false, resolved, onSen
       set: effects.set,
       onSend: (text) => effects.event({ kind: 'newTurn', text }),
       resolved,
+      places,
     }),
-    [result, effects, resolved],
+    [result, effects, resolved, places],
   )
   return { result, element, setState: effects.set, resetState: () => setUserState({}) }
 }

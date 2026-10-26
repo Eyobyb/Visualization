@@ -73,6 +73,11 @@ const LABEL_DESC = {
   mapShare: 'Region share in the map legend; {share} is a percentage.',
   mapNote: 'Region map caption.',
   mapNotPlaced: 'Rows the map could not place; {regions} lists them.',
+  mapRegion: 'Accessible name of an untitled place map.',
+  mapLocating: 'A place still being located.',
+  mapNotFound: 'A place the geocoder could not find.',
+  mapOpen: 'Link that opens a place in OpenStreetMap.',
+  mapWebsite: 'Link to a place\'s own website.',
   chartTotal: 'Total row in a chart tooltip.',
   lineChart: 'Line and area chart accessible name; {series}, {categories} and {peak}.',
   columnChart: 'Column chart accessible name; {series}, {categories} and {peak}.',
@@ -158,6 +163,7 @@ export interface Placeholders {
   noTabs: string
   noItems: string
   noProducts: string
+  mapNoPlaces: string
   selectPrompt: string
 }
 
@@ -253,6 +259,7 @@ export const STYLE_SHAPE: Shape = {
     noTabs: str('Tabs with no items.'),
     noItems: str('A list card with no items.'),
     noProducts: str('A product grid with no items.'),
+    mapNoPlaces: str('A place map with no places.'),
     selectPrompt: str('First option of a dropdown with nothing picked.'),
   },
   labels: Object.fromEntries(Object.entries(LABEL_DESC).map(([k, d]) => [k, str(d)])),

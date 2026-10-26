@@ -2253,6 +2253,86 @@
     }
    ]
   },
+  "PlaceMap": {
+   "name": "PlaceMap",
+   "family": "Cards",
+   "desc": "Places on a real map with photo pins and a numbered list: shops, restaurants, sights, branches, venues. The server finds each place from its address (or name) and its photo from the image query. Give addresses rather than coordinates unless the source lists coordinates. Up to 12 places.",
+   "pos": [
+    "places"
+   ],
+   "props": {
+    "places": {
+     "type": "list",
+     "desc": "{name, address, lat, lng, image: search query, text, rating: 0-5, url, category}. Needs a name; address or coordinates place it."
+    },
+    "data": {
+     "type": "data",
+     "desc": "Rows from a binding, instead of places."
+    },
+    "name": {
+     "type": "field",
+     "desc": "Field holding the place name, with data.",
+     "def": "name"
+    },
+    "address": {
+     "type": "field",
+     "desc": "Field holding the address, with data.",
+     "def": "address"
+    },
+    "lat": {
+     "type": "field",
+     "desc": "Field holding latitude, with data.",
+     "def": "lat"
+    },
+    "lng": {
+     "type": "field",
+     "desc": "Field holding longitude, with data.",
+     "def": "lng"
+    },
+    "image": {
+     "type": "field",
+     "desc": "Field holding the photo query, with data.",
+     "def": "image"
+    },
+    "text": {
+     "type": "field",
+     "desc": "Field holding a short description, with data.",
+     "def": "text"
+    },
+    "near": {
+     "type": "string",
+     "desc": "City and country added to every address, such as \"Addis Ababa, Ethiopia\"."
+    },
+    "title": {
+     "type": "string",
+     "desc": "Card title."
+    },
+    "height": {
+     "type": "enum",
+     "values": [
+      "sm",
+      "md",
+      "lg"
+     ],
+     "desc": "Map height.",
+     "def": "md"
+    },
+    "list": {
+     "type": "bool",
+     "desc": "Show the numbered list beside the map.",
+     "def": true
+    }
+   },
+   "examples": [
+    {
+     "src": "root = PlaceMap(title: \"Coffee in Bole\", near: \"Addis Ababa, Ethiopia\", places: [{name: \"Tomoca Coffee Bole\", address: \"Bole Road\", image: \"Tomoca coffee shop interior Addis Ababa\", category: \"Roastery\", rating: 4.7, text: \"Espresso bar since 1953.\"}, {name: \"Kaldi's Coffee\", address: \"Bole Medhanialem\", image: \"Kaldi's Coffee Addis Ababa storefront\", category: \"Café\", rating: 4.3}, {name: \"Galani Coffee\", address: \"Gotera, Kirkos\", image: \"Galani coffee shop Addis Ababa\", category: \"Café\"}])"
+    },
+    {
+     "label": "from data with coordinates",
+     "src": "branches = [{branch: \"Bole hub\", lat: 8.9958, lng: 38.7873, orders: 412}, {branch: \"Merkato shop\", lat: 9.0346, lng: 38.7369, orders: 288}, {branch: \"Piassa shop\", lat: 9.0379, lng: 38.7525, orders: 196}]\nroot = PlaceMap(data: branches, name: \"branch\", title: \"Our branches\", height: \"sm\")"
+    }
+   ]
+  },
   "WeatherCard": {
    "name": "WeatherCard",
    "family": "Cards",
@@ -2813,6 +2893,11 @@
    "id": "weather",
    "label": "Weather",
    "src": "// Weather: current conditions and a forecast. Only use figures from the sources and say when they are from.\nroot = Col([now, hours, note])\nnow = WeatherCard(\"Addis Ababa\", now: {temp: 19, condition: \"partly\", feelsLike: 18, wind: 11, humidity: 62, summary: \"Partly cloudy, showers after 3 pm\"}, forecast: [{label: \"Today\", condition: \"rain\", high: 21, low: 11, rain: 70}, {label: \"Thu\", condition: \"storm\", high: 20, low: 12, rain: 80}, {label: \"Fri\", condition: \"partly\", high: 22, low: 11, rain: 30}, {label: \"Sat\", condition: \"sun\", high: 24, low: 10, rain: 10}, {label: \"Sun\", condition: \"cloud\", high: 22, low: 11, rain: 40}], updated: \"Forecast as of 09:00 EAT\")\nhourly = [{hour: \"09:00\", temp: 17}, {hour: \"12:00\", temp: 20}, {hour: \"15:00\", temp: 21}, {hour: \"18:00\", temp: 18}, {hour: \"21:00\", temp: 15}]\nhours = Chart(type: \"line\", data: hourly, x: \"hour\", y: \"temp\", height: \"sm\", caption: \"Today, °C\")\nnote = Callout(\"Afternoon showers are likely through Thursday; carry an umbrella after 3 pm.\", tone: \"info\")\n"
+  },
+  {
+   "id": "places",
+   "label": "Places",
+   "src": "// Places: a map with photo pins. The server geocodes each address and finds each photo; never invent coordinates.\nroot = Col([title, intro, map, tip, refs])\ntitle = Title(\"Coffee shops in Bole\")\nintro = Text(\"Four places for a good macchiato within a short ride of Bole Medhanialem.\")\nmap = PlaceMap(near: \"Addis Ababa, Ethiopia\", places: [{name: \"Tomoca Coffee Bole\", address: \"Bole Road\", image: \"Tomoca coffee shop Addis Ababa interior\", category: \"Roastery\", rating: 4.7, text: \"Historic roaster; strong macchiato.\"}, {name: \"Kaldi's Coffee Bole\", address: \"Bole Medhanialem\", image: \"Kaldi's Coffee Addis Ababa storefront\", category: \"Café\", rating: 4.3, text: \"Busy, reliable, good for meetings.\"}, {name: \"Galani Coffee\", address: \"Gotera, Kirkos\", image: \"Galani coffee shop Addis Ababa\", category: \"Café and gallery\", text: \"Specialty single origins and art.\"}, {name: \"Alem Bunna\", address: \"Bole Atlas\", image: \"Alem Bunna coffee Addis Ababa\", category: \"Café\", text: \"Quiet, with outdoor seating.\"}])\ntip = Callout(\"Most cafés close around 9 pm; Tomoca Bole opens earliest, at 6:30 am.\", tone: \"info\")\nrefs = Sources([{title: \"Best coffee in Addis Ababa\", url: \"https://www.example.com/addis-coffee\"}])\n"
   },
   {
    "id": "comparison",

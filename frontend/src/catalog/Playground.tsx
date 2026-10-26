@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { VizRoot } from '../components/visualization'
-import { imageJobs, PRESETS, renderNode, SPECS, useVizProgram, type ActionEvent } from '../vizlang'
+import { imageJobs, placeJobs, PRESETS, renderNode, SPECS, useVizProgram, type ActionEvent } from '../vizlang'
 import { useResolvedImages } from '../viz/useResolvedImages'
+import { useResolvedPlaces } from '../viz/useResolvedPlaces'
 import { labData } from '../vizlang/fixtures/labData'
 import { notify } from './toast'
 
@@ -58,9 +59,11 @@ export function Playground({ theme }: { theme: 'light' | 'dark' }) {
   })
   const jobs = useMemo(() => imageJobs(result.root), [result.root])
   const resolved = useResolvedImages(jobs)
+  const located = useMemo(() => placeJobs(result.root), [result.root])
+  const places = useResolvedPlaces(located)
   const element = useMemo(
-    () => renderNode(result.root, { state: result.state, set: setState, onSend: send, resolved }),
-    [result, setState, resolved],
+    () => renderNode(result.root, { state: result.state, set: setState, onSend: send, resolved, places }),
+    [result, setState, resolved, places],
   )
 
   const pick = (id: string) => {

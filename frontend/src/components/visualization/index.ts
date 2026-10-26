@@ -9,6 +9,7 @@ export {
   KpiCard, MultiKpiCard, KpiGraphCard, ListCard, GraphCard, ActionableGraphCard, ProductGrid, WeatherCard,
   type KpiItem, type Product, type WeatherCondition, type WeatherNow, type ForecastPeriod,
 } from './cards'
+export { PlaceMap, type Place } from './map'
 export { Icon, AsyncImage, AsyncImageGroup, type AspectRatio, type ImageQuery } from './media'
 export {
   Summary, KeyPoints, IconList, NestedList, Steps, Checklist, ProsCons, BulletColumns, FactList, Quote, Sources,

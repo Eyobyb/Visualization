@@ -7,7 +7,7 @@ const RESOLVED_ID = '\0' + VIRTUAL_ID
 
 const FAMILY_BY_FILE: Record<string, string> = {
   shared: 'Foundations', layout: 'Layout', text: 'Text', prose: 'Prose', inputs: 'Inputs',
-  interactive: 'Two-way', data: 'Data', Chart: 'Data', cards: 'Cards', media: 'Media',
+  interactive: 'Two-way', data: 'Data', Chart: 'Data', cards: 'Cards', map: 'Cards', media: 'Media',
 }
 const FAMILIES = ['Foundations', 'Layout', 'Text', 'Prose', 'Inputs', 'Two-way', 'Data', 'Cards', 'Media']
 

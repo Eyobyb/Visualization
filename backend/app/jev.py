@@ -4,6 +4,7 @@ Jev answers fixed questions with probabilities: should the answer be visual, whi
 layout fits, and does it need inputs. The answers become short hints in Claude's prompt.
 Any failure falls back to rendering with no hints, so Jev is never on the critical path.
 """
+import json
 import logging
 import os
 from dataclasses import asdict, dataclass, field
@@ -32,6 +33,7 @@ LAYOUTS = {
     "product": "Shopping or ranking products with prices, ratings and specs",
     "weather": "Current weather or a forecast for a place",
     "comparison": "Two or three options compared, ending in a recommendation",
+    "places": "Places to visit or find on a map: shops, restaurants, sights, branches, venues",
 }
 
 QUESTIONS = {
@@ -71,8 +73,13 @@ def summarize_bindings(bindings: Dict[str, Any]) -> Dict[str, str]:
     out = {}
     for name, value in bindings.items():
         if isinstance(value, list):
-            titles = "; ".join(str(r.get("title", "")) for r in value[:5] if isinstance(r, dict))
-            out[name] = f"{len(value)} rows" + (f": {titles}" if titles else "")
+            dicts = [r for r in value if isinstance(r, dict)]
+            titles = "; ".join(str(r["title"]) for r in dicts[:5] if r.get("title"))
+            if titles or not dicts:
+                out[name] = f"{len(value)} rows" + (f": {titles}" if titles else "")
+            else:
+                first = json.dumps(dicts[0], ensure_ascii=False)[:200]
+                out[name] = f"{len(value)} rows, fields: {', '.join(dicts[0])}; first: {first}"
         elif isinstance(value, dict) and isinstance(value.get("text"), str):
             out[name] = f"text, {len(value['text'])} characters: {value['text'][:200]}"
         else:

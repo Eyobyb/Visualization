@@ -1,5 +1,7 @@
 """Helpers the streaming endpoint uses on parsed statements and evaluated roots."""
-from typing import Any, Iterable, List, Tuple, Union
+import math
+import re
+from typing import Any, Iterable, List, Optional, Tuple, Union
 
 from .jsvalues import PENDING, fmt, is_node, is_number, js_str
 from .parser import Expr, Statement
@@ -75,6 +77,94 @@ def image_jobs(root: Any) -> List[Tuple[str, str]]:
                 q = it.get("image") if isinstance(it, dict) else None
                 if isinstance(q, str):
                     jobs.append((n["key"] + "." + str(i), q))
+        elif n["name"] == "PlaceMap":
+            for i, r in enumerate(place_rows(p)):
+                if r.get("image"):
+                    jobs.append((n["key"] + "." + str(i), r["image"]))
+    return jobs
+
+
+PLACE_FIELDS = ("name", "address", "lat", "lng", "image", "text", "rating", "url", "category")
+
+
+def _str(v: Any) -> Optional[str]:
+    if isinstance(v, str) and v.strip():
+        return v.strip()
+    if is_number(v) and math.isfinite(v):
+        return js_str(v)
+    return None
+
+
+def _coord(v: Any, limit: float) -> Optional[float]:
+    if is_number(v):
+        n = float(v)
+    elif isinstance(v, str) and v.strip():
+        try:
+            n = float(v)
+        except ValueError:
+            return None
+    else:
+        return None
+    return n if math.isfinite(n) and abs(n) <= limit else None
+
+
+def _geo_query(name: str, address: Optional[str], near: Optional[str]) -> str:
+    """"name, address, near" with repeated comma parts removed; mirrors `geoQuery` in images.ts."""
+    clean = " ".join(re.sub(r"\([^)]*\)", " ", name.split("|")[0]).split()) or name
+    seen = set()
+    parts = []
+    for s in ",".join([clean, address or "", near or ""]).split(","):
+        s = s.strip()
+        if s and s.lower() not in seen:
+            seen.add(s.lower())
+            parts.append(s)
+    return ", ".join(parts)
+
+
+def place_rows(p: dict) -> List[dict]:
+    """The places a PlaceMap shows, in order, from `places` or `data` rows read through the field props.
+    Rows without a name are skipped so `map.0` keys match the browser's `placeRows`."""
+    from_data = not isinstance(p.get("places"), list)
+    rows = p.get("data") if from_data else p.get("places")
+    if not isinstance(rows, list):
+        return []
+
+    def field(k: str) -> str:
+        return p[k] if from_data and isinstance(p.get(k), str) else k
+
+    near = _str(p.get("near"))
+    out: List[dict] = []
+    for r in rows:
+        if not isinstance(r, dict) or r is PENDING:
+            continue
+        name = _str(r.get(field("name")))
+        if not name:
+            continue
+        lat, lng = _coord(r.get(field("lat")), 90), _coord(r.get(field("lng")), 180)
+        row = {"name": name}
+        if lat is not None and lng is not None:
+            row.update(lat=lat, lng=lng)
+        else:
+            row["query"] = _geo_query(name, _str(r.get(field("address"))), near)
+        for k in ("image", "text", "url", "category"):
+            v = _str(r.get(field(k)))
+            if v:
+                row[k] = v
+        rating = _coord(r.get(field("rating")), 5)
+        if rating is not None and rating >= 0:
+            row["rating"] = rating
+        out.append(row)
+    return out
+
+
+def place_jobs(root: Any) -> List[Tuple[str, str]]:
+    """`(key, query)` for each PlaceMap place to geocode, keyed `map.0` like the browser's `places` map."""
+    jobs: List[Tuple[str, str]] = []
+    for n in _nodes(root):
+        if n["name"] == "PlaceMap":
+            for i, r in enumerate(place_rows(n["props"])):
+                if r.get("query"):
+                    jobs.append((n["key"] + "." + str(i), r["query"]))
     return jobs
 
 
@@ -131,6 +221,15 @@ def to_markdown(root: Any) -> str:
             blocks.append("### " + _text(p["title"]))
         elif name == "Link" and isinstance(p.get("href"), str):
             blocks.append("[" + _text(p.get("text")) + "](" + p["href"] + ")")
+        elif name == "PlaceMap":
+            lines = [
+                str(i + 1) + ". **" + r["name"] + "**" + (" — " + r["text"] if r.get("text") else "")
+                for i, r in enumerate(place_rows(p))
+            ]
+            if p.get("title"):
+                lines.insert(0, "### " + _text(p["title"]))
+            if lines:
+                blocks.append("\n".join(lines))
         elif name == "Sources":
             lines = [
                 "- [" + _text(s.get("title")) + "](" + _text(s.get("url")) + ")"

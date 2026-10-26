@@ -14,7 +14,7 @@ export default defineConfig({
   },
   build: {
     rolldownOptions: {
-      input: { main: 'index.html', catalog: 'catalog.html' },
+      input: { main: 'index.html', catalog: 'catalog.html', viz: 'viz.html' },
     },
   },
   test: {
