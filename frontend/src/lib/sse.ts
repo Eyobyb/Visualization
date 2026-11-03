@@ -23,6 +23,9 @@ export type StreamEvent =
       images?: Array<{ key: string; query: string; url?: string | null }>
       /** `found` is null for places the turn had not finished locating. */
       places?: Array<{ key: string; query: string; lat: number | null; lng: number | null; found: boolean | null }>
+      /** `/api/card/stream`: full prose answer + teaser card payload. */
+      answer?: string
+      card?: Record<string, unknown>
     }
   | { type: 'error'; message: string }
   | { type: 'app_data'; bindings: Record<string, Record<string, string>> }
@@ -35,6 +38,7 @@ export type StreamEvent =
   | ({ type: 'place' } & VizPlace)
   | ({ type: 'agent_step' } & AgentStep)
   | ({ type: 'agent' } & AgentResult)
+  | { type: 'card'; payload: Record<string, unknown>; error?: string }
 
 /** One tool call of the data agent, reported while it works. */
 export type AgentStep = { tool: string; query?: string; url?: string }

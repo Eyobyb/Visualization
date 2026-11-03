@@ -1,0 +1,51 @@
+/* Mesh attention surface, updating sweep — not expressible as plain utilities. */
+
+.nc .nc-card.mesh {
+  background:
+    radial-gradient(110% 85% at 0% 0%, var(--nc-m1) 0%, transparent 62%),
+    radial-gradient(90% 90% at 100% 100%, var(--nc-m3) 0%, transparent 66%),
+    radial-gradient(60% 60% at 70% 20%, color-mix(in srgb, var(--nc-m1) 40%, transparent) 0%, transparent 70%),
+    var(--nc-m2);
+  box-shadow: none;
+}
+
+.nc .nc-card.mesh:hover {
+  box-shadow: 0 1.5rem 3.125rem -1.875rem rgba(var(--shadow-nc-rgb), 0.45);
+}
+
+.nc .nc-card.mesh .nc-card-foot {
+  border-top-color: color-mix(in srgb, var(--color-nc-ink) 10%, transparent);
+}
+
+.nc .nc-card.updating::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 0.125rem;
+  z-index: 4;
+  background: linear-gradient(90deg, transparent, var(--color-nc-accent), transparent);
+  background-size: 40% 100%;
+  background-repeat: no-repeat;
+  animation: nc-sweep 1.4s linear infinite;
+}
+
+.nc .nc-card.updating .nc-viz,
+.nc .nc-card.updating .nc-headline,
+.nc .nc-card.updating .nc-take,
+.nc .nc-card.updating .nc-bul {
+  opacity: 0.55;
+  transition: opacity 0.3s;
+}
+
+@keyframes nc-sweep {
+  from { background-position: -40% 0; }
+  to { background-position: 140% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nc .nc-card.updating::before {
+    animation: none;
+  }
+}

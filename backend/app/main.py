@@ -12,11 +12,12 @@ from fastapi.responses import StreamingResponse  # noqa: E402
 from pydantic import BaseModel, Field  # noqa: E402
 
 from . import agent  # noqa: E402
+from .card import generate_card  # noqa: E402
 from .dil import compile_dil  # noqa: E402
 from .dil.catalog import catalog_summary  # noqa: E402
 from .llm import stream_text  # noqa: E402
 from .search import search  # noqa: E402
-from .viz import AgentTurn, image_events, place_events, viz_events  # noqa: E402
+from .viz import AgentTurn, agent_events, image_events, place_events, viz_events  # noqa: E402
 from .vizlang.prompt import catalog_prompt  # noqa: E402
 
 PROMPTS = Path(__file__).resolve().parent.parent / "prompts"
@@ -372,6 +373,73 @@ async def viz_stream(req: ChatRequest):
         prose=lambda: text_events(load_prompt("plain.md"), req, prose_extra),
         agent=gather if req.agent else None,
     ))
+
+
+_card_system: Optional[str] = None
+
+
+def card_system() -> str:
+    global _card_system
+    if _card_system is None:
+        _card_system = load_prompt("card_system.md")
+    return _card_system
+
+
+async def card_events(req: ChatRequest) -> AsyncIterator[str]:
+    """Answer the question (optional data agent), then emit a brief card teaser.
+
+    Events: [agent_step*, agent], delta*, card, done {answer, card}, or error.
+    The card is a small portion of the answer; clients open the full answer on Ask.
+    """
+    answer = ""
+    datasets: List[Dict] = []
+    prose_extra = join_sections(
+        openui_context(context_text(req) or "", req.search is not None) if context_text(req) else None,
+        plain_search_context(req.search) if req.search else None,
+    )
+
+    try:
+        if req.agent:
+            async def gather(on_step: agent.OnStep) -> AgentTurn:
+                result = await agent.gather(messages_of(req), on_step)
+                return AgentTurn(
+                    result=result,
+                    bindings=viz_bindings(req, result),
+                    extra=viz_data_context(req, result),
+                    prose=lambda: text_events(load_prompt("plain.md"), req, agent_prose_context(req, result)),
+                )
+
+            async for item in agent_events(gather):
+                if isinstance(item, AgentTurn):
+                    yield sse(item.result.event())
+                    if item.result.usable:
+                        datasets = item.result.datasets
+                        prose_extra = agent_prose_context(req, item.result)
+                else:
+                    yield item
+
+        async for chunk in stream_text(load_prompt("plain.md"), messages_of(req), extra_system=prose_extra):
+            answer += chunk
+            yield sse({"type": "delta", "text": chunk})
+
+        card, card_error = await generate_card(
+            system=card_system(),
+            question=latest_user_text(req),
+            answer=answer,
+            datasets=datasets,
+        )
+        yield sse({"type": "card", "payload": card, **({"error": card_error} if card_error else {})})
+        yield sse({"type": "done", "answer": answer, "card": card})
+    except Exception as e:
+        yield sse({"type": "error", "message": str(e)})
+
+
+@app.post("/api/card/stream")
+async def card_stream(req: ChatRequest):
+    """Full answer via the agentic/plain path, then a brief Intelligence card teaser."""
+    if not req.messages:
+        raise HTTPException(400, "messages required")
+    return sse_response(card_events(req))
 
 
 class ImageJob(BaseModel):
