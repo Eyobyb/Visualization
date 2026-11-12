@@ -358,6 +358,12 @@
   min-width: 0;
 }
 
+.viz-turn[data-glass] {
+  background: var(--backdrop);
+  padding: 14px;
+  border-radius: 18px;
+}
+
 .column-body {
   flex: 1;
   overflow-y: auto;

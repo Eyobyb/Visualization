@@ -33,6 +33,7 @@ const SECTIONS: { key: string; title: string; open?: boolean }[] = [
   { key: 'fonts', title: 'Typography', open: true },
   { key: 'radius', title: 'Corners' },
   { key: 'spacing', title: 'Spacing' },
+  { key: 'effects', title: 'Glass effect' },
   { key: 'placeholders', title: 'Placeholders' },
   { key: 'labels', title: 'Labels' },
 ]

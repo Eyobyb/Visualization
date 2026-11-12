@@ -35,6 +35,52 @@ describe('Card', () => {
     expect(html).toContain('mesh')
   })
 
+  it('foldable starts collapsed with brief panel shown', () => {
+    const html = renderToStaticMarkup(
+      <NcRoot>
+        <IntelligenceCard
+          foldable
+          sources={['Stripe']}
+          updated="2h ago"
+          severity="good"
+          brief={{ headline: 'Net new ARR hit $366K', takeaway: 'Highest week this quarter' }}
+        >
+          <p>Full body</p>
+        </IntelligenceCard>
+      </NcRoot>,
+    )
+    expect(html).toContain('data-fold="folded"')
+    expect(html).toContain('Net new ARR hit $366K')
+    expect(html).toContain('Highest week this quarter')
+    expect(html).toContain('aria-hidden="true"')
+    expect(html).toContain('Full body')
+    expect(html).toContain('Ask about this')
+    expect(html).toContain('nc-fold-panel')
+    expect(html).toContain('is-hidden')
+  })
+
+  it('foldable open marks detail panel shown', () => {
+    const html = renderToStaticMarkup(
+      <NcRoot>
+        <IntelligenceCard
+          foldable
+          defaultOpen
+          sources={['Stripe']}
+          brief={{ headline: 'Brief', takeaway: 'Short' }}
+        >
+          <p>Full body</p>
+        </IntelligenceCard>
+      </NcRoot>,
+    )
+    expect(html).toContain('data-fold="open"')
+    expect(html).toContain('Full body')
+    expect(html).toContain('Ask about this')
+    expect(html).toContain('Brief')
+    expect(html).toContain('nc-fold-chevron')
+    expect(html).toContain('is-open')
+    expect(html).toContain('data-fold="open"')
+  })
+
   it('rolls pie slices beyond five into Other', () => {
     const { viz, hidden } = resolveCard({
       headline: 'Share',

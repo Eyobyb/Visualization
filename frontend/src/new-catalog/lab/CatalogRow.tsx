@@ -14,7 +14,9 @@ function parseRecipe(text: string): LabRecipe {
 }
 
 function treeParts(recipe: LabRecipe): string[] {
-  const parts = ['IntelligenceCard', 'Col']
+  const parts = ['IntelligenceCard']
+  if (recipe.foldable) parts.push('foldable')
+  parts.push('Col')
   if (recipe.finding?.headline) parts.push('Headline')
   if (recipe.finding?.takeaway) parts.push('Takeaway')
   if (recipe.finding?.bullets?.length) parts.push('Bullets')
@@ -36,6 +38,8 @@ export function CatalogRow({ item }: CatalogRowProps) {
   const [recipe, setRecipe] = useState<LabRecipe>(item.recipe)
   const [error, setError] = useState<string | null>(null)
   const [tab, setTab] = useState<'recipe' | 'jsx'>('recipe')
+  /** Preview mode: full = always-open card; foldable = Signal Drawer brief. */
+  const [view, setView] = useState<'full' | 'foldable'>('foldable')
 
   const apply = useCallback(() => {
     try {
@@ -50,10 +54,16 @@ export function CatalogRow({ item }: CatalogRowProps) {
     setDraft(recipeToJson(item.recipe))
     setRecipe(item.recipe)
     setError(null)
+    setView('foldable')
   }, [item.recipe])
 
-  const jsx = useMemo(() => recipeToJsx(recipe), [recipe])
-  const tree = useMemo(() => treeParts(recipe).join(' → '), [recipe])
+  const liveRecipe = useMemo(
+    (): LabRecipe => ({ ...recipe, foldable: view === 'foldable' }),
+    [recipe, view],
+  )
+
+  const jsx = useMemo(() => recipeToJsx(liveRecipe), [liveRecipe])
+  const tree = useMemo(() => treeParts(liveRecipe).join(' → '), [liveRecipe])
 
   return (
     <section id={item.id} className="scroll-mt-4 border-b border-nc-line-2 last:border-b-0">
@@ -70,8 +80,34 @@ export function CatalogRow({ item }: CatalogRowProps) {
       <div className="grid grid-cols-1 lg:grid-cols-2">
         {/* Catalog — component placement */}
         <div className="min-w-0 border-b border-nc-line-2 bg-nc-stage/70 p-4 sm:p-5 lg:border-r lg:border-b-0">
-          <p className="m-0 mb-3 font-nc-mono text-[0.625rem] tracking-wide text-nc-ink-3 uppercase">Catalog</p>
-          <div className="mx-auto w-full max-w-[28rem]">{renderRecipe(recipe)}</div>
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <p className="m-0 font-nc-mono text-[0.625rem] tracking-wide text-nc-ink-3 uppercase">Catalog</p>
+            <div className="inline-flex rounded-full bg-nc-tile p-0.5" role="group" aria-label="Card presentation">
+              <button
+                type="button"
+                aria-pressed={view === 'full'}
+                className={`h-7 rounded-full px-2.5 text-[0.6875rem] ${
+                  view === 'full' ? 'bg-nc-plain text-nc-ink shadow-sm' : 'text-nc-ink-2 hover:text-nc-ink'
+                }`}
+                onClick={() => setView('full')}
+              >
+                Full
+              </button>
+              <button
+                type="button"
+                aria-pressed={view === 'foldable'}
+                className={`h-7 rounded-full px-2.5 text-[0.6875rem] ${
+                  view === 'foldable' ? 'bg-nc-plain text-nc-ink shadow-sm' : 'text-nc-ink-2 hover:text-nc-ink'
+                }`}
+                onClick={() => setView('foldable')}
+              >
+                Foldable
+              </button>
+            </div>
+          </div>
+          <div className="mx-auto w-full max-w-[28rem]" key={view}>
+            {renderRecipe(liveRecipe, { foldable: view === 'foldable' })}
+          </div>
         </div>
 
         {/* Testing — editable how it’s made */}

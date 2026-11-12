@@ -27,7 +27,8 @@ export type { NcSpace } from '../config'
 export { compact, fmt, fmtDelta, fmtX, rem } from './format'
 export { resolveCard } from './resolve'
 export { NcRoot, type NcRootProps } from './Root'
-export { Sources, type SourcesProps } from './Sources'
+export { SourceFindingRow, SourceProfile, type SourceFinding, type SourceFindingKind, type SourceFindingRowProps, type SourceProfileData, type SourceProfileProps } from './SourceProfile'
+export { SourceMark, Sources, type SourceMarkProps, type SourcesProps } from './Sources'
 export type {
   BarItem,
   CardPayload,

@@ -11,11 +11,35 @@ import {
 } from '../index'
 import type { LabRecipe } from './types'
 
+/** Tiny spark bars — Signal Drawer glyph hint while folded. */
+function SparkGlyph({ values = [28, 31, 36, 42, 48, 55, 61] }: { values?: number[] }) {
+  const max = Math.max(...values, 1)
+  return (
+    <span className="flex h-[2.125rem] items-end justify-end gap-0.5">
+      {values.map((v, i) => (
+        <i
+          key={i}
+          className={`block w-1.5 rounded-sm ${i >= values.length - 2 ? 'bg-nc-ink' : 'bg-nc-ink/20'} ${
+            i === values.length - 1 ? 'shadow-[0_0_0_2px_var(--color-nc-lime-glow,rgba(190,242,100,0.45))]' : ''
+          }`}
+          style={{ height: `${Math.max(20, (v / max) * 100)}%` }}
+        />
+      ))}
+    </span>
+  )
+}
+
+export type RenderRecipeOptions = {
+  /** Override recipe.foldable — used by the Full / Foldable lab switch. */
+  foldable?: boolean
+}
+
 /** Turn an editable recipe into the real component tree (placement canvas). */
-export function renderRecipe(recipe: LabRecipe): ReactNode {
+export function renderRecipe(recipe: LabRecipe, options?: RenderRecipeOptions): ReactNode {
   const shell = recipe.shell ?? {}
   const finding = recipe.finding
   const mains = recipe.mains ?? []
+  const foldable = options?.foldable ?? recipe.foldable ?? false
 
   const findingNodes = finding ? (
     <>
@@ -62,12 +86,21 @@ export function renderRecipe(recipe: LabRecipe): ReactNode {
     )
   }
 
+  const brief =
+    recipe.brief ??
+    (finding
+      ? { headline: finding.headline, takeaway: finding.takeaway }
+      : undefined)
+
   return (
     <IntelligenceCard
       sources={shell.sources}
       updated={shell.updated}
       severity={shell.severity ?? 'neutral'}
       attention={shell.attention}
+      foldable={foldable}
+      brief={foldable ? brief : undefined}
+      glyph={foldable ? <SparkGlyph /> : undefined}
     >
       <Col gap={3} className="mt-3.5">
         {body}

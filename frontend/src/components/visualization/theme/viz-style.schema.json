@@ -132,6 +132,21 @@
               "type": "string",
               "minLength": 1,
               "description": "CSS box-shadow for cards and popovers."
+            },
+            "glass": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Card fill when effects.blur is above 0; usually translucent, such as rgb(255 255 255 / .5)."
+            },
+            "glassEdge": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Rim around frosted cards."
+            },
+            "backdrop": {
+              "type": "string",
+              "minLength": 1,
+              "description": "CSS background behind frosted cards: a color or gradients. Hosts paint it behind the visualization."
             }
           }
         },
@@ -233,6 +248,21 @@
               "type": "string",
               "minLength": 1,
               "description": "CSS box-shadow for cards and popovers."
+            },
+            "glass": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Card fill when effects.blur is above 0; usually translucent, such as rgb(255 255 255 / .5)."
+            },
+            "glassEdge": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Rim around frosted cards."
+            },
+            "backdrop": {
+              "type": "string",
+              "minLength": 1,
+              "description": "CSS background behind frosted cards: a color or gradients. Hosts paint it behind the visualization."
             }
           }
         }
@@ -359,6 +389,24 @@
           "minimum": 0,
           "maximum": 999,
           "description": "Corner radius of badges and switches, in px. 999 is fully round."
+        }
+      }
+    },
+    "effects": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "blur": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 40,
+          "description": "Backdrop blur of cards, in px. Above 0 turns cards into frosted glass filled with the glass color."
+        },
+        "saturation": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 3,
+          "description": "Backdrop saturation of frosted cards. 1 leaves colors as they are."
         }
       }
     },

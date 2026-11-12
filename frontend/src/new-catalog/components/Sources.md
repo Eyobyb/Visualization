@@ -14,3 +14,14 @@ Logo tiles for the card byline (and ranked-list row sources). Shows up to three 
 | `size` | `number?` (default 24) |
 
 Known logos live in `logos.ts`; unknown names get a two-letter mono tile.
+
+## SourceMark
+
+One logo, not a stack. Used by the source profile.
+
+| Prop | Type |
+|------|------|
+| `name` | `string` |
+| `size` | `'avatar' \| 'chip'` (default `chip`) |
+
+`avatar` is the 68px header mark. `chip` is the 26px collaborator mark, with no byline overlap.

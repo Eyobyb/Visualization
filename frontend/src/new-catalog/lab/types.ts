@@ -25,6 +25,7 @@ export type LabMain = {
  * Full card recipe.
  * - Atoms: often `shell` + `finding` optional + single `mains[0]`, or finding-only.
  * - Compositions: finding + layout + up to two mains.
+ * - Foldable: Signal Drawer Simplified — brief when closed, full finding+mains when open.
  */
 export type LabRecipe = {
   shell?: LabShell
@@ -33,6 +34,10 @@ export type LabRecipe = {
   layout: PairLayout | 'none'
   divider?: string
   mains: LabMain[]
+  /** Progressive disclosure — collapsed brief, expand for finding + mains + footer. */
+  foldable?: boolean
+  /** Short copy while folded. Defaults to finding headline/takeaway when omitted. */
+  brief?: { headline: string; takeaway?: string }
 }
 
 export type LabItem = {

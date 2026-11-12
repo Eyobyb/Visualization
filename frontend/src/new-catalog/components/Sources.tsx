@@ -59,3 +59,45 @@ export function Sources({ names, size }: SourcesProps) {
     </span>
   )
 }
+
+export type SourceMarkProps = {
+  name: string
+  /** `avatar` is the 68px profile mark. `chip` is the 26px collaborator mark. */
+  size?: 'avatar' | 'chip'
+}
+
+/**
+ * One source logo, not a stacked byline.
+ * Avatar: profile header. Chip: collaborator pill, no overlap shadow.
+ *
+ * See [Sources.md](./Sources.md).
+ *
+ * @example <SourceMark name="Zendesk" size="avatar" />
+ */
+export function SourceMark({ name, size = 'chip' }: SourceMarkProps) {
+  const logo = LOGOS[name]
+  const mono = MONOS[name]
+  const color = logo?.color ?? mono?.color ?? '#55575C'
+  const label = mono?.mono ?? name.slice(0, 2).toUpperCase()
+  const avatar = size === 'avatar'
+  return (
+    <span
+      className={`grid shrink-0 place-items-center font-nc-display font-[400] text-white ${avatar ? 'rounded-[1.25rem]' : 'rounded-lg'}`}
+      style={{
+        width: rem(avatar ? 68 : 26),
+        height: rem(avatar ? 68 : 26),
+        background: color,
+        fontSize: rem(avatar ? 22 : 9.5),
+      }}
+      title={name}
+    >
+      {logo ? (
+        <svg viewBox={logo.vb} aria-hidden className={avatar ? 'size-[2.125rem]' : 'size-3.5'}>
+          <path d={logo.d} fill="currentColor" />
+        </svg>
+      ) : (
+        label
+      )}
+    </span>
+  )
+}

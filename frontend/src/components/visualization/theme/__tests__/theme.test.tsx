@@ -13,8 +13,8 @@ const packsDir = path.resolve(__dirname, '../packs')
 const raw = Object.fromEntries(fs.readdirSync(packsDir).map((f) => [f.slice(0, -5), JSON.parse(fs.readFileSync(path.join(packsDir, f), 'utf8'))]))
 
 describe('style packs', () => {
-  it('ships default plus five packs, each complete once resolved', () => {
-    expect(Object.keys(STYLE_PACKS)).toEqual(['default', 'chatgpt', 'contrast', 'editorial', 'sharp', 'soft'])
+  it('ships default plus six packs, each complete once resolved', () => {
+    expect(Object.keys(STYLE_PACKS)).toEqual(['default', 'chatgpt', 'contrast', 'editorial', 'glass', 'sharp', 'soft'])
     for (const s of Object.values(STYLE_PACKS)) expect(validateStyle(s)).toEqual([])
   })
 

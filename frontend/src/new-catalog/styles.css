@@ -2,6 +2,7 @@
 @source "./components/**/*.{ts,tsx}";
 @source "./config/**/*.{ts,tsx}";
 @source "./preview/**/*.{ts,tsx}";
+@source "./lab/**/*.{ts,tsx}";
 
 
 /*

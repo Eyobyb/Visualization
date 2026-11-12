@@ -149,6 +149,12 @@
   align-self: stretch;
 }
 
+.studio-stage .viz-turn[data-glass] {
+  background: var(--backdrop);
+  padding: 14px;
+  border-radius: 18px;
+}
+
 .studio-chat {
   padding: 10px 16px 14px;
   background: #fff;

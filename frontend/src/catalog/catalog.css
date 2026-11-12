@@ -70,11 +70,11 @@ body { margin: 0; }
 .lab-pdesc { color: var(--ink-3); font-size: calc(12px * var(--text-scale)); margin-top: calc(2px * var(--space-scale)); }
 .lab-dim { color: var(--ink-3); }
 
-.lab-comp-demo { background: var(--bg); display: flex; flex-direction: column; min-width: 0; }
+.lab-comp-demo { background: var(--backdrop); display: flex; flex-direction: column; min-width: 0; }
 .lab-ex + .lab-ex { border-top: 1px solid var(--line); }
 .lab-ex-label { font: var(--fw-medium) calc(11.5px * var(--text-scale)) var(--font-mono); color: var(--ink-3); padding: calc(10px * var(--space-scale)) calc(18px * var(--space-scale)) 0; }
 .demo-frame { padding: calc(18px * var(--space-scale)); min-width: 0; }
-.demo-frame > .viz { background: var(--bg); }
+.demo-frame > .viz { background: transparent; }
 .lab-ex-src { border-top: 1px dashed var(--line); }
 .lab-ex-src summary { cursor: pointer; padding: calc(8px * var(--space-scale)) calc(18px * var(--space-scale)); font-size: calc(12px * var(--text-scale)); color: var(--ink-3); font-weight: var(--fw-medium); }
 .lab-ex-src .lab-code-wrap { padding: 0 calc(12px * var(--space-scale)) calc(12px * var(--space-scale)); }

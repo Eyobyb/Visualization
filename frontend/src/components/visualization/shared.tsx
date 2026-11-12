@@ -34,7 +34,7 @@ export function VizRoot({ children, theme = 'light', stylePack, className }: {
   return (
     <StyleContext.Provider value={style}>
       {faces && <style href={'viz-fonts-' + hash(faces)} precedence="default">{faces}</style>}
-      <div className={cx('viz', className)} data-theme={theme} data-style={style.name} data-skeleton={style.placeholders.skeleton} style={vars}>{children}</div>
+      <div className={cx('viz', className)} data-theme={theme} data-style={style.name} data-skeleton={style.placeholders.skeleton} data-glass={style.effects.blur > 0 || undefined} style={vars}>{children}</div>
     </StyleContext.Provider>
   )
 }

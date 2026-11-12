@@ -29,6 +29,20 @@ export interface Palette {
   series: string[]
   /** A CSS box-shadow for cards and popovers. */
   shadow: string
+  /** Card fill when `effects.blur` is above 0; usually a translucent surface so the backdrop shows through. */
+  glass: string
+  /** Rim around frosted cards. */
+  glassEdge: string
+  /** CSS background (a color or gradients) painted behind frosted cards. */
+  backdrop: string
+}
+
+/** Frosted-glass cards. A blur of 0 leaves cards solid. */
+export interface Effects {
+  /** Backdrop blur of cards, in px. */
+  blur: number
+  /** Backdrop saturation of cards; 1 leaves colors as they are. */
+  saturation: number
 }
 
 export interface Fonts {
@@ -175,6 +189,7 @@ export interface VizStyle {
   fonts: Fonts
   radius: Radius
   spacing: Spacing
+  effects: Effects
   placeholders: Placeholders
   labels: Labels
 }
@@ -218,6 +233,9 @@ const PALETTE: Shape = {
   info: color('Informational callouts.'),
   series: { t: 'colors', desc: 'Six chart series colors, in order.', length: 6 },
   shadow: str('CSS box-shadow for cards and popovers.'),
+  glass: color('Card fill when effects.blur is above 0; usually translucent, such as rgb(255 255 255 / .5).'),
+  glassEdge: color('Rim around frosted cards.'),
+  backdrop: str('CSS background behind frosted cards: a color or gradients. Hosts paint it behind the visualization.'),
 }
 
 export const STYLE_SHAPE: Shape = {
@@ -244,6 +262,10 @@ export const STYLE_SHAPE: Shape = {
     md: num('Corner radius of cards, boxes and tables, in px.', 0, 40),
     lg: num('Corner radius of large cards and panels, in px.', 0, 48),
     pill: num('Corner radius of badges and switches, in px. 999 is fully round.', 0, 999),
+  },
+  effects: {
+    blur: num('Backdrop blur of cards, in px. Above 0 turns cards into frosted glass filled with the glass color.', 0, 40),
+    saturation: num('Backdrop saturation of frosted cards. 1 leaves colors as they are.', 0.5, 3),
   },
   placeholders: {
     skeleton: { t: 'enum', desc: 'Loading placeholder motion.', values: ['shimmer', 'pulse', 'static'] },
@@ -390,7 +412,8 @@ export function styleVars(s: VizStyle, mode: Mode): Record<string, string> {
     '--ink': c.ink, '--ink-2': c.ink2, '--ink-3': c.ink3,
     '--accent': c.accent, '--accent-ink': c.accentInk, '--accent-soft': c.accentSoft,
     '--good': c.good, '--bad': c.bad, '--warn': c.warn, '--info': c.info,
-    '--shadow': c.shadow,
+    '--shadow': c.shadow, '--glass': c.glass, '--glass-edge': c.glassEdge, '--backdrop': c.backdrop,
+    '--blur': px(s.effects.blur), '--saturation': String(s.effects.saturation),
     '--font-ui': s.fonts.ui, '--font-heading': s.fonts.heading, '--font-mono': s.fonts.mono, '--font-display': s.fonts.display,
     '--text-scale': String(s.fonts.scale), '--leading': String(s.fonts.lineHeight),
     '--fw-medium': String(s.fonts.weightMedium), '--fw-strong': String(s.fonts.weightStrong),

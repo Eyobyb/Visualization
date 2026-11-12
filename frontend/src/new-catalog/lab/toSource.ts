@@ -12,11 +12,14 @@ export function recipeToJsx(recipe: LabRecipe): string {
   const mains = recipe.mains ?? []
   const lines: string[] = []
 
+  const brief = recipe.brief ?? (f ? { headline: f.headline, takeaway: f.takeaway } : undefined)
   const shellProps = [
     shell.sources ? `sources={${JSON.stringify(shell.sources)}}` : null,
     shell.updated ? `updated=${JSON.stringify(shell.updated)}` : null,
     shell.severity ? `severity=${JSON.stringify(shell.severity)}` : null,
     shell.attention ? 'attention' : null,
+    recipe.foldable ? 'foldable' : null,
+    recipe.foldable && brief ? `brief={${JSON.stringify(brief)}}` : null,
   ].filter(Boolean)
 
   lines.push(`<IntelligenceCard ${shellProps.join(' ')}>`)

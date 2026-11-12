@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react'
 import { APPEARANCE_PRESETS, NcRoot, type NcTheme } from '../index'
 import { LAB_GROUPS, LAB_ITEMS } from './catalog'
 import { CatalogRow } from './CatalogRow'
+import { ProfileRow } from './ProfileRow'
+import { PROFILE_ENTRIES } from './profileSample'
 import type { LabItem } from './types'
 
 /**
@@ -10,7 +12,8 @@ import type { LabItem } from './types'
  */
 export function Lab() {
   const [theme, setTheme] = useState<NcTheme>('light')
-  const [filter, setFilter] = useState<LabItem['group'] | 'all'>('all')
+  const [filter, setFilter] = useState<LabItem['group'] | 'all' | 'profile'>('all')
+  const showProfile = filter === 'all' || filter === 'profile'
 
   const groups = useMemo(() => {
     return LAB_GROUPS.map((g) => ({
@@ -30,6 +33,7 @@ export function Lab() {
             </h1>
             <p className="mt-2 mb-0 max-w-[52ch] text-[0.875rem] text-nc-ink-2">
               Each row is one component or composition: live card on the left, editable recipe on the right.
+              Use Full / Foldable on any row — hover expands a folded card.
             </p>
             <p className="mt-2 mb-0">
               <a href="/new-catalog.html" className="text-[0.75rem] text-nc-ink-2 underline-offset-2 hover:text-nc-ink hover:underline">
@@ -54,7 +58,7 @@ export function Lab() {
               ))}
             </div>
             <div className="flex flex-wrap justify-end gap-1" role="group" aria-label="Filter">
-              {([{ id: 'all' as const, title: 'All' }, ...LAB_GROUPS]).map((g) => (
+              {([{ id: 'all' as const, title: 'All' }, { id: 'profile' as const, title: 'Profile' }, ...LAB_GROUPS]).map((g) => (
                 <button
                   key={g.id}
                   type="button"
@@ -72,6 +76,17 @@ export function Lab() {
         </header>
 
         <nav className="mb-6 flex flex-wrap gap-x-3 gap-y-1 border-b border-nc-line-2 pb-3">
+          {showProfile
+            ? PROFILE_ENTRIES.map((entry) => (
+                <a
+                  key={entry.id}
+                  href={`#${entry.id}`}
+                  className="font-nc-mono text-[0.6875rem] text-nc-ink-3 no-underline hover:text-nc-ink"
+                >
+                  {entry.label}
+                </a>
+              ))
+            : null}
           {groups.flatMap((g) =>
             g.items.map((item) => (
               <a
@@ -84,6 +99,17 @@ export function Lab() {
             )),
           )}
         </nav>
+
+        {showProfile ? (
+          <div className="mb-8">
+            <h2 className="m-0 mb-3 font-nc-display text-lg font-normal tracking-[-0.02em] text-nc-ink">Profile</h2>
+            <div className="overflow-hidden rounded-[var(--nc-card-radius)] ring-1 ring-nc-line-2">
+              {PROFILE_ENTRIES.map((entry) => (
+                <ProfileRow key={entry.id} entry={entry} />
+              ))}
+            </div>
+          </div>
+        ) : null}
 
         {groups.map((g) => (
           <div key={g.id} className="mb-8">

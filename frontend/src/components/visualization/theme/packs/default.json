@@ -30,7 +30,10 @@
         "#7C923D",
         "#7860AE"
       ],
-      "shadow": "0 1px 2px rgb(20 30 25 / .06), 0 6px 18px rgb(20 30 25 / .08)"
+      "shadow": "0 1px 2px rgb(20 30 25 / .06), 0 6px 18px rgb(20 30 25 / .08)",
+      "glass": "var(--surface)",
+      "glassEdge": "var(--line)",
+      "backdrop": "var(--bg)"
     },
     "dark": {
       "bg": "#101513",
@@ -57,7 +60,10 @@
         "#A9C163",
         "#A890E2"
       ],
-      "shadow": "0 1px 2px rgb(0 0 0 / .4), 0 8px 22px rgb(0 0 0 / .45)"
+      "shadow": "0 1px 2px rgb(0 0 0 / .4), 0 8px 22px rgb(0 0 0 / .45)",
+      "glass": "var(--surface)",
+      "glassEdge": "var(--line)",
+      "backdrop": "var(--bg)"
     }
   },
   "fonts": {
@@ -79,6 +85,10 @@
   },
   "spacing": {
     "scale": 1
+  },
+  "effects": {
+    "blur": 0,
+    "saturation": 1
   },
   "placeholders": {
     "skeleton": "shimmer",

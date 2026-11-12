@@ -189,6 +189,7 @@ function Donut({ cats, ser, format, w, hi, setHi }: PlotProps) {
   const L = useLabels()
   const vals = ser[0].values.map((v) => Math.max(0, v))
   const total = vals.reduce((a, b) => a + b, 0) || 1
+  const focus = hi ?? (format === 'percent' ? vals.indexOf(Math.max(...vals)) : null)
   const size = Math.round(Math.min(176, Math.max(120, w * 0.42))), R = size / 2, r0 = R * 0.6
   const start = -Math.PI / 2
   const arcs = vals.map((_, i) => {
@@ -202,8 +203,8 @@ function Donut({ cats, ser, format, w, hi, setHi }: PlotProps) {
         {arcs.map(({ i, a0, a1 }) => (
           <path key={i} d={arcPath(R, R, r0, R - 1, a0, a1)} style={{ fill: color(i) }} className={hi != null && hi !== i ? 'mark is-dim' : 'mark'} onMouseEnter={() => setHi(i)} />
         ))}
-        <text x={R} y={R - 3} textAnchor="middle" className="donut-val">{fmt(hi != null ? vals[hi] : total, format)}</text>
-        <text x={R} y={R + 15} textAnchor="middle" className="ax-label">{hi != null ? cats[hi] : 'Total'}</text>
+        <text x={R} y={R - 3} textAnchor="middle" className="donut-val">{fmt(focus != null ? vals[focus] : total, format)}</text>
+        <text x={R} y={R + 15} textAnchor="middle" className="ax-label">{focus != null ? cats[focus] : L.chartTotal}</text>
       </svg>
       <ul className="ui-donut-legend">
         {cats.map((c, i) => (

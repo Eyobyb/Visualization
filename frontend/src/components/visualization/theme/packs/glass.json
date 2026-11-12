@@ -1,0 +1,78 @@
+{
+  "$schema": "../viz-style.schema.json",
+  "name": "glass",
+  "label": "Glass",
+  "description": "Glassmorphism: frosted translucent cards with a bright rim, floating over a soft violet, cyan and pink color wash.",
+  "colors": {
+    "light": {
+      "bg": "#EEF0FB",
+      "panel": "rgb(255 255 255 / .5)",
+      "surface": "#FFFFFF",
+      "sunk": "rgb(40 44 100 / .07)",
+      "line": "rgb(40 44 100 / .11)",
+      "lineStrong": "rgb(40 44 100 / .2)",
+      "ink": "#1A1C35",
+      "ink2": "#484C6E",
+      "ink3": "#6E7296",
+      "accent": "#5A4FE0",
+      "accentInk": "#FFFFFF",
+      "accentSoft": "rgb(90 79 224 / .14)",
+      "good": "#16845A",
+      "bad": "#CF3D55",
+      "warn": "#B26B0E",
+      "info": "#2F6BDB",
+      "series": [
+        "#5A4FE0",
+        "#EE6A99",
+        "#1FA9B8",
+        "#F29E2E",
+        "#9265EA",
+        "#3B93F0"
+      ],
+      "shadow": "0 1px 1px rgb(40 44 100 / .04), 0 10px 34px rgb(40 44 100 / .12)",
+      "glass": "rgb(255 255 255 / .5)",
+      "glassEdge": "rgb(255 255 255 / .75)",
+      "backdrop": "radial-gradient(42% 52% at 10% 12%, rgb(166 146 255 / .55), transparent 70%), radial-gradient(40% 48% at 92% 8%, rgb(120 214 255 / .55), transparent 70%), radial-gradient(46% 52% at 82% 92%, rgb(255 160 200 / .5), transparent 70%), radial-gradient(40% 46% at 14% 94%, rgb(150 236 200 / .45), transparent 70%), #EEF0FB"
+    },
+    "dark": {
+      "bg": "#0B0D1C",
+      "panel": "rgb(255 255 255 / .05)",
+      "surface": "#171A30",
+      "sunk": "rgb(255 255 255 / .06)",
+      "line": "rgb(255 255 255 / .1)",
+      "lineStrong": "rgb(255 255 255 / .18)",
+      "ink": "#EEF0FF",
+      "ink2": "#B6BAD9",
+      "ink3": "#878BB0",
+      "accent": "#A29BFF",
+      "accentInk": "#0D0B24",
+      "accentSoft": "rgb(162 155 255 / .18)",
+      "good": "#5ED6A2",
+      "bad": "#FF8FA2",
+      "warn": "#F7C266",
+      "info": "#8DB4FF",
+      "series": [
+        "#A29BFF",
+        "#FF8FB8",
+        "#5AD8E2",
+        "#FFC067",
+        "#C29BFF",
+        "#7DB7FF"
+      ],
+      "shadow": "0 1px 1px rgb(0 0 0 / .25), 0 12px 38px rgb(0 0 0 / .45)",
+      "glass": "rgb(255 255 255 / .07)",
+      "glassEdge": "rgb(255 255 255 / .14)",
+      "backdrop": "radial-gradient(42% 52% at 10% 12%, rgb(104 70 230 / .55), transparent 70%), radial-gradient(40% 48% at 92% 8%, rgb(20 140 190 / .5), transparent 70%), radial-gradient(46% 52% at 82% 92%, rgb(190 50 130 / .45), transparent 70%), radial-gradient(40% 46% at 14% 94%, rgb(30 150 110 / .4), transparent 70%), #0B0D1C"
+    }
+  },
+  "radius": {
+    "scale": 1.3,
+    "md": 14,
+    "lg": 20,
+    "pill": 999
+  },
+  "effects": {
+    "blur": 18,
+    "saturation": 1.6
+  }
+}

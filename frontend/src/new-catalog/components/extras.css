@@ -44,8 +44,49 @@
   to { background-position: 140% 0; }
 }
 
+/* Foldable card — paired height panels + opacity (Signal Drawer Simplified) */
+.nc .nc-fold-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 0.4s cubic-bezier(0.2, 0.9, 0.25, 1),
+    opacity 0.28s ease;
+  pointer-events: none;
+}
+
+.nc .nc-fold-panel.is-shown {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.nc .nc-fold-panel.is-hidden {
+  grid-template-rows: 0fr;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.nc .nc-fold-panel-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.nc .nc-fold-chevron {
+  transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.25, 1), color 0.2s ease, background 0.2s ease;
+}
+
+.nc .nc-fold-chevron.is-open {
+  transform: rotate(180deg);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .nc .nc-card.updating::before {
     animation: none;
+  }
+
+  .nc .nc-fold-panel,
+  .nc .nc-fold-chevron {
+    transition: none;
   }
 }
